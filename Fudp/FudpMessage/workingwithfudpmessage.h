@@ -26,15 +26,6 @@ using namespace IsoTp;
 
 namespace FudpMessage
 {
-struct DeviceTickets
-{
-    qint8 systemId;
-    qint16 blockId;
-    qint8 blockModification;
-
-    bool operator == (const DeviceTickets &ticket);
-};
-
 class WorkingWithFudpMessage : public QObject
 {
     Q_OBJECT

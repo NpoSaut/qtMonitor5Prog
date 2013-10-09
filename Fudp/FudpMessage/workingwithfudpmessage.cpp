@@ -16,8 +16,8 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     {
         ProgInit init;
         init.decode(data);
-        DeviceTickets tickets = {init.getIdSystem(), init.getIdBlock(), init.getModificationOfBlock()};
-        emit getProgInit((tickets));
+        DeviceTickets ticket = init.getTicket();
+        emit getProgInit((ticket));
         break;
     }
     case MessageId(progListRq):
@@ -118,10 +118,5 @@ void WorkingWithFudpMessage::sendParamSetAck(qint8 errorCode)
 {
     ParamSetAck setParam(errorCode);
     emit transmitData(setParam.encode());
-}
-
-bool DeviceTickets::operator ==(const DeviceTickets &ticket)
-{
-    return this->systemId == ticket.systemId && this->blockId == ticket.blockId && this->blockModification == ticket.blockModification;
 }
 }

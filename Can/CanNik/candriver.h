@@ -20,8 +20,8 @@ namespace CanInternals
   {
     DWORD id;
     DWORD period;
-    int counter;                //значение не важно
-    byte control;               //должен быть больше 0
+    int counter;
+    byte control;
     byte dataLength;
     byte data[8];
   };

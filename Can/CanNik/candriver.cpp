@@ -34,10 +34,14 @@ namespace CanInternals
     int count = getNumberOfMessageInQueue();
     if(count != 0)
       {
-        WaitForSingleObject(receiveMutex, INFINITE);
-        deviceIo(ioctlCanRead, (LPVOID*) &count, 4, (LPVOID*) &buff, sizeof(buff));
-        ReleaseMutex(receiveMutex);
-        readLog(buff);
+        for(int i = 0; i<count; i++)
+        {
+            int j = 1;
+            WaitForSingleObject(receiveMutex, INFINITE);
+            deviceIo(ioctlCanRead, (LPVOID*) &j, 4, (LPVOID*) &buff, sizeof(buff));
+            ReleaseMutex(receiveMutex);
+            readLog(buff);
+        }
         return true;
       }
     return false;

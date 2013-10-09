@@ -49,7 +49,7 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
 void TpReceiveTransaction::readyFlowControl()
 {
     consIndex = 0;
-    FlowControlFrame fcFrame(FlowControlFlag(ClearToSend), blockSize, 1);
+    FlowControlFrame fcFrame(FlowControlFlag(ClearToSend), blockSize, 0);
     timer.start(3000);
     emit sendFlowControl(fcFrame);
 }

@@ -5,23 +5,37 @@
 
 namespace FudpMessage
 {
+
+struct DeviceTickets
+{
+    qint32 blockId;
+    qint32 blockSerialNumber;
+    qint32 module;
+    qint32 channel;
+    qint32 modification;
+
+    bool operator == (const DeviceTickets &ticket);
+};
+
 class ProgInit : public Message
 {
 public:
     ProgInit();
-    ProgInit(qint8 idSystem, qint16 idBlock, qint8 modificationOfBlock);
+    ProgInit(DeviceTickets ticket);
 
     std::vector<byte> encode();
     void decode(const std::vector<byte> &data);
 
-    qint8 getIdSystem();
-    qint16 getIdBlock();
-    qint8 getModificationOfBlock();
+    DeviceTickets getTicket();
+//    qint8 getIdSystem();
+//    qint16 getIdBlock();
+//    qint8 getModificationOfBlock();
 
 private:
-    qint8 idSystem;
-    qint16 idBlock;
-    qint8 modificationOfBlock;
+    DeviceTickets ticket;
+//    qint8 idSystem;
+//    qint16 idBlock;
+//    qint8 modificationOfBlock;
 
 };
 }
