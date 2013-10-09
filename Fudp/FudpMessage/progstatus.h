@@ -4,6 +4,8 @@
 #include "QHash"
 #include "message.h"
 
+namespace FudpMessage
+{
 class ProgStatus : Message
 {
 public:
@@ -18,5 +20,6 @@ public:
 private:
     QHash<qint8,qint32> properties;
 };
+}
 
 #endif // PROGSTATUS_H

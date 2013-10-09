@@ -6,7 +6,7 @@ namespace CanInternals
   CanDriver canDrv;
 
   void transmit(CanFrame frame)
-  {
+  {      
     TransmitData td;
     td.control = 1;
     td.counter = 1;
@@ -18,17 +18,18 @@ namespace CanInternals
     canDrv.transmitMessage(td);
   }
 
-  std::vector<CanFrame> receive()
+  bool receive(CanFrame &receivedMessage)
   {
-    auto receivedMessages = canDrv.receiveMessage();
-    std::vector<CanFrame> outFrames ( receivedMessages.size() );
-    for (int i = 0; i < outFrames.size(); i ++)
-    {
-        outFrames[i].setId (receivedMessages[i].id >> 18);
-        std::vector<byte> v (receivedMessages[i].data, receivedMessages[i].data + receivedMessages[i].datalen);
-        outFrames[i].setData (v);
-    }
-    return outFrames;
+    StructForDrv buff;
+    bool isMessage = canDrv.receiveMessage(buff);
+    if(isMessage)
+      {
+        receivedMessage.setId(buff.id >> 18);
+        std::vector<byte> v(buff.data, buff.data + buff.datalen);
+        receivedMessage.setData(v);
+      }
+    return isMessage;
+
   }
 
   ReceiveMessageThread receiveMessagetLoop ("can0");
@@ -42,10 +43,10 @@ namespace CanInternals
   {
     while(true)
       {
-        auto receivedMessages = receive();
-        for (int i = 0; i < receivedMessages.size(); i ++)
+        CanFrame receivedMessage;
+        if (receive(receivedMessage))
           {
-            emit messageReceived(receivedMessages[i]);
+            emit messageReceived(receivedMessage);
           }
       }
   }

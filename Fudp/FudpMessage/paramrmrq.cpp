@@ -1,5 +1,7 @@
 #include "paramrmrq.h"
 
+namespace FudpMessage
+{
 ParamRmRq::ParamRmRq()
 {
 }
@@ -26,4 +28,5 @@ void ParamRmRq::decode(const std::vector<byte> &data)
 qint8 ParamRmRq::getKey()
 {
     return key;
+}
 }

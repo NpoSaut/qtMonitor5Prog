@@ -1,5 +1,7 @@
 #include "progstatus.h"
 
+namespace FudpMessage
+{
 ProgStatus::ProgStatus()
 {
 }
@@ -14,20 +16,13 @@ std::vector<byte> ProgStatus::encode()
     QByteArray arr;
     QDataStream in(&arr, QIODevice::WriteOnly);
     in.setByteOrder(QDataStream::LittleEndian);
-    //std::vector<byte> buffer;
-    //buffer.insert(buffer.end(), MessageId(progStatus));
     in << (byte)MessageId(progStatus);
 
+    qDebug() << properties.keys().size();
     foreach (qint8 i, properties.keys())
     {
         in << i << properties.value(i);
-//        buffer.insert(buffer.end(), i);
-//        buffer.insert(buffer.end(), (properties.value(i) & 0xff));
-//        buffer.insert(buffer.end(), ((properties.value(i) >> 8) & 0xff));
-//        buffer.insert(buffer.end(), ((properties.value(i) >> 16) & 0xff));
-//        buffer.insert(buffer.end(), ((properties.value(i) >> 24) & 0xff));
     }
-
     return Message::fromQByteArrayToVector(arr);
 }
 
@@ -45,4 +40,10 @@ void ProgStatus::decode(const std::vector<byte> &data)
         out >> value;
         properties[key] = value;
     }
+}
+
+QHash<qint8, qint32> ProgStatus::getProperties()
+{
+    return properties;
+}
 }

@@ -24,12 +24,23 @@
 
 using namespace IsoTp;
 
+namespace FudpMessage
+{
+struct DeviceTickets
+{
+    qint8 systemId;
+    qint16 blockId;
+    qint8 blockModification;
+
+    bool operator == (const DeviceTickets &ticket);
+};
+
 class WorkingWithFudpMessage : public QObject
 {
     Q_OBJECT
 public:
     explicit WorkingWithFudpMessage(QObject *parent = 0);
-    
+
 private:
     IsoTpCommunicator communicator;
 
@@ -37,13 +48,13 @@ private:
 signals:
     void transmitData(std::vector<byte> data);
 
-    void getProgInit(qint8 systemId, qint16 blockId, qint8 modificationBLock);
+    void getProgInit(DeviceTickets tickets);
     void getProgListRq();
-    void getProgReadRq(const QString &fileName, qint32 offset, qint32 readSize);
-    void getProgRm(const QString &fileName);
+    void getProgReadRq(QString fileName, qint32 offset, qint32 readSize);
+    void getProgRm(QString fileName);
     void getProgMrPropper(qint32 securityKey);
-    void getProgCreate(const QString &fileName, qint32 fileSize);
-    void getProgWrite(const QString &fileName, qint32 offset, const QByteArray &data);
+    void getProgCreate(QString fileName, qint32 fileSize);
+    void getProgWrite(QString fileName, qint32 offset, QByteArray data);
     void getParamSetRq(qint8 key, qint32 value);
     void getParamRmRq(qint8 key);
 
@@ -59,5 +70,6 @@ public slots:
     void sendParamSetAck(qint8 errorCode);
     void sendParamRmAck(qint8 errorCode);
 };
+}
 
 #endif // WORKINGWITHFUDPMESSAGE_H

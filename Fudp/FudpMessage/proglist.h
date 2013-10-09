@@ -6,6 +6,8 @@
 #include "QList"
 #include "../devfileinfo.h"
 
+namespace FudpMessage
+{
 class ProgList : public Message
 {
 public:
@@ -19,5 +21,6 @@ private:
 
 
 };
+}
 
 #endif // PROGLIST_H

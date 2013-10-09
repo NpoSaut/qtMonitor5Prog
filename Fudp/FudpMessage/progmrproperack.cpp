@@ -1,5 +1,7 @@
 #include "progmrproperack.h"
 
+namespace FudpMessage
+{
 ProgMrProperAck::ProgMrProperAck()
 {
 }
@@ -14,4 +16,5 @@ std::vector<byte> ProgMrProperAck::encode()
 void ProgMrProperAck::decode(const std::vector<byte> &data)
 {
 
+}
 }

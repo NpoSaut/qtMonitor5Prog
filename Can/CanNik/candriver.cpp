@@ -28,18 +28,20 @@ namespace CanInternals
     return count;
   }
 
-  std::vector<StructForDrv> CanDriver::receiveMessage()
+  bool CanDriver::receiveMessage(StructForDrv &buff)
   {
-    std::vector<StructForDrv> outBuf;
-    outBuf.resize( getNumberOfMessageInQueue() );
-    if(outBuf.size() != 0)
-    {
+
+    int count = getNumberOfMessageInQueue();
+    if(count != 0)
+      {
         WaitForSingleObject(receiveMutex, INFINITE);
-        quint32 count = outBuf.size();
-        deviceIo(ioctlCanRead, (LPVOID*) &count, 4, (LPVOID*) outBuf.data(), count*13);
+        deviceIo(ioctlCanRead, (LPVOID*) &count, 4, (LPVOID*) &buff, sizeof(buff));
         ReleaseMutex(receiveMutex);
-    }
-    return outBuf;
+        readLog(buff);
+        return true;
+      }
+    return false;
+
   }
 
   int CanDriver::transmitMessage(TransmitData &td)

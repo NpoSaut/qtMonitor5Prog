@@ -62,7 +62,7 @@ HEADERS += \
     IsoTp/IsoTpFrame/firstframe.h \
     IsoTp/IsoTpFrame/consecutiveframe.h \
     IsoTp/IsoTpFrame/flowcontrolframe.h \
-    IsoTp/tpreceivetransaction.h \
+    IsoTp/IsoTpFrame/tpreceivetransaction.h \
     IsoTp/tpreceivetransaction.h \
     IsoTp/IsoTpFrame/isotpframe.h \
     IsoTp/IsoTpFrame/workingwithframes.h \
@@ -90,6 +90,3 @@ HEADERS += \
     Fudp/FudpMessage/paramrmack.h \
     Fudp/FudpMessage/workingwithfudpmessage.h \
     IsoTp/isotpcommunicator.h
-
-QMAKE_CXXFLAGS += -std=c++0x
-

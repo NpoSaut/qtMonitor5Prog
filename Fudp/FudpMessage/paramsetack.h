@@ -3,6 +3,8 @@
 
 #include "message.h"
 
+namespace FudpMessage
+{
 class ParamSetAck : public Message
 {
 public:
@@ -21,5 +23,6 @@ public:
 private:
     qint8 errorCode;
 };
+}
 
 #endif // PARAMSETACK_H

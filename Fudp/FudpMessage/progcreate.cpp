@@ -1,5 +1,7 @@
 #include "progcreate.h"
 
+namespace FudpMessage
+{
 ProgCreate::ProgCreate()
 {
 }
@@ -45,4 +47,5 @@ QString ProgCreate::getFileName()
 qint32 ProgCreate::getFileSize()
 {
     return fileSize;
+}
 }

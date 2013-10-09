@@ -5,7 +5,8 @@
 #include "message.h"
 #include "../devfileinfo.h"
 
-
+namespace FudpMessage
+{
 class ProgRead  : public Message
 {
 public:
@@ -27,5 +28,6 @@ private:
     QByteArray data;
     qint8 errorCode;
 };
+}
 
 #endif // PROGREAD_H

@@ -1,8 +1,9 @@
 #ifndef DEVFILEINFO_H
 #define DEVFILEINFO_H
 
-#include <QString>
+#include "QString"
 #include "QTextCodec"
+
 
 class DevFileInfo
 {
@@ -17,11 +18,13 @@ public:
     qint8 getFileNameSize();
 
 private:
-    ushort calcControlSumm();
+    unsigned short crc_ccitt_update(unsigned short crc, unsigned char data);
+
+    qint32 calcControlSumm();
     QString fileName;
     QByteArray fileData;
     qint32 fileSize;
-    qint8 controlSum;
+    qint32 controlSum;
 };
 
 #endif // DEVFILEINFO_H

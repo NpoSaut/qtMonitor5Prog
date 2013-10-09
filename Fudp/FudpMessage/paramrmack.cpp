@@ -1,5 +1,6 @@
 #include "paramrmack.h"
-
+namespace FudpMessage
+{
 ParamRmAck::ParamRmAck()
 {
 }
@@ -21,4 +22,5 @@ std::vector<byte> ParamRmAck::encode()
 void ParamRmAck::decode(const std::vector<byte> &data)
 {
     errorCode = data.at(1);
+}
 }

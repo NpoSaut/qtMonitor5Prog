@@ -17,12 +17,12 @@ TpReceiveTransaction::TpReceiveTransaction(/*int transmitDescriptor, int acknowl
     timer.start(3000);
 }
 
-void TpReceiveTransaction::getSingleFrame(const SingleFrame &frame)
+void TpReceiveTransaction::getSingleFrame(SingleFrame frame)
 {
     emit transactionReaceived(frame.getData());
 }
 
-void TpReceiveTransaction::getFirstFrame(const FirstFrame &frame)
+void TpReceiveTransaction::getFirstFrame(FirstFrame frame)
 {
     buffLength = frame.getPacketSize();
     std::vector<byte> v = frame.getData();
@@ -32,7 +32,7 @@ void TpReceiveTransaction::getFirstFrame(const FirstFrame &frame)
     readyFlowControl();
 }
 
-void TpReceiveTransaction::getConsecutiveFrame(const ConsecutiveFrame &frame)
+void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
 {
     timer.stop();
     std::vector<byte> v = frame.getData();

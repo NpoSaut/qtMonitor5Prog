@@ -4,9 +4,11 @@
 #include <vector>
 #include "QByteArray"
 #include "QDataStream"
+#include "QDebug"
 
 typedef unsigned char byte;
-
+namespace FudpMessage
+{
 enum MessageId
 {
     progInit = 0x01,
@@ -38,5 +40,6 @@ protected:
     virtual std::vector<byte> encode() =0;
     virtual void decode(const std::vector<byte> &data) =0;
 };
+}
 
 #endif // MESSAGE_H

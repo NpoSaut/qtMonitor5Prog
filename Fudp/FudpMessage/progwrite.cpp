@@ -1,5 +1,7 @@
 #include "progwrite.h"
 
+namespace FudpMessage
+{
 ProgWrite::ProgWrite()
 {
 }
@@ -66,4 +68,5 @@ qint32 ProgWrite::getOffset()
 QByteArray ProgWrite::getData()
 {
     return fileData;
+}
 }

@@ -9,16 +9,12 @@
 
 namespace CanInternals
 {
-    union StructForDrv
-    {
-      struct
-      {
-        DWORD id;
-        byte datalen;
-        byte data[8];
-      };
-      byte rawData[13];
-    };
+  struct StructForDrv
+  {
+    DWORD id;
+    byte datalen;
+    byte data[8];
+  };
 
   struct TransmitData
   {
@@ -36,7 +32,7 @@ namespace CanInternals
   public:
     explicit CanDriver(QObject *parent = 0);
     ~CanDriver();
-    std::vector<StructForDrv> receiveMessage();
+    bool receiveMessage(StructForDrv &buff);
     int transmitMessage(TransmitData &td);
 
     bool canEnable;
