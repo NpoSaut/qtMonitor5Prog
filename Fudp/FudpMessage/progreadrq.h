@@ -4,6 +4,8 @@
 #include "message.h"
 #include "../devfileinfo.h"
 
+namespace FudpMessage
+{
 class ProgReadRq : public Message
 {
 public:
@@ -24,5 +26,6 @@ private:
     qint32 offset;
     qint32 readSize;
 };
+}
 
 #endif // PROGREADRQ_H

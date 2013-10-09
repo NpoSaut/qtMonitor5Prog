@@ -1,5 +1,7 @@
 #include "progreadrq.h"
 
+namespace FudpMessage
+{
 ProgReadRq::ProgReadRq()
 {
 }
@@ -58,4 +60,5 @@ qint32 ProgReadRq::getOffset()
 qint32 ProgReadRq::getReadSize()
 {
     return readSize;
+}
 }

@@ -3,6 +3,8 @@
 
 #include "message.h"
 
+namespace FudpMessage
+{
 class ProgInit : public Message
 {
 public:
@@ -22,5 +24,6 @@ private:
     qint8 modificationOfBlock;
 
 };
+}
 
 #endif // PROGINIT_H

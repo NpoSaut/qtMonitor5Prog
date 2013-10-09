@@ -4,6 +4,8 @@
 #include "message.h"
 #include "QHash"
 
+namespace FudpMessage
+{
 class ProgCreateAck : public Message
 {
 public:
@@ -26,5 +28,6 @@ private:
     QHash<qint8, QString> createErrors;
 
 };
+}
 
 #endif // PROGCREATEACK_H

@@ -19,10 +19,10 @@ private:
     TpSendTransaction sender;
 
 signals:
-    void bufferReceived(const std::vector<byte> &buffer);
+    void bufferReceived(std::vector<byte> buffer);
 
 public slots:
-    void transactionReceived(const std::vector<byte> &buffer);
+    void transactionReceived(std::vector<byte> buffer);
 };
 }
 #endif // ISOTPCOMMUNICATOR_H

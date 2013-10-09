@@ -3,6 +3,8 @@
 
 #include "message.h"
 
+namespace FudpMessage
+{
 class ProgMrProper : public Message
 {
 public:
@@ -14,5 +16,6 @@ public:
 private:
     qint32 securityKey;
 };
+}
 
 #endif // PROGMRPROPER_H

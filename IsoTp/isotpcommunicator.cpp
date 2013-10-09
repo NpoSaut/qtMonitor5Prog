@@ -18,7 +18,7 @@ void IsoTpCommunicator::send(const std::vector<byte> &buffer)
     sender.send(buffer);
 }
 
-void IsoTpCommunicator::transactionReceived(const std::vector<byte> &buffer)
+void IsoTpCommunicator::transactionReceived(std::vector<byte> buffer)
 {
     emit bufferReceived(buffer);
 }

@@ -3,6 +3,8 @@
 
 #include "message.h"
 
+namespace FudpMessage
+{
 class ProgCreate : public Message
 {
 public:
@@ -18,5 +20,6 @@ private:
     QString fileName;
     qint32 fileSize;
 };
+}
 
 #endif // PROGCREATE_H

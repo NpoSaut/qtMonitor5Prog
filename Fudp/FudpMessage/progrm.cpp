@@ -1,5 +1,7 @@
 #include "progrm.h"
 
+namespace FudpMessage
+{
 ProgRm::ProgRm()
 {
 }
@@ -34,4 +36,5 @@ void ProgRm::decode(const std::vector<byte> &data)
 QString ProgRm::getFileName()
 {
     return fileName;
+}
 }

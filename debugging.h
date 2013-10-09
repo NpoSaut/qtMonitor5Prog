@@ -7,6 +7,7 @@
 #include "Fudp/FudpMessage/message.h"
 #include "IsoTp/isotpcommunicator.h"
 
+using namespace FudpMessage;
 using namespace CanInternals;
 using namespace IsoTpFrames;
 using namespace IsoTp;
@@ -25,19 +26,6 @@ signals:
 
 public slots:
     void createFile(const std::vector<byte> &data);
-};
-
-class CanLogger : public QObject
-{
-    Q_OBJECT
-public:
-    explicit CanLogger(QObject *parent = 0);
-
-public slots:
-    void logMessage (CanFrame frame);
-
-private:
-    quint32 prev;
 };
 
 #endif // DEBUGGING_H

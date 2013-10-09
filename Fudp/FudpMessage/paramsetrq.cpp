@@ -1,5 +1,7 @@
 #include "paramsetrq.h"
 
+namespace FudpMessage
+{
 ParamSetRq::ParamSetRq()
 {
 }
@@ -39,4 +41,5 @@ qint8 ParamSetRq::getKey()
 qint32 ParamSetRq::getParamValue()
 {
     return paramValue;
+}
 }

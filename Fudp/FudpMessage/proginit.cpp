@@ -1,5 +1,7 @@
 #include "proginit.h"
 
+namespace FudpMessage
+{
 ProgInit::ProgInit()
 {
 }
@@ -39,4 +41,5 @@ qint16 ProgInit::getIdBlock()
 qint8 ProgInit::getModificationOfBlock()
 {
     return modificationOfBlock;
+}
 }

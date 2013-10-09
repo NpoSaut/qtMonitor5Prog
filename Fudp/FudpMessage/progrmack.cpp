@@ -1,5 +1,7 @@
 #include "progrmack.h"
 
+namespace FudpMessage
+{
 ProgRmAck::ProgRmAck()
 {
     rmError[1] = "File not found";
@@ -23,4 +25,5 @@ std::vector<byte> ProgRmAck::encode()
 void ProgRmAck::decode(const std::vector<byte> &data)
 {
     errorCode = data.at(1);
+}
 }

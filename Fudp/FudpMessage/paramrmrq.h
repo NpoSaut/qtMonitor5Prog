@@ -3,6 +3,8 @@
 
 #include "message.h"
 
+namespace FudpMessage
+{
 class ParamRmRq : public Message
 {
 public:
@@ -15,5 +17,6 @@ public:
 private:
     qint8 key;
 };
+}
 
 #endif // PARAMRMRQ_H
