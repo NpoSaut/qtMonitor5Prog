@@ -4,6 +4,8 @@
 #include "message.h"
 #include "../devfileinfo.h"
 
+namespace FudpMessage
+{
 class ProgRm : public Message
 {
 public:
@@ -16,5 +18,6 @@ public:
 private:
     QString fileName;
 };
+}
 
 #endif // PROGRM_H

@@ -1,11 +1,13 @@
 #include "proginit.h"
 
+namespace FudpMessage
+{
 ProgInit::ProgInit()
 {
 }
 
-ProgInit::ProgInit(qint8 idSystem, qint16 idBlock, qint8 modificationOfBlock)  :
-    idSystem(idSystem), idBlock(idBlock), modificationOfBlock(modificationOfBlock)
+ProgInit::ProgInit(DeviceTickets ticket)  :
+    ticket(ticket)
 {
 }
 
@@ -14,29 +16,39 @@ std::vector<byte> ProgInit::encode()
     QByteArray arr;
     QDataStream in(&arr, QIODevice::ReadWrite);
     in.setByteOrder(QDataStream::LittleEndian);
-    in << (byte)MessageId(progInit) << idSystem << idBlock << modificationOfBlock << (byte)0xf2 << (byte)0x5b;
+    in << (byte)MessageId(progInit)
+       << byte((ticket.blockId & 0xff0) >> 4)
+       << byte((ticket.blockId & 0x00f) << 4 | ticket.modification & 0x0f)
+       << byte(ticket.module)
+       << byte((ticket.channel & 0x0f) << 4 | (ticket.blockSerialNumber & 0xf0000) >> 16)
+       << byte((ticket.blockSerialNumber & 0x0ff00) >> 8)
+       << byte(ticket.blockSerialNumber & 0x000ff);
 
     return Message::fromQByteArrayToVector(arr);
 }
 
 void ProgInit::decode(const std::vector<byte> &data)
 {
-    this->idSystem = data[1];
-    this->idBlock = data[2] << 8 | data[3];
-    this->modificationOfBlock = data[4];
+    this->ticket.blockId = (data.at(1) << 4) | ((data.at(2) & 0xf0) >> 4);
+    this->ticket.modification = data.at(2) & 0x0f;
+    this->ticket.module = data.at(3);
+    this->ticket.channel = (data.at(4) & 0xf0) >> 4;
+    qDebug() << (data.at(4) & 0x0f);
+    qDebug() << (data.at(5) << 8);
+    qDebug() << data.at(6);
+    qDebug() << (((data.at(4) & 0x0f) << 16) | (data.at(5) << 8) | data.at(6));
+    this->ticket.blockSerialNumber = (((data.at(4) & 0x0f) << 16) | (data.at(5) << 8) | data.at(6));
 }
 
-qint8 ProgInit::getIdSystem()
+DeviceTickets ProgInit::getTicket()
 {
-    return idSystem;
+    return ticket;
 }
 
-qint16 ProgInit::getIdBlock()
+bool DeviceTickets::operator ==(const DeviceTickets &ticket)
 {
-    return idBlock;
+    return this->modification == ticket.modification && this->blockId == ticket.blockId &&
+            this->blockSerialNumber == ticket.blockSerialNumber && this->channel == ticket.channel &&
+            this->module == ticket.module;
 }
-
-qint8 ProgInit::getModificationOfBlock()
-{
-    return modificationOfBlock;
 }

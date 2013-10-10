@@ -4,6 +4,8 @@
 #include "message.h"
 #include "../devfileinfo.h"
 
+namespace FudpMessage
+{
 class ProgWrite : public Message
 {
 public:
@@ -25,5 +27,6 @@ private:
     QByteArray fileData;
     const qint32 dataSize = 4000;
 };
+}
 
 #endif // PROGWRITE_H

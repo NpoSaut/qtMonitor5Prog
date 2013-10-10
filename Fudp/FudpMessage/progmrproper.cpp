@@ -1,5 +1,11 @@
 #include "progmrproper.h"
 
+namespace FudpMessage
+{
+ProgMrProper::ProgMrProper()
+{
+}
+
 ProgMrProper::ProgMrProper(qint32 securityKey) :
     securityKey(securityKey)
 {
@@ -20,4 +26,5 @@ void ProgMrProper::decode(const std::vector<byte> &data)
     out.setByteOrder(QDataStream::LittleEndian);
     out.skipRawData(1);
     out >> securityKey;
+}
 }

@@ -1,5 +1,7 @@
 #include "progread.h"
 
+namespace FudpMessage
+{
 ProgRead::ProgRead()
 {
 }
@@ -42,4 +44,5 @@ QByteArray ProgRead::getData()
 qint8 ProgRead::getErrorCode()
 {
     return errorCode;
+}
 }

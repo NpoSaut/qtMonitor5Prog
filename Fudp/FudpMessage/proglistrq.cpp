@@ -1,5 +1,7 @@
 #include "proglistrq.h"
 
+namespace FudpMessage
+{
 ProgListRq::ProgListRq()
 {
 }
@@ -14,4 +16,5 @@ std::vector<byte> ProgListRq::encode()
 void ProgListRq::decode(std::vector<byte> &data)
 {
 
+}
 }

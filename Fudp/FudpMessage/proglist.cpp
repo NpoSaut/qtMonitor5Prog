@@ -1,5 +1,7 @@
 #include "proglist.h"
 
+namespace FudpMessage
+{
 ProgList::ProgList()
 {
 }
@@ -48,4 +50,5 @@ void ProgList::decode(const std::vector<byte> &data)
         listDevFileInfo.append(dfi);
     }
 
+}
 }

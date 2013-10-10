@@ -1,5 +1,6 @@
 #include "devfileinfo.h"
 
+
 DevFileInfo::DevFileInfo()
 {
 }
@@ -10,13 +11,14 @@ DevFileInfo::DevFileInfo(QString name, qint32 fSize, qint32 cSum) :
 }
 
 DevFileInfo::DevFileInfo(QString name, QByteArray data) :
-    fileName(name), fileData(data), fileSize(data.size())
+    fileName(name), fileData(data), fileSize(data.size()), controlSum(calcControlSumm())
 {
+
 }
 
 QByteArray DevFileInfo::getFileName(QString newCodec)
 {
-    QTextCodec *codec = QTextCodec::codecForName(newCodec.toLatin1());
+    QTextCodec *codec = QTextCodec::codecForName(newCodec.toAscii());
     QByteArray encodingFileName = codec->fromUnicode(fileName);
     return encodingFileName;
 }
@@ -40,3 +42,25 @@ qint8 DevFileInfo::getFileNameSize()
 {
     return fileName.size();
 }
+
+qint32 DevFileInfo::calcControlSumm()
+{
+    unsigned short crc = 0xffff;
+    for(int i = 0; i < fileData.size(); i++)
+    {
+        crc = this->crc_ccitt_update((unsigned short)crc, (unsigned char)fileData.at(i));
+    }
+    return crc;
+}
+
+unsigned short DevFileInfo::crc_ccitt_update(unsigned short crc, unsigned char data)
+{
+    unsigned short t;
+    data ^= crc&255;
+    data ^= data << 4;
+    t = (((unsigned short)data << 8) | ((crc >> 8) & 255));
+    t ^= (unsigned char)(data >> 4);
+    t ^= ((unsigned short)data << 3);
+    return t;
+}
+

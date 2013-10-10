@@ -2,7 +2,8 @@
 #define PARAMRMACK_H
 
 #include "message.h"
-
+namespace FudpMessage
+{
 class ParamRmAck : public Message
 {
 public:
@@ -21,5 +22,6 @@ public:
 private:
     qint8 errorCode;
 };
+}
 
 #endif // PARAMRMACK_H

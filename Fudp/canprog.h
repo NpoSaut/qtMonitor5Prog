@@ -6,18 +6,26 @@
 #include <QDir>
 #include "FudpMessage/workingwithfudpmessage.h"
 
+using namespace FudpMessage;
+
+namespace Fudp
+{
 class CanProg : public QObject
 {
     Q_OBJECT
 public:
-    explicit CanProg(QObject *parent = 0);
-    
+    explicit CanProg(QHash<qint8, qint32> dictionary, DeviceTickets tickets, QObject *parent = 0);
+    QStringList parseDir(const QDir &dir);
+
 private:
+
     WorkingWithFudpMessage worker;
 
-    qint8 systemId;
-    qint16 blockId;
-    qint8 blockModification;
+    DeviceTickets tickets;
+
+    //    qint8 systemId;
+    //    qint16 blockId;
+    //    qint8 blockModification;
 
     QHash<qint8, qint32> dictionary;
     QList<DevFileInfo> fileList;
@@ -33,7 +41,7 @@ signals:
     void sendDeleteParamAck(qint8 errorCode);
 
 public slots:
-    void connect(qint8 systemId, qint16 blockId, qint8 modificationBLock);
+    void connect(const DeviceTickets &tickets);
     void getFileList();
     void readFile(const QString &fileName, qint32 offset, qint32 readSize);
     void deleteFile(const QString &fileName);
@@ -43,5 +51,5 @@ public slots:
     void setParam(qint8 key, qint32 value);
     void deleteParam(qint8 key);
 };
-
+}
 #endif // CANPROG_H

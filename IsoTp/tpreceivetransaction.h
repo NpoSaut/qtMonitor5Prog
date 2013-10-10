@@ -28,13 +28,13 @@ private:
     void readyFlowControl();
 
 signals:
-    void transactionReaceived(const std::vector<byte> &data);
-    void sendFlowControl(const FlowControlFrame &frame);
+    void transactionReaceived(std::vector<byte> data);
+    void sendFlowControl(FlowControlFrame frame);
 
 public slots:
-    void getSingleFrame(const SingleFrame &frame);
-    void getFirstFrame(const FirstFrame &frame);
-    void getConsecutiveFrame(const ConsecutiveFrame &frame);
+    void getSingleFrame(SingleFrame frame);
+    void getFirstFrame(FirstFrame frame);
+    void getConsecutiveFrame(ConsecutiveFrame frame);
     void timeout();
 };
 

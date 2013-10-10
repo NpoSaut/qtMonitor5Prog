@@ -1,5 +1,7 @@
 #include "progcreateack.h"
 
+namespace FudpMessage
+{
 ProgCreateAck::ProgCreateAck()
 {
     createErrors[1] = "File with the same name already exists.";
@@ -24,4 +26,5 @@ std::vector<byte> ProgCreateAck::encode()
 void ProgCreateAck::decode(const std::vector<byte> &data)
 {
     errorCode = data.at(1);
+}
 }

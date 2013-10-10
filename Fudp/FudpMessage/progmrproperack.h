@@ -3,6 +3,8 @@
 
 #include "message.h"
 
+namespace FudpMessage
+{
 class ProgMrProperAck : public Message
 {
 public:
@@ -10,5 +12,6 @@ public:
     std::vector<byte> encode();
     void decode(const std::vector<byte> &data);
 };
+}
 
 #endif // PROGMRPROPERACK_H

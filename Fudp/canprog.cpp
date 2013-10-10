@@ -1,7 +1,9 @@
 #include "canprog.h"
 
-CanProg::CanProg(QObject *parent) :
-    QObject(parent), worker()
+namespace Fudp
+{
+CanProg::CanProg(QHash<qint8, qint32> dictionary, DeviceTickets tickets, QObject *parent) :
+    dictionary(dictionary), tickets(tickets) ,QObject(parent), worker()
 {
     QObject::connect(this, SIGNAL(sendProgStatus(QHash<qint8,qint32>)), &worker, SLOT(sendProgStatus(QHash<qint8,qint32>)));
     QObject::connect(this, SIGNAL(sendFileList(QList<DevFileInfo>)), &worker, SLOT(sendProgList(QList<DevFileInfo>)));
@@ -12,7 +14,7 @@ CanProg::CanProg(QObject *parent) :
     QObject::connect(this, SIGNAL(sendSetParamAck(qint8)), &worker, SLOT(sendParamSetAck(qint8)));
     QObject::connect(this, SIGNAL(sendDeleteParamAck(qint8)), &worker, SLOT(sendParamRmAck(qint8)));
 
-    QObject::connect(&worker, SIGNAL(getProgInit(qint8,qint16,qint8)), this, SLOT(connect(qint8,qint16,qint8)));
+    QObject::connect(&worker, SIGNAL(getProgInit(DeviceTickets)), this, SLOT(connect(DeviceTickets)));
     QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(getFileList()));
     QObject::connect(&worker, SIGNAL(getProgReadRq(QString,qint32,qint32)), this, SLOT(readFile(QString,qint32,qint32)));
     QObject::connect(&worker, SIGNAL(getProgRm(QString)), this, SLOT(deleteFile(QString)));
@@ -23,9 +25,10 @@ CanProg::CanProg(QObject *parent) :
     QObject::connect(&worker, SIGNAL(getParamRmRq(qint8)), this, SLOT(deleteParam(qint8)));
 }
 
-void CanProg::connect(qint8 systemId, qint16 blockId, qint8 modificationBLock)
+void CanProg::connect(const DeviceTickets &tickets)
 {
-    if ((systemId == this->systemId) && (blockId == this->blockId) && (modificationBLock == this->blockModification))
+
+    if (this->tickets == tickets)
     {
         emit sendProgStatus(dictionary);
     }
@@ -34,7 +37,8 @@ void CanProg::connect(qint8 systemId, qint16 blockId, qint8 modificationBLock)
 void CanProg::getFileList()
 {
     QDir dir = QDir::current();
-    QStringList files = dir.entryList();
+    QStringList files = parseDir(dir);
+
     foreach(QString fileName, files)
     {
         QFile file(fileName);
@@ -126,4 +130,28 @@ void CanProg::setParam(qint8 key, qint32 value)
 void CanProg::deleteParam(qint8 key)
 {
 
+}
+
+QStringList CanProg::parseDir(const QDir &dir)
+{
+    QDir currentDir = dir;
+    QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
+    QStringList fileList;
+    foreach(QFileInfo fileInfo, fileInfoList)
+    {
+        if (fileInfo.isDir())
+        {
+            qDebug() << fileInfo.path();
+            currentDir.cd(fileInfo.fileName());
+            fileList.append(parseDir(currentDir));
+        }
+        else
+        {
+            //qDebug() << fileInfo.canonicalPath();
+            fileList.append(fileInfo.filePath());
+        }
+
+    }
+    return fileList;
+}
 }

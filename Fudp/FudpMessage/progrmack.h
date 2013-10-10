@@ -4,6 +4,8 @@
 #include "QHash"
 #include "message.h"
 
+namespace FudpMessage
+{
 class ProgRmAck : public Message
 {
 public:
@@ -24,5 +26,6 @@ private:
     QHash<int, QString> rmError;
 
 };
+}
 
 #endif // PROGRMACK_H
