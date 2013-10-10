@@ -1,5 +1,7 @@
 #include "paramsetack.h"
 
+namespace FudpMessage
+{
 ParamSetAck::ParamSetAck()
 {
 }
@@ -26,4 +28,5 @@ void ParamSetAck::decode(const std::vector<byte> &data)
 qint8 ParamSetAck::getErrorCode()
 {
     return errorCode;
+}
 }

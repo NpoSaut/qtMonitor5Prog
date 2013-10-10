@@ -26,24 +26,15 @@ using namespace IsoTp;
 
 namespace FudpMessage
 {
-struct DeviceTickets
-{
-    qint8 systemId;
-    qint16 blockId;
-    qint8 blockModification;
-
-    bool operator == (const DeviceTickets &ticket);
-};
-
 class WorkingWithFudpMessage : public QObject
 {
     Q_OBJECT
 public:
-    explicit WorkingWithFudpMessage(QObject *parent = 0);
+    explicit WorkingWithFudpMessage(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
+    void setAcknowlegmentDescriptor(int acknowlegmentDescriptor);
 
 private:
     IsoTpCommunicator communicator;
-
 
 signals:
     void transmitData(std::vector<byte> data);

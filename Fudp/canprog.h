@@ -18,15 +18,11 @@ public:
     QStringList parseDir(const QDir &dir);
 
 private:
-
+    const int FuInit = 0xfc08;
+    const int FuProg = 0xfc28;
+    const int FuDev =  0xfc48;
     WorkingWithFudpMessage worker;
-
     DeviceTickets tickets;
-
-    //    qint8 systemId;
-    //    qint16 blockId;
-    //    qint8 blockModification;
-
     QHash<qint8, qint32> dictionary;
     QList<DevFileInfo> fileList;
 

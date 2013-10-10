@@ -17,15 +17,17 @@
 using namespace CanInternals;
 using namespace IsoTpFrames;
 using namespace IsoTp;
+using namespace Fudp;
 
 CanLogger logger;
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-
-
-
+    QHash<qint8, qint32> dict;
+    dict[1] = 1;
+    dict[2] = 2;
+    DeviceTickets tic = {1, 2, 3, 4, 5};
 //    std::vector<byte> data;
 //    for(int i = 0; i < 4095; i++)
 //        data.insert(data.end(), i);
@@ -51,6 +53,6 @@ int main(int argc, char *argv[])
     //    in << 329;
     //    for(int i = 0; i < arr.size(); i++)
     //        qDebug("%x", arr.at(i));
-    //CanProg cp;
+    CanProg cp(dict, tic);
     return a.exec();
 }

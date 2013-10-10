@@ -15,7 +15,7 @@ class TpSendTransaction : public QObject
 public:
     explicit TpSendTransaction(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
     void send(const std::vector<byte> &buffer);
-
+    void setAcknowlegmentDescriptor(int acknowlegmentDescriptor);
 
 private:
     int transmitDescriptor;

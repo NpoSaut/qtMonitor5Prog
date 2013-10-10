@@ -13,6 +13,7 @@ class IsoTpCommunicator : public QObject
 public:
     explicit IsoTpCommunicator(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
     void send(const std::vector<byte> &buffer);
+    void setAcknowlegmentDescriptor(int acknowlegmentDescriptor);
 
 private:
     /*static*/ TpReceiveTransaction receiver;

@@ -38,6 +38,7 @@ namespace CanInternals
         quint32 count = outBuf.size();
         deviceIo(ioctlCanRead, (LPVOID*) &count, 4, (LPVOID*) outBuf.data(), count*13);
         ReleaseMutex(receiveMutex);
+        readLog(outBuf.at(0));
     }
     return outBuf;
   }

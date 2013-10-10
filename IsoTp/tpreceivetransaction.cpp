@@ -49,7 +49,7 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
 void TpReceiveTransaction::readyFlowControl()
 {
     consIndex = 0;
-    FlowControlFrame fcFrame(FlowControlFlag(ClearToSend), blockSize, 1);
+    FlowControlFrame fcFrame(FlowControlFlag(ClearToSend), blockSize, 0);
     timer.start(3000);
     emit sendFlowControl(fcFrame);
 }
@@ -60,9 +60,13 @@ void TpReceiveTransaction::timeout()
     //qDebug() << "The waiting time is over";
 }
 
-void TpReceiveTransaction::setDescriptors(int transmitDescriptor, int acknowlegmentDescriptor)
+void TpReceiveTransaction::setTransmitDescriptor(int transmitDescriptor)
 {
     movingFrames.setTransmitDescriptor(transmitDescriptor);
+}
+
+void TpReceiveTransaction::setAcknowlegmentDescriptor(int acknowlegmentDescriptor)
+{
     movingFrames.setAcknowlegmentDescriptor(acknowlegmentDescriptor);
 }
 }

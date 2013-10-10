@@ -18,7 +18,6 @@ std::vector<byte> ProgStatus::encode()
     in.setByteOrder(QDataStream::LittleEndian);
     in << (byte)MessageId(progStatus);
 
-    qDebug() << properties.keys().size();
     foreach (qint8 i, properties.keys())
     {
         in << i << properties.value(i);

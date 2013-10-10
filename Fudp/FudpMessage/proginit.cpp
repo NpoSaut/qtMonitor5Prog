@@ -33,10 +33,6 @@ void ProgInit::decode(const std::vector<byte> &data)
     this->ticket.modification = data.at(2) & 0x0f;
     this->ticket.module = data.at(3);
     this->ticket.channel = (data.at(4) & 0xf0) >> 4;
-    qDebug() << (data.at(4) & 0x0f);
-    qDebug() << (data.at(5) << 8);
-    qDebug() << data.at(6);
-    qDebug() << (((data.at(4) & 0x0f) << 16) | (data.at(5) << 8) | data.at(6));
     this->ticket.blockSerialNumber = (((data.at(4) & 0x0f) << 16) | (data.at(5) << 8) | data.at(6));
 }
 

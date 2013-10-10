@@ -2,8 +2,8 @@
 
 namespace FudpMessage
 {
-WorkingWithFudpMessage::WorkingWithFudpMessage(QObject *parent) :
-    QObject(parent), communicator(0x4008, 0x3008)
+WorkingWithFudpMessage::WorkingWithFudpMessage(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
+    QObject(parent), communicator(transmitDescriptor, acknowlegmentDescriptor)
 {
     QObject::connect(&communicator, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
 }
@@ -16,7 +16,7 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     {
         ProgInit init;
         init.decode(data);
-        DeviceTickets tickets = {init.getIdSystem(), init.getIdBlock(), init.getModificationOfBlock()};
+        DeviceTickets tickets = init.getTicket();
         emit getProgInit((tickets));
         break;
     }
@@ -80,48 +80,48 @@ void WorkingWithFudpMessage::sendProgStatus(const QHash<qint8, qint32> &dictiona
 
 void WorkingWithFudpMessage::sendProgList(const QList<DevFileInfo> &list)
 {
+    qDebug() << "ProgList";
     ProgList pList(list);
-    emit transmitData(pList.encode());
+    communicator.send(pList.encode());
 }
 
 void WorkingWithFudpMessage::sendProgRead(qint8 errorCode, const QByteArray &data)
 {
     ProgRead read(data, errorCode);
-    emit transmitData(read.encode());
+    communicator.send(read.encode());
 }
 
 void WorkingWithFudpMessage::sendProgRmAck(qint8 errorCode)
 {
     ProgRmAck rmAck(errorCode);
-    emit transmitData(rmAck.encode());
+    communicator.send(rmAck.encode());
 }
 
 void WorkingWithFudpMessage::sendProgMrPropperAck()
 {
     ProgMrProper mrPropper;
-    emit transmitData(mrPropper.encode());
+    communicator.send(mrPropper.encode());
 }
 
 void WorkingWithFudpMessage::sendProgCreateAck(qint8 errorCode)
 {
     ProgCreateAck createAck(errorCode);
-    emit transmitData(createAck.encode());
+    communicator.send(createAck.encode());
 }
 
 void WorkingWithFudpMessage::sendParamRmAck(qint8 errorCode)
 {
     ParamRmAck rmParam(errorCode);
-    emit transmitData(rmParam.encode());
+    communicator.send(rmParam.encode());
 }
 
 void WorkingWithFudpMessage::sendParamSetAck(qint8 errorCode)
 {
     ParamSetAck setParam(errorCode);
-    emit transmitData(setParam.encode());
+    communicator.send(setParam.encode());
 }
-
-bool DeviceTickets::operator ==(const DeviceTickets &ticket)
+void WorkingWithFudpMessage::setAcknowlegmentDescriptor(int acknowlegmentDescriptor)
 {
-    return this->systemId == ticket.systemId && this->blockId == ticket.blockId && this->blockModification == ticket.blockModification;
+    communicator.setAcknowlegmentDescriptor(acknowlegmentDescriptor);
 }
 }

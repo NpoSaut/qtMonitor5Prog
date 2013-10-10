@@ -5,9 +5,8 @@ namespace IsoTp
 TpSendTransaction::TpSendTransaction(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
     QObject(parent)
 {
-    blockSize = 0;
+
     separationTime = 0;
-    consecutiveFrameSent = 1;
     buff.clear();
 
     movingFrames.setTransmitDescriptor(transmitDescriptor);
@@ -33,6 +32,8 @@ void TpSendTransaction::send(const std::vector<byte> &buffer)
             qDebug() << "Too large buffer";
         else
         {
+            blockSize = 0;
+            consecutiveFrameSent = 1;
             buff.insert(buff.begin(), buffer.begin()+6, buffer.end());
             pointer = buff.begin();
             std::vector<byte> v;
@@ -52,20 +53,24 @@ void TpSendTransaction::getFlowControl(FlowControlFrame frame)
     else
         if (frame.getFrlag() == FlowControlFlag(ClearToSend))
         {
+            consecutiveFrameSent = 1;
             separationTime = frame.getSeparationTime();
-            blockSize += frame.getBlockSize()+1;
+            blockSize = frame.getBlockSize();
             timer.start(separationTime);
         }
 }
 
 void TpSendTransaction::sendConsecutive()
 {
-    if ((consecutiveFrameSent == blockSize) || (std::distance(buff.begin(), pointer) >= buff.size()))
+
+    if ((consecutiveFrameSent == blockSize+1) || (std::distance(buff.begin(), pointer) >= buff.size()))
     {
+        qDebug("%d, %d, timer", consecutiveFrameSent,blockSize);
         timer.stop();
     }
     else
     {
+        //qDebug("%d, %d", consecutiveFrameSent,blockSize);
         std::vector<byte> v;
         int dataLength  = (buff.size() - std::distance(buff.begin(), pointer)) > 7 ? 7 : buff.size();
         v.insert(v.begin(), pointer, pointer + dataLength);
@@ -75,5 +80,8 @@ void TpSendTransaction::sendConsecutive()
         pointer += dataLength;
     }
 }
-
+void TpSendTransaction::setAcknowlegmentDescriptor(int acknowlegmentDescriptor)
+{
+    movingFrames.setAcknowlegmentDescriptor(acknowlegmentDescriptor);
+}
 }

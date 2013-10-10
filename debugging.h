@@ -10,6 +10,7 @@
 using namespace CanInternals;
 using namespace IsoTpFrames;
 using namespace IsoTp;
+using namespace FudpMessage;
 
 class Debugging : public QObject
 {

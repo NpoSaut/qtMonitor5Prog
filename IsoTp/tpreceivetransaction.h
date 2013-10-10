@@ -14,7 +14,8 @@ class TpReceiveTransaction : public QObject
     Q_OBJECT
 public:
     explicit TpReceiveTransaction(/*int transmitDescriptor, int acknowlegmentDescriptor, */QObject *parent = 0);
-    void setDescriptors(int transmitDescriptor, int acknowlegmentDescriptor);
+    void setTransmitDescriptor(int transmitDescriptor);
+    void setAcknowlegmentDescriptor(int acknowlegmentDescriptor);
 
 private:
     WorkingWithFrames movingFrames;

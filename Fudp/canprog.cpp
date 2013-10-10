@@ -3,7 +3,7 @@
 namespace Fudp
 {
 CanProg::CanProg(QHash<qint8, qint32> dictionary, DeviceTickets tickets, QObject *parent) :
-    dictionary(dictionary), tickets(tickets) ,QObject(parent), worker()
+    dictionary(dictionary), tickets(tickets) ,QObject(parent), worker(FuDev, FuInit)
 {
     QObject::connect(this, SIGNAL(sendProgStatus(QHash<qint8,qint32>)), &worker, SLOT(sendProgStatus(QHash<qint8,qint32>)));
     QObject::connect(this, SIGNAL(sendFileList(QList<DevFileInfo>)), &worker, SLOT(sendProgList(QList<DevFileInfo>)));
@@ -27,15 +27,16 @@ CanProg::CanProg(QHash<qint8, qint32> dictionary, DeviceTickets tickets, QObject
 
 void CanProg::connect(const DeviceTickets &tickets)
 {
-
     if (this->tickets == tickets)
     {
+        worker.setAcknowlegmentDescriptor(FuProg);
         emit sendProgStatus(dictionary);
     }
 }
 
 void CanProg::getFileList()
 {
+    qDebug() << "File list";
     QDir dir = QDir::current();
     QStringList files = parseDir(dir);
 
@@ -141,13 +142,11 @@ QStringList CanProg::parseDir(const QDir &dir)
     {
         if (fileInfo.isDir())
         {
-            qDebug() << fileInfo.path();
             currentDir.cd(fileInfo.fileName());
             fileList.append(parseDir(currentDir));
         }
         else
         {
-            //qDebug() << fileInfo.canonicalPath();
             fileList.append(fileInfo.filePath());
         }
 
