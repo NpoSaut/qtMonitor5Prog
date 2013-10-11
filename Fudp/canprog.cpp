@@ -37,7 +37,7 @@ void CanProg::connect(const DeviceTickets &tickets)
 void CanProg::getFileList()
 {
     qDebug() << "File list";
-    QDir dir = QDir::current();
+    QDir dir = QDir(".");
     QStringList files = parseDir(dir);
 
     foreach(QString fileName, files)
@@ -45,7 +45,7 @@ void CanProg::getFileList()
         QFile file(fileName);
         file.open(QIODevice::ReadOnly);
 
-        DevFileInfo fileInfo(fileName, file.readAll());
+        DevFileInfo fileInfo(fileName.remove(0,2), file.readAll());
         fileList.append(fileInfo);
     }
 
@@ -133,7 +133,7 @@ void CanProg::deleteParam(qint8 key)
 
 }
 
-QStringList CanProg::parseDir(const QDir &dir)
+QStringList CanProg::parseDir(const QDir dir)
 {
     QDir currentDir = dir;
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
@@ -141,16 +141,11 @@ QStringList CanProg::parseDir(const QDir &dir)
     foreach(QFileInfo fileInfo, fileInfoList)
     {
         if (fileInfo.isDir())
-        {
-            currentDir.cd(fileInfo.fileName());
-            fileList.append(parseDir(currentDir));
-        }
+            fileList.append(parseDir(fileInfo.filePath()));
         else
-        {
             fileList.append(fileInfo.filePath());
-        }
-
     }
     return fileList;
 }
+
 }

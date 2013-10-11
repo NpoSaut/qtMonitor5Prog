@@ -33,7 +33,8 @@ void TpSendTransaction::send(const std::vector<byte> &buffer)
         else
         {
             blockSize = 0;
-            consecutiveFrameSent = 1;
+            consecutiveFrameIndex = 1;
+            consecutiveFramesSent = 1;
             buff.insert(buff.begin(), buffer.begin()+6, buffer.end());
             pointer = buff.begin();
             std::vector<byte> v;
@@ -53,7 +54,7 @@ void TpSendTransaction::getFlowControl(FlowControlFrame frame)
     else
         if (frame.getFrlag() == FlowControlFlag(ClearToSend))
         {
-            consecutiveFrameSent = 1;
+            consecutiveFrameIndex = 1;
             separationTime = frame.getSeparationTime();
             blockSize = frame.getBlockSize();
             timer.start(separationTime);
@@ -63,9 +64,9 @@ void TpSendTransaction::getFlowControl(FlowControlFrame frame)
 void TpSendTransaction::sendConsecutive()
 {
 
-    if ((consecutiveFrameSent == blockSize+1) || (std::distance(buff.begin(), pointer) >= buff.size()))
+    if ((consecutiveFrameIndex == blockSize+1) || (std::distance(buff.begin(), pointer) >= buff.size()))
     {
-        qDebug("%d, %d, timer", consecutiveFrameSent,blockSize);
+        qDebug("%d, %d, timer", consecutiveFrameIndex,blockSize);
         timer.stop();
     }
     else
@@ -74,9 +75,10 @@ void TpSendTransaction::sendConsecutive()
         std::vector<byte> v;
         int dataLength  = (buff.size() - std::distance(buff.begin(), pointer)) > 7 ? 7 : buff.size();
         v.insert(v.begin(), pointer, pointer + dataLength);
-        ConsecutiveFrame cFrame(v, consecutiveFrameSent);
+        ConsecutiveFrame cFrame(v, consecutiveFramesSent);
         emit sendConsecutiveFrame(cFrame);
-        consecutiveFrameSent++;
+        consecutiveFrameIndex++;
+        consecutiveFramesSent ++;
         pointer += dataLength;
     }
 }

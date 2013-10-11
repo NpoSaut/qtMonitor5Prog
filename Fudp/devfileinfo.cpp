@@ -18,7 +18,7 @@ DevFileInfo::DevFileInfo(QString name, QByteArray data) :
 
 QByteArray DevFileInfo::getFileName(QString newCodec)
 {
-    QTextCodec *codec = QTextCodec::codecForName(newCodec.toAscii());
+    QTextCodec *codec = QTextCodec::codecForName(newCodec.toLatin1());
     QByteArray encodingFileName = codec->fromUnicode(fileName);
     return encodingFileName;
 }
@@ -40,7 +40,7 @@ qint32 DevFileInfo::getControlSum()
 
 qint8 DevFileInfo::getFileNameSize()
 {
-    return fileName.size();
+    return fileName.length();
 }
 
 qint32 DevFileInfo::calcControlSumm()

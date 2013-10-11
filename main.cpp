@@ -19,15 +19,13 @@ using namespace IsoTpFrames;
 using namespace IsoTp;
 using namespace Fudp;
 
-CanLogger logger;
-
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     QHash<qint8, qint32> dict;
     dict[1] = 1;
     dict[2] = 2;
-    DeviceTickets tic = {1, 2, 3, 4, 5};
+    DeviceTickets tic = {100, 1488, 1, 1, 1};
 //    std::vector<byte> data;
 //    for(int i = 0; i < 4095; i++)
 //        data.insert(data.end(), i);

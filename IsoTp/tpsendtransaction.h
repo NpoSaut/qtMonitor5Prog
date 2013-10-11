@@ -28,7 +28,8 @@ private:
     std::vector<byte> buff;
     std::vector<byte>::iterator pointer;
     QTimer timer;
-    int consecutiveFrameSent;
+    int consecutiveFrameIndex;
+    int consecutiveFramesSent;
 
     WorkingWithFrames movingFrames;
 

@@ -15,7 +15,7 @@ class CanProg : public QObject
     Q_OBJECT
 public:
     explicit CanProg(QHash<qint8, qint32> dictionary, DeviceTickets tickets, QObject *parent = 0);
-    QStringList parseDir(const QDir &dir);
+    QStringList parseDir(const QDir dir);
 
 private:
     const int FuInit = 0xfc08;

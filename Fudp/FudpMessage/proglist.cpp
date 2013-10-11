@@ -16,10 +16,17 @@ std::vector<byte> ProgList::encode()
     QByteArray buffer;
     QDataStream in(&buffer, QIODevice::WriteOnly);
     in.setByteOrder(QDataStream::LittleEndian);
+
+    in << (byte)MessageId(progList);
     for(QList<DevFileInfo>::iterator i = listDevFileInfo.begin(); i != listDevFileInfo.end(); i++)
     {
-        DevFileInfo dfi = *i;
-        in << (byte)MessageId(progList) << (byte)dfi.getFileNameSize() << dfi.getFileName("Windows-1251") << dfi.getFileSize() << dfi.getControlSum();
+        in << (byte)i->getFileNameSize();
+
+        QByteArray t = i->getFileName("Windows-1251");
+        for (int i =0; i < t.size(); i ++)
+            in << (quint8)t.at(i);
+
+        in << i->getFileSize() << i->getControlSum();
     }
 
     return Message::fromQByteArrayToVector(buffer);
