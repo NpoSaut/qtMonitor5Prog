@@ -7,7 +7,6 @@ TpSendTransaction::TpSendTransaction(int transmitDescriptor, int acknowlegmentDe
 {
 
     separationTime = 0;
-    buff.clear();
 
     movingFrames.setTransmitDescriptor(transmitDescriptor);
     movingFrames.setAcknowlegmentDescriptor(acknowlegmentDescriptor);
@@ -22,6 +21,7 @@ TpSendTransaction::TpSendTransaction(int transmitDescriptor, int acknowlegmentDe
 
 void TpSendTransaction::send(const std::vector<byte> &buffer)
 {
+    buff.clear();
     if (buffer.size() <= 7)
     {
         SingleFrame sFrame(buffer);
@@ -63,17 +63,15 @@ void TpSendTransaction::getFlowControl(FlowControlFrame frame)
 
 void TpSendTransaction::sendConsecutive()
 {
-
     if ((consecutiveFrameIndex == blockSize+1) || (std::distance(buff.begin(), pointer) >= buff.size()))
     {
-        qDebug("%d, %d, timer", consecutiveFrameIndex,blockSize);
         timer.stop();
     }
     else
     {
-        //qDebug("%d, %d", consecutiveFrameSent,blockSize);
+        //qDebug("Index: %d, blockSize: %d", consecutiveFrameIndex,blockSize);
         std::vector<byte> v;
-        int dataLength  = (buff.size() - std::distance(buff.begin(), pointer)) > 7 ? 7 : buff.size();
+        int dataLength  = (buff.size() - std::distance(buff.begin(), pointer)) > 7 ? 7 : (buff.size() - std::distance(buff.begin(), pointer));
         v.insert(v.begin(), pointer, pointer + dataLength);
         ConsecutiveFrame cFrame(v, consecutiveFramesSent);
         emit sendConsecutiveFrame(cFrame);

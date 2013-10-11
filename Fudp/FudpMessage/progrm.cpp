@@ -26,11 +26,14 @@ void ProgRm::decode(const std::vector<byte> &data)
     QByteArray buffer = Message::fromVectorToQByteArray(data);
     QDataStream out(&buffer, QIODevice::ReadWrite);
     out.setByteOrder(QDataStream::LittleEndian);
-    out.skipRawData(2);
+    out.skipRawData(1);
 
-    char *temp = new char[buffer.at(1)];
-    out.readRawData(temp, buffer.at(1));
-    fileName.append(temp);
+    qint8 fileNameSize;
+    out >> fileNameSize;
+
+    QByteArray arr(fileNameSize, Qt::Uninitialized);
+    out.readRawData(arr.data(), fileNameSize);
+    fileName.append(arr);
 }
 
 QString ProgRm::getFileName()

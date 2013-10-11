@@ -31,17 +31,21 @@ void ProgWrite::decode(const std::vector<byte> &data)
     qint8 fileNameSize;
     out >> fileNameSize;
 
-    char *temp = new char[fileNameSize];
-    out.readRawData(temp, fileNameSize);
-    fileName.append(temp);
-    delete temp;
+    QByteArray fNameArr(fileNameSize, Qt::Uninitialized);
+    out.readRawData(fNameArr.data(), fileNameSize);
+    fileName.append(fNameArr);
+
+    qDebug()<<fileName;
 
     out >> offset;
 
-    char *temp2 = new char[buffer.size() - getValueOfOverhadsBytes()];
-    out.readRawData(temp2, buffer.size() - getValueOfOverhadsBytes());
-    fileData.append(temp2);
-    delete temp;
+    QByteArray fDataArr(buffer.size() - getValueOfOverhadsBytes(), Qt::Uninitialized);
+    out.readRawData(fDataArr.data(), buffer.size() - getValueOfOverhadsBytes());
+//    fileName.append(arr);
+//    char *temp2 = new char[buffer.size() - getValueOfOverhadsBytes()];
+//    out.readRawData(temp2, buffer.size() - getValueOfOverhadsBytes());
+    fileData.append(fDataArr);
+//    delete temp;
 }
 
 qint32 ProgWrite::getWriteBufferSize()

@@ -30,16 +30,26 @@ namespace CanInternals
 
   std::vector<StructForDrv> CanDriver::receiveMessage()
   {
-    std::vector<StructForDrv> outBuf;
-    outBuf.resize( getNumberOfMessageInQueue() );
-    if(outBuf.size() != 0)
+    quint32 count = getNumberOfMessageInQueue();
+    std::vector<StructForDrv> outBuf(count);
+
+    if (count != 0)
     {
+        byte *data = new byte[count*13];
         WaitForSingleObject(receiveMutex, INFINITE);
-        quint32 count = outBuf.size();
-        deviceIo(ioctlCanRead, (LPVOID*) &count, 4, (LPVOID*) outBuf.data(), count*13);
+        deviceIo(ioctlCanRead, (LPVOID*) &count, 4, (LPVOID*) data, count*13);
         ReleaseMutex(receiveMutex);
-        readLog(outBuf.at(0));
+
+        for (int i = 0; i < count; i ++)
+        {
+            for (int j = 0; j < 13; j ++)
+                outBuf[i].rawData[j] = data[i*13+j];
+            readLog(outBuf[i]);
+        }
+
+        delete[] data;
     }
+
     return outBuf;
   }
 
@@ -69,7 +79,7 @@ namespace CanInternals
   {
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(h, FOREGROUND_RED+FOREGROUND_GREEN);
-    qDebug("%x | %x %x %x %x %x %x %x %x", (td.id >> 18) * 0x20 + 0x8, td.data[0], td.data[1], td.data[2], td.data[3], td.data[4], td.data[5], td.data[6], td.data[7]);
+    qDebug("%02x | %02x %02x %02x %02x %02x %02x %02x %02x", (td.id >> 18) * 0x20 + 0x8, td.data[0], td.data[1], td.data[2], td.data[3], td.data[4], td.data[5], td.data[6], td.data[7]);
     SetConsoleTextAttribute(h, FOREGROUND_RED+FOREGROUND_GREEN+FOREGROUND_BLUE);
   }
 
@@ -77,7 +87,7 @@ namespace CanInternals
   {
     HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(h, FOREGROUND_BLUE + FOREGROUND_GREEN);
-    qDebug("%x | %x %x %x %x %x %x %x %x", (cm.id >> 18) * 0x20 + 0x8, cm.data[0], cm.data[1], cm.data[2], cm.data[3], cm.data[4], cm.data[5], cm.data[6], cm.data[7]);
+    qDebug("%02x | %02x %02x %02x %02x %02x %02x %02x %02x", (cm.id >> 18) * 0x20 + 0x8, cm.data[0], cm.data[1], cm.data[2], cm.data[3], cm.data[4], cm.data[5], cm.data[6], cm.data[7]);
     SetConsoleTextAttribute(h, FOREGROUND_RED+FOREGROUND_GREEN+FOREGROUND_BLUE);
   }
 

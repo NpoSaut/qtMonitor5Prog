@@ -31,10 +31,9 @@ void ProgCreate::decode(const std::vector<byte> &data)
     qint8 fileNameSize;
     out >> fileNameSize;
 
-    char *temp = new char[fileNameSize];
-    out.readRawData(temp, fileNameSize);
-    fileName.append(temp);
-    delete temp;
+    QByteArray arr(fileNameSize, Qt::Uninitialized);
+    out.readRawData(arr.data(), fileNameSize);
+    fileName.append(arr);
 
     out >> fileSize;
 }
