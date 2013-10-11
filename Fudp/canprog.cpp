@@ -36,7 +36,6 @@ void CanProg::connect(const DeviceTickets &tickets)
 
 void CanProg::getFileList()
 {
-    qDebug() << "File list";
     QDir dir = QDir(".");
     QStringList files = parseDir(dir);
 
@@ -77,6 +76,7 @@ void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
 void CanProg::deleteFile(const QString &fileName)
 {
     qint8 errorCode = 0;
+    qDebug() << fileName;
     if(QFile::exists(fileName))
     {
         QFile(fileName).remove();
@@ -84,7 +84,7 @@ void CanProg::deleteFile(const QString &fileName)
     else
     {
         errorCode = ProgRmAck::FileNotExists;
-    }
+    }    
     emit sendDeleteFileAck(errorCode);
 }
 
@@ -106,7 +106,8 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
     {
         QFile file(fileName);
         file.open(QIODevice::WriteOnly);
-        file.resize(fileSize);
+        //file.resize(fileSize);
+        file.close();
     }
     else
         errorCode = ProgCreateAck::FileAlreadyExists;
@@ -115,11 +116,17 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
 
 void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray &data)
 {
-    if(!QFile::exists(fileName))
+    qDebug() << "WriteFile";
+    if(QFile::exists(fileName))
     {
+        qDebug() << "File Exists";
         QFile file(fileName);
         if(file.open(QIODevice::Append))
+        {
+            qDebug() << "File open";
             file.write(data);
+        }
+        file.close();
     }
 }
 

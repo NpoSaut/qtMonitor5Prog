@@ -21,6 +21,12 @@ std::vector<byte> ProgCreateAck::encode()
     QDataStream in(&buffer, QIODevice::WriteOnly);
     in.setByteOrder(QDataStream::LittleEndian);
     in << MessageId(progCreateAck) << errorCode;
+
+    return Message::fromQByteArrayToVector(buffer);
+//    std::vector<byte> buffer;
+//    buffer.insert(buffer.end(), MessageId(progCreate));
+//    buffer.insert(buffer.end(), (byte)errorCode);
+
 }
 
 void ProgCreateAck::decode(const std::vector<byte> &data)

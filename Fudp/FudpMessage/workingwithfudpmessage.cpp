@@ -30,6 +30,7 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
         ProgReadRq read;
         read.decode(data);
         emit getProgReadRq(read.getFileName(), read.getOffset(), read.getReadSize());
+        break;
     }
     case MessageId(progRm):
     {
@@ -41,12 +42,14 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     case MessageId(progMrProper):
     {
         emit getProgMrPropper(0x123);
+        break;
     }
     case MessageId(progCreate):
     {
         ProgCreate create;
         create.decode(data);
         emit getProgCreate(create.getFileName(), create.getFileSize());
+        break;
     }
     case MessageId(progWrite):
     {
@@ -80,7 +83,6 @@ void WorkingWithFudpMessage::sendProgStatus(const QHash<qint8, qint32> &dictiona
 
 void WorkingWithFudpMessage::sendProgList(const QList<DevFileInfo> &list)
 {
-    qDebug() << "ProgList";
     ProgList pList(list);
     communicator.send(pList.encode());
 }

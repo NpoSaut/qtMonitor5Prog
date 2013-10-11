@@ -24,6 +24,7 @@ void TpReceiveTransaction::getSingleFrame(SingleFrame frame)
 
 void TpReceiveTransaction::getFirstFrame(FirstFrame frame)
 {
+    buffer.clear();
     buffLength = frame.getPacketSize();
     std::vector<byte> v = frame.getData();
     pointer = buffer.begin();

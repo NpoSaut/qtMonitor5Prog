@@ -48,7 +48,7 @@ void CanLogger::logMessage(CanFrame frame)
            n = (quint32)frame.getData()[0] + (quint32)frame.getData()[1]*256 + (quint32)frame.getData()[1]*256*256 + (quint32)frame.getData()[1]*256*256*256;
 
         if (n != prev+1)
-            qDebug() << n;
+            //qDebug() << n;
 
         prev = n;
     }

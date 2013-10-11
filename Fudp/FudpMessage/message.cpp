@@ -16,7 +16,6 @@ std::vector<byte> Message::fromQByteArrayToVector(const QByteArray &arr)
 QByteArray Message::fromVectorToQByteArray(const std::vector<byte> &data)
 {
     QByteArray arr;
-    qDebug("%x", data.at(0));
     for(int i = 0; i<data.size(); i++)
         arr.append((byte)data.at(i));
     return arr;
