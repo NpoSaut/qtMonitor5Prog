@@ -23,7 +23,7 @@ private:
     const int FuDev =  0xfc48;
     WorkingWithFudpMessage worker;
     DeviceTickets tickets;
-    QHash<qint8, qint32> dictionary;
+    QHash<qint8, qint32> &dictionary;
     QList<DevFileInfo> fileList;
 
 signals:

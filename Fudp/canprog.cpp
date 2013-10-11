@@ -2,9 +2,11 @@
 
 namespace Fudp
 {
-CanProg::CanProg(QHash<qint8, qint32> dictionary, DeviceTickets tickets, QObject *parent) :
+CanProg::CanProg(QHash<qint8, qint32> &dictionary, DeviceTickets tickets, QObject *parent) :
     dictionary(dictionary), tickets(tickets) ,QObject(parent), worker(FuDev, FuInit)
 {
+    QDir::setCurrent("./root");
+
     QObject::connect(this, SIGNAL(sendProgStatus(QHash<qint8,qint32>)), &worker, SLOT(sendProgStatus(QHash<qint8,qint32>)));
     QObject::connect(this, SIGNAL(sendFileList(QList<DevFileInfo>)), &worker, SLOT(sendProgList(QList<DevFileInfo>)));
     QObject::connect(this, SIGNAL(sendFile(qint8,QByteArray)), &worker, SLOT(sendProgRead(qint8,QByteArray)));
@@ -39,6 +41,7 @@ void CanProg::getFileList()
     QDir dir = QDir(".");
     QStringList files = parseDir(dir);
 
+    fileList.clear();
     foreach(QString fileName, files)
     {
         QFile file(fileName);
@@ -76,15 +79,11 @@ void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
 void CanProg::deleteFile(const QString &fileName)
 {
     qint8 errorCode = 0;
-    qDebug() << fileName;
     if(QFile::exists(fileName))
-    {
         QFile(fileName).remove();
-    }
     else
-    {
         errorCode = ProgRmAck::FileNotExists;
-    }    
+
     emit sendDeleteFileAck(errorCode);
 }
 
@@ -104,10 +103,16 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
     qint8 errorCode = 0;
     if(!QFile::exists(fileName))
     {
+        bool success = true;
+        int lastSlashPosition = fileName.lastIndexOf('/');
+        if (lastSlashPosition != -1)
+            success &= QDir::current().mkpath(fileName.left(lastSlashPosition));
         QFile file(fileName);
-        file.open(QIODevice::WriteOnly);
-        //file.resize(fileSize);
+        success &= file.open(QIODevice::WriteOnly);
+        file.resize(fileSize);
         file.close();
+
+        errorCode = success ? 0 : ProgCreateAck::ErrorCreate;
     }
     else
         errorCode = ProgCreateAck::FileAlreadyExists;
@@ -116,14 +121,12 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
 
 void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray &data)
 {
-    qDebug() << "WriteFile";
     if(QFile::exists(fileName))
     {
-        qDebug() << "File Exists";
         QFile file(fileName);
-        if(file.open(QIODevice::Append))
+        if(file.open(QIODevice::ReadWrite))
         {
-            qDebug() << "File open";
+            file.seek(offset);
             file.write(data);
         }
         file.close();

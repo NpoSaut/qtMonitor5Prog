@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     QHash<qint8, qint32> dict;
     dict[1] = 1;
     dict[2] = 2;
-    DeviceTickets tic = {100, 1488, 1, 1, 1};
+    DeviceTickets tic = {3, 1488, 1, 1, 1};
 //    std::vector<byte> data;
 //    for(int i = 0; i < 4095; i++)
 //        data.insert(data.end(), i);

@@ -44,7 +44,7 @@ namespace CanInternals
         {
             for (int j = 0; j < 13; j ++)
                 outBuf[i].rawData[j] = data[i*13+j];
-            readLog(outBuf[i]);
+//            readLog(outBuf[i]);
         }
 
         delete[] data;
@@ -60,7 +60,7 @@ namespace CanInternals
     if(deviceIo(ioctlCanTransmit, (LPVOID*) &td, sizeof(td), (LPVOID*) &error, 4))
       {
         ReleaseMutex(transmitMutex);
-        transmitLog(td);
+//        transmitLog(td);
         return 0;
       }
     else if(error == 0)
