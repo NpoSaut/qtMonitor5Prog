@@ -42,6 +42,7 @@ namespace CanInternals
   {
     while(true)
       {
+        msleep(1);
         auto receivedMessages = receive();
         for (int i = 0; i < receivedMessages.size(); i ++)
           {
