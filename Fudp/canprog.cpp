@@ -18,7 +18,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     pStore->get(133, myTicket.channel);
     pStore->get(134, myTicket.modification);
 
-    QDir::setCurrent("./root");
+    QDir::setCurrent("C:/MonMSUL/root");
 
     QObject::connect(this, SIGNAL(sendAnswerToBroadcast(DeviceTickets)), &worker, SLOT(sendAnswerToBroadcast(DeviceTickets)));
     QObject::connect(this, SIGNAL(sendProgStatus(QVector<QPair<quint8,qint32> >)), &worker, SLOT(sendProgStatus(QVector<QPair<quint8,qint32> >)));

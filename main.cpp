@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     //    in << 329;
     //    for(int i = 0; i < arr.size(); i++)
     //        qDebug("%x", arr.at(i));
-    QFile pFile("./prop.txt");
+    QFile pFile("C:/MonMSUL/prop.txt");
     SimpleFilePropStore pStore(pFile);
     CanProg cp(&pStore);
 
