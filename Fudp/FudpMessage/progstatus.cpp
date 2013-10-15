@@ -6,8 +6,8 @@ ProgStatus::ProgStatus()
 {
 }
 
-ProgStatus::ProgStatus(const QHash<qint8, qint32> &properties)    :
-    properties(properties)
+ProgStatus::ProgStatus(const QVector<QPair<quint8, qint32> > &dictionary)    :
+    properties(dictionary)
 {
 }
 
@@ -18,9 +18,9 @@ std::vector<byte> ProgStatus::encode()
     in.setByteOrder(QDataStream::LittleEndian);
     in << (byte)MessageId(progStatus);
 
-    foreach (qint8 i, properties.keys())
+    foreach (auto entry, properties)
     {
-        in << i << properties.value(i);
+        in << entry.first << entry.second;
     }
     return Message::fromQByteArrayToVector(arr);
 }
@@ -31,18 +31,21 @@ void ProgStatus::decode(const std::vector<byte> &data)
     QDataStream out (&buffer, QIODevice::ReadOnly);
     out.setByteOrder(QDataStream::LittleEndian);
     out.skipRawData(1);
+
+    properties.clear();
     while(!out.atEnd())
     {
         qint8 key;
         qint32 value;
         out >> key;
         out >> value;
-        properties[key] = value;
+        properties.append(QPair<quint8, qint32> (key, value));
     }
 }
 
-QHash<qint8, qint32> ProgStatus::getProperties()
+QVector<QPair<quint8, qint32> > ProgStatus::getProperties()
 {
     return properties;
 }
+
 }

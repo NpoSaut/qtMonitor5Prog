@@ -20,7 +20,6 @@
 #include "paramsetrq.h"
 #include "paramrmack.h"
 #include "paramrmrq.h"
-#include "QHash"
 
 using namespace IsoTp;
 
@@ -52,7 +51,7 @@ signals:
 public slots:
     void receiveData(const std::vector<byte> &data);
 
-    void sendProgStatus(const QHash<qint8, qint32> &dictionary);
+    void sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary);
     void sendProgList(const QList<DevFileInfo> &list);
     void sendProgRead(qint8 errorCode, const QByteArray &data);
     void sendProgRmAck(qint8 errorCode);

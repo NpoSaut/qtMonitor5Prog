@@ -51,7 +51,9 @@ SOURCES += \
     Fudp/FudpMessage/paramrmrq.cpp \
     Fudp/FudpMessage/paramrmack.cpp \
     Fudp/FudpMessage/workingwithfudpmessage.cpp \
-    IsoTp/isotpcommunicator.cpp
+    IsoTp/isotpcommunicator.cpp \
+    PropStore/propstore.cpp \
+    PropStore/simplefilepropstore.cpp
 
 HEADERS += \
     Can/canframe.h \
@@ -89,7 +91,9 @@ HEADERS += \
     Fudp/FudpMessage/paramrmrq.h \
     Fudp/FudpMessage/paramrmack.h \
     Fudp/FudpMessage/workingwithfudpmessage.h \
-    IsoTp/isotpcommunicator.h
+    IsoTp/isotpcommunicator.h \
+    PropStore/propstore.h \
+    PropStore/simplefilepropstore.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

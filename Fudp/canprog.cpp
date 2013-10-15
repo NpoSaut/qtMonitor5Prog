@@ -2,8 +2,8 @@
 
 namespace Fudp
 {
-CanProg::CanProg(QHash<qint8, qint32> &dictionary, DeviceTickets tickets, QObject *parent) :
-    dictionary(dictionary), tickets(tickets) ,QObject(parent), worker(FuDev, FuInit)
+CanProg::CanProg(PropStore *pStore, QObject *parent) :
+    pStore(pStore), QObject(parent), worker(FuDev, FuInit)
 {
     QDir::setCurrent("./root");
 
@@ -29,10 +29,18 @@ CanProg::CanProg(QHash<qint8, qint32> &dictionary, DeviceTickets tickets, QObjec
 
 void CanProg::connect(const DeviceTickets &tickets)
 {
-    if (this->tickets == tickets)
+    DeviceTickets myTicket;
+    if (   pStore->get(129, myTicket.blockId)
+        && pStore->get(130, myTicket.module)
+        && pStore->get(131, myTicket.blockSerialNumber)
+        && pStore->get(133, myTicket.channel)
+        && pStore->get(134, myTicket.modification) )
     {
-        worker.setAcknowlegmentDescriptor(FuProg);
-        emit sendProgStatus(dictionary);
+        if (myTicket == tickets)
+        {
+            worker.setAcknowlegmentDescriptor(FuProg);
+            emit sendProgStatus(pStore->data());
+        }
     }
 }
 

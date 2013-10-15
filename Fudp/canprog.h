@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QDir>
 #include "FudpMessage/workingwithfudpmessage.h"
+#include "PropStore/propstore.h"
 
 using namespace FudpMessage;
 
@@ -14,7 +15,7 @@ class CanProg : public QObject
 {
     Q_OBJECT
 public:
-    explicit CanProg(QHash<qint8, qint32> &dictionary, DeviceTickets tickets, QObject *parent = 0);
+    explicit CanProg(PropStore *pStore, QObject *parent = 0);
     QStringList parseDir(const QDir dir);
 
 private:
@@ -22,12 +23,11 @@ private:
     const int FuProg = 0xfc28;
     const int FuDev =  0xfc48;
     WorkingWithFudpMessage worker;
-    DeviceTickets tickets;
-    QHash<qint8, qint32> &dictionary;
+    PropStore *pStore;
     QList<DevFileInfo> fileList;
 
 signals:
-    void sendProgStatus(const QHash<qint8, qint32> &dictionary);
+    void sendProgStatus(QVector< QPair<quint8, qint32> > dictionary);
     void sendFileList(const QList<DevFileInfo> &list);
     void sendFile(qint8 errorCode, const QByteArray &data);
     void sendDeleteFileAck(qint8 errorCode);

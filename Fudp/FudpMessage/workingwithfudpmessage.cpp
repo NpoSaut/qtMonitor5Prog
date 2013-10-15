@@ -75,7 +75,7 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     }
 }
 
-void WorkingWithFudpMessage::sendProgStatus(const QHash<qint8, qint32> &dictionary)
+void WorkingWithFudpMessage::sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary)
 {
     ProgStatus status(dictionary);
     communicator.send(status.encode());

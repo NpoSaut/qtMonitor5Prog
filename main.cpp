@@ -13,19 +13,19 @@
 #include "Fudp/FudpMessage/progstatus.h"
 #include "Fudp/FudpMessage/message.h"
 #include "Fudp/canprog.h"
+#include "PropStore/simplefilepropstore.h"
 
 using namespace CanInternals;
 using namespace IsoTpFrames;
 using namespace IsoTp;
 using namespace Fudp;
 
+
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    QHash<qint8, qint32> dict;
-    dict[1] = 1;
-    dict[2] = 2;
-    DeviceTickets tic = {3, 1488, 1, 1, 1};
+//    DeviceTickets tic = {3, 1488, 1, 1, 1};
 //    std::vector<byte> data;
 //    for(int i = 0; i < 4095; i++)
 //        data.insert(data.end(), i);
@@ -51,6 +51,8 @@ int main(int argc, char *argv[])
     //    in << 329;
     //    for(int i = 0; i < arr.size(); i++)
     //        qDebug("%x", arr.at(i));
-    CanProg cp(dict, tic);
+    QFile pFile("./prop.txt");
+    SimpleFilePropStore pStore(pFile);
+    CanProg cp(&pStore);
     return a.exec();
 }
