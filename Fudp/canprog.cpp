@@ -3,10 +3,17 @@
 namespace Fudp
 {
 CanProg::CanProg(PropStore *pStore, QObject *parent) :
-    pStore(pStore), QObject(parent), worker(FuDev, FuInit)
+    pStore(pStore), QObject(parent), worker(FuDev, FuInit), myTicket()
 {
+    pStore->get(129, myTicket.blockId);
+    pStore->get(130, myTicket.module);
+    pStore->get(131, myTicket.blockSerialNumber);
+    pStore->get(133, myTicket.channel);
+    pStore->get(134, myTicket.modification);
+
     QDir::setCurrent("./root");
 
+    QObject::connect(this, SIGNAL(sendAnswerToBroadcast(DeviceTickets)), &worker, SLOT(sendAnswerToBroadcast(DeviceTickets)));
     QObject::connect(this, SIGNAL(sendProgStatus(QHash<qint8,qint32>)), &worker, SLOT(sendProgStatus(QHash<qint8,qint32>)));
     QObject::connect(this, SIGNAL(sendFileList(QList<DevFileInfo>)), &worker, SLOT(sendProgList(QList<DevFileInfo>)));
     QObject::connect(this, SIGNAL(sendFile(qint8,QByteArray)), &worker, SLOT(sendProgRead(qint8,QByteArray)));
@@ -29,18 +36,18 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 
 void CanProg::connect(const DeviceTickets &tickets)
 {
-    DeviceTickets myTicket;
-    if (   pStore->get(129, myTicket.blockId)
-        && pStore->get(130, myTicket.module)
-        && pStore->get(131, myTicket.blockSerialNumber)
-        && pStore->get(133, myTicket.channel)
-        && pStore->get(134, myTicket.modification) )
+    if (myTicket == tickets)
     {
-        if (myTicket == tickets)
-        {
-            worker.setAcknowlegmentDescriptor(FuProg);
-            emit sendProgStatus(pStore->data());
-        }
+        worker.setAcknowlegmentDescriptor(FuProg);
+        emit sendProgStatus(pStore->data());
+    }
+    else if (myTicket <= tickets) // Броадкаст
+    {
+        emit sendAnswerToBroadcast(myTicket);
+    }
+    else
+    {
+        // TODO: Выход из режима программирования
     }
 }
 

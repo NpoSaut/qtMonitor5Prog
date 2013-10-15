@@ -25,8 +25,10 @@ private:
     WorkingWithFudpMessage worker;
     PropStore *pStore;
     QList<DevFileInfo> fileList;
+    DeviceTickets myTicket;
 
 signals:
+    void sendAnswerToBroadcast(DeviceTickets myTicket);
     void sendProgStatus(QVector< QPair<quint8, qint32> > dictionary);
     void sendFileList(const QList<DevFileInfo> &list);
     void sendFile(qint8 errorCode, const QByteArray &data);

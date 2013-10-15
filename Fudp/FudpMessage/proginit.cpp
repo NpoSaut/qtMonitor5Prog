@@ -47,4 +47,14 @@ bool DeviceTickets::operator ==(const DeviceTickets &ticket)
             this->blockSerialNumber == ticket.blockSerialNumber && this->channel == ticket.channel &&
             this->module == ticket.module;
 }
+
+bool DeviceTickets::operator <=(const DeviceTickets &ticket)
+{
+    return (this->modification == ticket.modification           || ticket.modification == 0)
+        && (this->blockId == ticket.blockId                     || ticket.blockId == 0)
+        && (this->blockSerialNumber == ticket.blockSerialNumber || ticket.blockSerialNumber == 0)
+        && (this->channel == ticket.channel                     || ticket.channel == 0)
+        && (this->module == ticket.module                       || ticket.module == 0);
+}
+
 }

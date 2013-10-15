@@ -15,6 +15,7 @@ struct DeviceTickets
     qint32 modification;
 
     bool operator == (const DeviceTickets &ticket);
+    bool operator <= (const DeviceTickets &ticket); // Если подходим по маске
 };
 
 class ProgInit : public Message

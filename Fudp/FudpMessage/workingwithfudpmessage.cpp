@@ -75,6 +75,12 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     }
 }
 
+void WorkingWithFudpMessage::sendAnswerToBroadcast(DeviceTickets ticket)
+{
+    ProgInit progInit(ticket);
+    communicator.send(progInit.encode());
+}
+
 void WorkingWithFudpMessage::sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary)
 {
     ProgStatus status(dictionary);

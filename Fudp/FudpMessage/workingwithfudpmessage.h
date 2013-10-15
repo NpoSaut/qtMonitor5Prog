@@ -51,6 +51,7 @@ signals:
 public slots:
     void receiveData(const std::vector<byte> &data);
 
+    void sendAnswerToBroadcast(DeviceTickets ticket);
     void sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary);
     void sendProgList(const QList<DevFileInfo> &list);
     void sendProgRead(qint8 errorCode, const QByteArray &data);
