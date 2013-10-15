@@ -36,6 +36,10 @@ namespace CanInternals
   public:
     explicit CanDriver(QObject *parent = 0);
     ~CanDriver();
+
+      void start ();
+      void stop ();
+
     std::vector<StructForDrv> receiveMessage();
     int transmitMessage(TransmitData &td);
 
@@ -49,7 +53,7 @@ namespace CanInternals
     void init();
 
     const LPCWSTR name = L"\\\\.\\DriverCANDevice0";
-    const HANDLE driverHandle = INVALID_HANDLE_VALUE;
+    HANDLE driverHandle = INVALID_HANDLE_VALUE;
     const DWORD ioctlCanInit = CTL_CODE(0x80FF, 9, METHOD_BUFFERED, FILE_ANY_ACCESS);
     const DWORD ioctlCanTransmit = CTL_CODE(0x80FF, 10, METHOD_BUFFERED, FILE_ANY_ACCESS);
     const DWORD ioctlCanRead = CTL_CODE(0x80FF, 12, METHOD_BUFFERED, FILE_ANY_ACCESS);

@@ -72,6 +72,11 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
         emit getParamRmRq(rmParam.getKey());
         break;
     }
+    case MessageId(progSubmit):
+    {
+        emit getProgSubmit();
+        break;
+    }
     }
 }
 

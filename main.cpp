@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QByteArray>
 #include <QDataStream>
+#include <QProcess>
 #include "Can/CanNik/workingwithmessage.h"
 #include "debugging.h"
 #include "Can/can.h"
@@ -19,7 +20,6 @@ using namespace CanInternals;
 using namespace IsoTpFrames;
 using namespace IsoTp;
 using namespace Fudp;
-
 
 
 int main(int argc, char *argv[])
@@ -54,5 +54,6 @@ int main(int argc, char *argv[])
     QFile pFile("./prop.txt");
     SimpleFilePropStore pStore(pFile);
     CanProg cp(&pStore);
+
     return a.exec();
 }

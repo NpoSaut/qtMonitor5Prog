@@ -2,14 +2,26 @@
 namespace CanInternals
 {
   CanDriver::CanDriver(QObject *parent) :
-    QObject(parent),
-    driverHandle (CreateFile(name, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,  FILE_ATTRIBUTE_NORMAL, 0))
+    QObject(parent)
   {
     canEnable = false;
+    start();
+  }
 
-    DWORD dw = 0x03e43;
-    deviceIo(ioctlCanInit, (LPVOID*)&dw, 4, (LPVOID*)&dw, 4);
-    canEnable = true;
+  void CanDriver::start()
+  {
+      driverHandle = CreateFile(name, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,  FILE_ATTRIBUTE_NORMAL, 0);
+      DWORD dw = 0x03e43;
+      deviceIo(ioctlCanInit, (LPVOID*)&dw, 4, (LPVOID*)&dw, 4);
+      canEnable = true;
+  }
+
+  void CanDriver::stop()
+  {
+      deviceIo(ioctlCanClear, NULL, 0, NULL, 0);
+      if(driverHandle != INVALID_HANDLE_VALUE)
+          CloseHandle(driverHandle);
+      canEnable = false;
   }
 
   bool CanDriver::deviceIo(DWORD code, LPVOID *inBuffer, DWORD inBufferSize, LPVOID* outBuffer, DWORD outBufferSize)
@@ -93,9 +105,8 @@ namespace CanInternals
 
   CanDriver::~CanDriver()
   {
-    deviceIo(ioctlCanClear, NULL, 0, NULL, 0);
-    if(driverHandle != INVALID_HANDLE_VALUE)
-        CloseHandle(driverHandle);
+
   }
+
 
 }

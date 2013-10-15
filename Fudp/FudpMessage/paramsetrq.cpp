@@ -24,7 +24,7 @@ std::vector<byte> ParamSetRq::encode()
 
 void ParamSetRq::decode(const std::vector<byte> &data)
 {
-    QByteArray buffer;
+    QByteArray buffer = Message::fromVectorToQByteArray(data);
     QDataStream out(&buffer, QIODevice::ReadOnly);
     out.setByteOrder(QDataStream::LittleEndian);
     out.skipRawData(1);

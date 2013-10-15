@@ -47,6 +47,7 @@ signals:
     void getProgWrite(QString fileName, qint32 offset, QByteArray data);
     void getParamSetRq(qint8 key, qint32 value);
     void getParamRmRq(qint8 key);
+    void getProgSubmit();
 
 public slots:
     void receiveData(const std::vector<byte> &data);

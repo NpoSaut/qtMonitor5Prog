@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QFile>
 #include <QDir>
+#include <QTimer>
 #include "FudpMessage/workingwithfudpmessage.h"
 #include "PropStore/propstore.h"
 
@@ -26,6 +27,9 @@ private:
     PropStore *pStore;
     QList<DevFileInfo> fileList;
     DeviceTickets myTicket;
+    QTimer initWaitTimer;
+
+    void progModeExit ();
 
 signals:
     void sendAnswerToBroadcast(DeviceTickets myTicket);
@@ -48,6 +52,10 @@ public slots:
     void writeFile(const QString &fileName, qint32 offset, const QByteArray &data);
     void setParam(qint8 key, qint32 value);
     void deleteParam(qint8 key);
+    void submit();
+
+private slots:
+    void initMessageTimeoutExpired();
 };
 }
 #endif // CANPROG_H

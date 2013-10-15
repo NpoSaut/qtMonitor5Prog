@@ -27,7 +27,8 @@ enum MessageId
     paramSetRq = 0x0f,
     paramSetAck = 0x10,
     paramRmRq = 0x11,
-    paramRmAck = 0x12
+    paramRmAck = 0x12,
+    progSubmit = 0x13
 };
 
 class Message

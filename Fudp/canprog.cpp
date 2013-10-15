@@ -1,9 +1,16 @@
 #include "canprog.h"
 
+#include <QProcess>
+
+// HACK
+// КАСЯК!!
+#include "Can/CanNik/workingwithmessage.h"
+
+
 namespace Fudp
 {
 CanProg::CanProg(PropStore *pStore, QObject *parent) :
-    pStore(pStore), QObject(parent), worker(FuDev, FuInit), myTicket()
+    pStore(pStore), QObject(parent), worker(FuDev, FuInit), myTicket(), initWaitTimer()
 {
     pStore->get(129, myTicket.blockId);
     pStore->get(130, myTicket.module);
@@ -32,22 +39,32 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(&worker, SIGNAL(getProgWrite(QString,qint32,QByteArray)), this, SLOT(writeFile(QString,qint32,QByteArray)));
     QObject::connect(&worker, SIGNAL(getParamSetRq(qint8,qint32)), this, SLOT(setParam(qint8,qint32)));
     QObject::connect(&worker, SIGNAL(getParamRmRq(qint8)), this, SLOT(deleteParam(qint8)));
+    QObject::connect(&worker, SIGNAL(getProgSubmit()), this, SLOT(submit()));
+
+    QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(initMessageTimeoutExpired()));
+
+    initWaitTimer.setSingleShot(true);
+    initWaitTimer.start(2000);
 }
 
 void CanProg::connect(const DeviceTickets &tickets)
 {
+    qDebug () << "connect";
     if (myTicket == tickets)
     {
+        qDebug() << "start ProgMode";
         worker.setAcknowlegmentDescriptor(FuProg);
         emit sendProgStatus(pStore->data());
+        initWaitTimer.stop();
     }
     else if (myTicket <= tickets) // Броадкаст
     {
+        qDebug() << "answer to Broadcast";
         emit sendAnswerToBroadcast(myTicket);
     }
     else
     {
-        // TODO: Выход из режима программирования
+//        progModeExit();
     }
 }
 
@@ -150,12 +167,22 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
 
 void CanProg::setParam(qint8 key, qint32 value)
 {
-
+    emit sendSetParamAck( pStore->set(key, value) ? 0 : 3 );
 }
 
 void CanProg::deleteParam(qint8 key)
 {
+    emit sendDeleteParamAck( pStore->del(key) ? 0 : 2 );
+}
 
+void CanProg::submit()
+{
+    progModeExit();
+}
+
+void CanProg::initMessageTimeoutExpired()
+{
+    progModeExit();
 }
 
 QStringList CanProg::parseDir(const QDir dir)
@@ -171,6 +198,14 @@ QStringList CanProg::parseDir(const QDir dir)
             fileList.append(fileInfo.filePath());
     }
     return fileList;
+}
+
+void CanProg::progModeExit()
+{
+    CanInternals::canDrv.stop();
+    QDir::setCurrent("C:/");
+    QProcess *mainProgram = new QProcess();
+    mainProgram->start("MonMSUL/root/Monitor.exe");
 }
 
 }

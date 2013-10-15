@@ -2,7 +2,7 @@
 
 #include <QTextStream>
 
-
+#include <QDebug>
 
 SimpleFilePropStore::SimpleFilePropStore(QFile &file)
     : file (file), map ()
