@@ -25,8 +25,16 @@ private:
     uint buffLength;
     int blockSize;
     int consIndex;
+    int consecutiveFrameCounter;
+    enum State
+    {
+        INIT = 0,
+        PROGRESS = 1,
+        BROKEN = 2
+    } state;
 
     void readyFlowControl();
+    void sendAbort();
 
 signals:
     void transactionReaceived(std::vector<byte> data);

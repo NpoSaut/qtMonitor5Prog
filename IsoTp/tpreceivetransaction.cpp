@@ -2,7 +2,7 @@
 namespace IsoTp
 {
 TpReceiveTransaction::TpReceiveTransaction(/*int transmitDescriptor, int acknowlegmentDescriptor, */QObject *parent) :
-    QObject(parent)
+    QObject(parent), state (INIT)
 {
     blockSize = 0;
     consIndex = blockSize;    
@@ -24,27 +24,62 @@ void TpReceiveTransaction::getSingleFrame(SingleFrame frame)
 
 void TpReceiveTransaction::getFirstFrame(FirstFrame frame)
 {
-    buffer.clear();
-    buffLength = frame.getPacketSize();
-    std::vector<byte> v = frame.getData();
-    pointer = buffer.begin();
-    buffer.insert(pointer, v.begin(), v.end());
-    pointer = buffer.end();
-    readyFlowControl();
+    if (state == INIT || state == BROKEN)
+    {
+        state = PROGRESS;
+        buffer.clear();
+        buffLength = frame.getPacketSize();
+        consecutiveFrameCounter = 0;
+        std::vector<byte> v = frame.getData();
+        pointer = buffer.begin();
+        buffer.insert(pointer, v.begin(), v.end());
+        pointer = buffer.end();
+        readyFlowControl();
+    }
+    else if (state == PROGRESS)
+    {
+        state = BROKEN;
+        sendAbort();
+    }
 }
 
 void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
 {
-    timer.stop();
-    std::vector<byte> v = frame.getData();
-    buffer.insert(pointer, v.begin(), (buffLength -  std::distance(buffer.begin(), pointer)) > 7 ?
-                      v.end() : v.begin() + buffLength -  std::distance(buffer.begin(), pointer));
-    pointer = buffer.end();
-    consIndex++;
-    if ((buffer.size() < buffLength) && (blockSize == consIndex))
-        readyFlowControl();
-    if ((buffer.size() == buffLength))
-        emit transactionReaceived(buffer);
+    if (state == PROGRESS)
+    {
+        timer.stop();
+        std::vector<byte> v = frame.getData();
+        if ( (++consecutiveFrameCounter & 0x0F) == frame.getIndex() )
+        {
+            buffer.insert(pointer, v.begin(), (buffLength -  std::distance(buffer.begin(), pointer)) > 7 ?
+                              v.end() : v.begin() + buffLength -  std::distance(buffer.begin(), pointer));
+            pointer = buffer.end();
+            consIndex++;
+            if ((buffer.size() < buffLength) && (blockSize == consIndex))
+                readyFlowControl();
+            if ((buffer.size() == buffLength))
+            {
+                state = INIT;
+                emit transactionReaceived(buffer);
+            }
+        }
+        else
+        {
+            state = BROKEN;
+            sendAbort();
+            qDebug() << "IsoTp sequence fail. Wait "
+                     << (consecutiveFrameCounter & 0x0F) << ", but got " << frame.getIndex() << ". :(";
+        }
+    }
+    else if (state == INIT)
+    {
+        state = BROKEN;
+        sendAbort();
+    }
+    else if (state == BROKEN)
+    {
+        // silent
+    }
 }
 
 void TpReceiveTransaction::readyFlowControl()
@@ -52,6 +87,12 @@ void TpReceiveTransaction::readyFlowControl()
     consIndex = 0;
     FlowControlFrame fcFrame(FlowControlFlag(ClearToSend), blockSize, 0);
     timer.start(3000);
+    emit sendFlowControl(fcFrame);
+}
+
+void TpReceiveTransaction::sendAbort()
+{
+    FlowControlFrame fcFrame(FlowControlFlag::Abort, 0, 0);
     emit sendFlowControl(fcFrame);
 }
 
