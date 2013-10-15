@@ -3,6 +3,7 @@
 namespace FudpMessage
 {
 ProgWrite::ProgWrite()
+    : fileName(), fileData(), offset(0)
 {
 }
 
@@ -23,7 +24,7 @@ std::vector<byte> ProgWrite::encode()
 
 void ProgWrite::decode(const std::vector<byte> &data)
 {
-    QByteArray buffer = Message::fromVectorToQByteArray(data);
+    QByteArray buffer = Message::fromVectorToQByteArray(data);    
     QDataStream out(&buffer, QIODevice::ReadOnly);
     out.setByteOrder(QDataStream::LittleEndian);
     out.skipRawData(1);
@@ -33,19 +34,16 @@ void ProgWrite::decode(const std::vector<byte> &data)
 
     QByteArray fNameArr(fileNameSize, Qt::Uninitialized);
     out.readRawData(fNameArr.data(), fileNameSize);
-    fileName.append(fNameArr);
-
-    qDebug()<<fileName;
+    fileName = QString(fNameArr);
 
     out >> offset;
 
     QByteArray fDataArr(buffer.size() - getValueOfOverhadsBytes(), Qt::Uninitialized);
     out.readRawData(fDataArr.data(), buffer.size() - getValueOfOverhadsBytes());
-//    fileName.append(arr);
-//    char *temp2 = new char[buffer.size() - getValueOfOverhadsBytes()];
-//    out.readRawData(temp2, buffer.size() - getValueOfOverhadsBytes());
     fileData.append(fDataArr);
-//    delete temp;
+
+//    qDebug()<< "Write file" << fileName <<". offset: " << offset << "; len: " << fileData.length() << ";";
+//    qDebug("data: %02x %02x %02x %02x ... ", (quint8)fileData.at(0), (quint8)fileData.at(1), (quint8)fileData.at(2), (quint8)fileData.at(3));
 }
 
 qint32 ProgWrite::getWriteBufferSize()
