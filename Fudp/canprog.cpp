@@ -10,7 +10,7 @@
 namespace Fudp
 {
 CanProg::CanProg(PropStore *pStore, QObject *parent) :
-    pStore(pStore), QObject(parent), worker(FuDev, FuInit), myTicket(), initWaitTimer()
+    pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer()
 {
     pStore->get(129, myTicket.blockId);
     pStore->get(130, myTicket.module);
@@ -29,6 +29,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(this, SIGNAL(sendCreateFileAck(qint8)), &worker, SLOT(sendProgCreateAck(qint8)));
     QObject::connect(this, SIGNAL(sendSetParamAck(qint8)), &worker, SLOT(sendParamSetAck(qint8)));
     QObject::connect(this, SIGNAL(sendDeleteParamAck(qint8)), &worker, SLOT(sendParamRmAck(qint8)));
+    QObject::connect(this, SIGNAL(sendFirmCorrupt()), &worker, SLOT(sendProgFirmCorrupt()));
 
     QObject::connect(&worker, SIGNAL(getProgInit(DeviceTickets)), this, SLOT(connect(DeviceTickets)));
     QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(getFileList()));
@@ -41,25 +42,22 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(&worker, SIGNAL(getParamRmRq(qint8)), this, SLOT(deleteParam(qint8)));
     QObject::connect(&worker, SIGNAL(getProgSubmit()), this, SLOT(submit()));
 
-    QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(initMessageTimeoutExpired()));
+    QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(periodicalCheck()));
 
+    initWaitTimer.setInterval(3000);
     initWaitTimer.setSingleShot(true);
-    initWaitTimer.start(2000);
+    initWaitTimer.start();
 }
 
 void CanProg::connect(const DeviceTickets &tickets)
 {
-    qDebug () << "connect";
     if (myTicket == tickets)
     {
-        qDebug() << "start ProgMode";
-        worker.setAcknowlegmentDescriptor(FuProg);
-        emit sendProgStatus(pStore->data());
         initWaitTimer.stop();
+        emit sendProgStatus(pStore->data());
     }
     else if (myTicket <= tickets) // Броадкаст
     {
-        qDebug() << "answer to Broadcast";
         emit sendAnswerToBroadcast(myTicket);
     }
     else
@@ -177,12 +175,18 @@ void CanProg::deleteParam(qint8 key)
 
 void CanProg::submit()
 {
-    progModeExit();
+    periodicalCheck();
 }
 
-void CanProg::initMessageTimeoutExpired()
+void CanProg::periodicalCheck()
 {
-    progModeExit();
+    if (checkProgram())
+        progModeExit();
+    else
+    {
+        emit sendFirmCorrupt();
+        initWaitTimer.start();
+    }
 }
 
 QStringList CanProg::parseDir(const QDir dir)
@@ -206,6 +210,27 @@ void CanProg::progModeExit()
     QDir::setCurrent("C:/");
     QProcess *mainProgram = new QProcess();
     mainProgram->start("MonMSUL/root/Monitor.exe");
+}
+
+bool CanProg::checkProgram()
+{
+    QDir dir = QDir(".");
+    QStringList files = parseDir(dir);
+
+    quint16 crc = 0;
+    foreach(QString fileName, files)
+    {
+        QFile file(fileName);
+        file.open(QIODevice::ReadOnly);
+
+        DevFileInfo fileInfo(fileName.remove(0,2), file.readAll());
+        crc ^= fileInfo.getControlSum();
+    }
+    qint32 etalonCrc;
+    if ( pStore->get(6, etalonCrc) )
+         return crc == etalonCrc;
+    else
+        return false;
 }
 
 }

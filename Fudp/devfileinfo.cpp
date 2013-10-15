@@ -33,7 +33,7 @@ qint32 DevFileInfo::getFileSize()
     return fileSize;
 }
 
-qint32 DevFileInfo::getControlSum()
+quint16 DevFileInfo::getControlSum()
 {
     return controlSum;
 }
@@ -43,7 +43,7 @@ qint8 DevFileInfo::getFileNameSize()
     return fileName.length();
 }
 
-qint32 DevFileInfo::calcControlSumm()
+quint16 DevFileInfo::calcControlSumm()
 {
     unsigned short crc = 0xffff;
     for(int i = 0; i < fileData.size(); i++)

@@ -30,6 +30,7 @@ private:
     QTimer initWaitTimer;
 
     void progModeExit ();
+    bool checkProgram ();
 
 signals:
     void sendAnswerToBroadcast(DeviceTickets myTicket);
@@ -41,6 +42,7 @@ signals:
     void sendCreateFileAck(qint8 errorCode);
     void sendSetParamAck(qint8 errorCode);
     void sendDeleteParamAck(qint8 errorCode);
+    void sendFirmCorrupt();
 
 public slots:
     void connect(const DeviceTickets &tickets);
@@ -55,7 +57,7 @@ public slots:
     void submit();
 
 private slots:
-    void initMessageTimeoutExpired();
+    void periodicalCheck();
 };
 }
 #endif // CANPROG_H

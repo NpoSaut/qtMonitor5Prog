@@ -26,7 +26,7 @@ std::vector<byte> ProgList::encode()
         for (int i =0; i < t.size(); i ++)
             in << (quint8)t.at(i);
 
-        in << i->getFileSize() << i->getControlSum();
+        in << i->getFileSize() << (quint32) i->getControlSum();
     }
     return Message::fromQByteArrayToVector(buffer);
 }

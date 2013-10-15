@@ -14,17 +14,17 @@ public:
     QByteArray getFileName(QString newCodec = "UTF-8");
     QByteArray &getData(QString newCodec = "UTF-8");
     qint32 getFileSize();
-    qint32 getControlSum();
+    quint16 getControlSum();
     qint8 getFileNameSize();
 
 private:
     unsigned short crc_ccitt_update(unsigned short crc, unsigned char data);
 
-    qint32 calcControlSumm();
+    quint16 calcControlSumm();
     QString fileName;
     QByteArray fileData;
     qint32 fileSize;
-    qint32 controlSum;
+    quint16 controlSum;
 };
 
 #endif // DEVFILEINFO_H

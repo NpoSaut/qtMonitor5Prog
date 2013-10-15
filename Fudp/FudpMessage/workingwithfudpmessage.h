@@ -20,6 +20,8 @@
 #include "paramsetrq.h"
 #include "paramrmack.h"
 #include "paramrmrq.h"
+#include "progbroadcastanswer.h"
+#include "progfirmcorrupt.h"
 
 using namespace IsoTp;
 
@@ -29,11 +31,11 @@ class WorkingWithFudpMessage : public QObject
 {
     Q_OBJECT
 public:
-    explicit WorkingWithFudpMessage(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
-    void setAcknowlegmentDescriptor(int acknowlegmentDescriptor);
+    explicit WorkingWithFudpMessage(int initDescriptor, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
 
 private:
-    IsoTpCommunicator communicator;
+    IsoTpCommunicator communicator1;
+    IsoTpCommunicator communicator2;
 
 signals:
     void transmitData(std::vector<byte> data);
@@ -61,6 +63,7 @@ public slots:
     void sendProgCreateAck(qint8 errorCode);
     void sendParamSetAck(qint8 errorCode);
     void sendParamRmAck(qint8 errorCode);
+    void sendProgFirmCorrupt();
 };
 }
 

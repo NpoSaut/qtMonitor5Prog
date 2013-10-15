@@ -54,7 +54,9 @@ SOURCES += \
     IsoTp/isotpcommunicator.cpp \
     PropStore/propstore.cpp \
     PropStore/simplefilepropstore.cpp \
-    Fudp/FudpMessage/progsubmit.cpp
+    Fudp/FudpMessage/progsubmit.cpp \
+    Fudp/FudpMessage/progbroadcastanswer.cpp \
+    Fudp/FudpMessage/progfirmcorrupt.cpp
 
 HEADERS += \
     Can/canframe.h \
@@ -95,7 +97,9 @@ HEADERS += \
     IsoTp/isotpcommunicator.h \
     PropStore/propstore.h \
     PropStore/simplefilepropstore.h \
-    Fudp/FudpMessage/progsubmit.h
+    Fudp/FudpMessage/progsubmit.h \
+    Fudp/FudpMessage/progbroadcastanswer.h \
+    Fudp/FudpMessage/progfirmcorrupt.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

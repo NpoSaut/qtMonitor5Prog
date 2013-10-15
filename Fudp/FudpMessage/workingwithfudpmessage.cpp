@@ -2,10 +2,13 @@
 
 namespace FudpMessage
 {
-WorkingWithFudpMessage::WorkingWithFudpMessage(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
-    QObject(parent), communicator(transmitDescriptor, acknowlegmentDescriptor)
+WorkingWithFudpMessage::WorkingWithFudpMessage(int initDescriptor, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
+    QObject(parent),
+    communicator1(transmitDescriptor, initDescriptor),
+    communicator2(transmitDescriptor, acknowlegmentDescriptor)
 {
-    QObject::connect(&communicator, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
+    QObject::connect(&communicator1, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
+    QObject::connect(&communicator2, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
 }
 
 void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
@@ -82,59 +85,62 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
 
 void WorkingWithFudpMessage::sendAnswerToBroadcast(DeviceTickets ticket)
 {
-    ProgInit progInit(ticket);
-    communicator.send(progInit.encode());
+    ProgBroadcastAnswer progBcAnsw(ticket);
+    communicator2.send(progBcAnsw.encode());
 }
 
 void WorkingWithFudpMessage::sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary)
 {
     ProgStatus status(dictionary);
-    communicator.send(status.encode());
+    communicator2.send(status.encode());
 }
 
 void WorkingWithFudpMessage::sendProgList(const QList<DevFileInfo> &list)
 {
     ProgList pList(list);
-    communicator.send(pList.encode());
+    communicator2.send(pList.encode());
 }
 
 void WorkingWithFudpMessage::sendProgRead(qint8 errorCode, const QByteArray &data)
 {
     ProgRead read(data, errorCode);
-    communicator.send(read.encode());
+    communicator2.send(read.encode());
 }
 
 void WorkingWithFudpMessage::sendProgRmAck(qint8 errorCode)
 {
     ProgRmAck rmAck(errorCode);
-    communicator.send(rmAck.encode());
+    communicator2.send(rmAck.encode());
 }
 
 void WorkingWithFudpMessage::sendProgMrPropperAck()
 {
     ProgMrProper mrPropper;
-    communicator.send(mrPropper.encode());
+    communicator2.send(mrPropper.encode());
 }
 
 void WorkingWithFudpMessage::sendProgCreateAck(qint8 errorCode)
 {
     ProgCreateAck createAck(errorCode);
-    communicator.send(createAck.encode());
+    communicator2.send(createAck.encode());
 }
 
 void WorkingWithFudpMessage::sendParamRmAck(qint8 errorCode)
 {
     ParamRmAck rmParam(errorCode);
-    communicator.send(rmParam.encode());
+    communicator2.send(rmParam.encode());
+}
+
+void WorkingWithFudpMessage::sendProgFirmCorrupt()
+{
+    ProgFirmCorrupt fc;
+    communicator2.send(fc.encode());
 }
 
 void WorkingWithFudpMessage::sendParamSetAck(qint8 errorCode)
 {
     ParamSetAck setParam(errorCode);
-    communicator.send(setParam.encode());
+    communicator2.send(setParam.encode());
 }
-void WorkingWithFudpMessage::setAcknowlegmentDescriptor(int acknowlegmentDescriptor)
-{
-    communicator.setAcknowlegmentDescriptor(acknowlegmentDescriptor);
-}
+
 }
