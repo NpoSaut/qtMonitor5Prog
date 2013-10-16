@@ -2,11 +2,6 @@
 
 #include <QProcess>
 
-// HACK
-// КАСЯК!!
-#include "Can/CanNik/workingwithmessage.h"
-
-
 namespace Fudp
 {
 CanProg::CanProg(PropStore *pStore, QObject *parent) :
@@ -180,9 +175,9 @@ void CanProg::submit()
 
 void CanProg::periodicalCheck()
 {
-    if (checkProgram())
+    //if (checkProgram())
         progModeExit();
-    else
+    //else
     {
         emit sendFirmCorrupt();
         initWaitTimer.start();
@@ -191,7 +186,6 @@ void CanProg::periodicalCheck()
 
 QStringList CanProg::parseDir(const QDir dir)
 {
-    QDir currentDir = dir;
     QFileInfoList fileInfoList = dir.entryInfoList(QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot);
     QStringList fileList;
     foreach(QFileInfo fileInfo, fileInfoList)
@@ -206,10 +200,10 @@ QStringList CanProg::parseDir(const QDir dir)
 
 void CanProg::progModeExit()
 {
-    CanInternals::canDrv.stop();
     QDir::setCurrent("C:/");
     QProcess *mainProgram = new QProcess();
-    mainProgram->start("MonMSUL/root/Monitor.exe");
+    mainProgram->startDetached("MonMSUL/root/Monitor.exe");
+    exit(0);
 }
 
 bool CanProg::checkProgram()
