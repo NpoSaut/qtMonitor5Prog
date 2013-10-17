@@ -1,4 +1,3 @@
-#include <iostream>
 #include <QCoreApplication>
 #include <QTimer>
 #include <QFile>
@@ -52,13 +51,6 @@ int main(int argc, char *argv[])
     //    in << 329;
     //    for(int i = 0; i < arr.size(); i++)
     //        qDebug("%x", arr.at(i));
-
-    std::cout << "        ooOOOO                 " << std::endl;
-    std::cout << "       oo      _____           " << std::endl;
-    std::cout << "      _I__n_n__||_|| ________  " << std::endl;
-    std::cout << "    >(_________|_7_|-|______|  " << std::endl;
-    std::cout << "     /o ()() ()() o   oo  oo   " << std::endl;
-
     QFile pFile("C:/MonMSUL/prop.txt");
     SimpleFilePropStore pStore(pFile);
     CanProg cp(&pStore);
