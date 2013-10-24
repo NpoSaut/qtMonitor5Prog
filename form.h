@@ -3,8 +3,10 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QTextEdit>
 #include "Fudp/canprog.h"
 #include "PropStore/simplefilepropstore.h"
+#include "Log/logwriter.h"
 
 using namespace Fudp;
 
@@ -23,8 +25,10 @@ public:
 private:
     Ui::Form *ui;
     CanProg cp;
-
+    LogWriter log;
     void moveAboutCenter(QLabel *lable, int x, int y);
+    void setSize(QTextEdit *log);
+
 private slots:
     void showState(const QString state);
 };

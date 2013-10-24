@@ -57,6 +57,7 @@ SOURCES += \
     Fudp/FudpMessage/progsubmit.cpp \
     Fudp/FudpMessage/progbroadcastanswer.cpp \
     Fudp/FudpMessage/progfirmcorrupt.cpp \
+    Log/logwriter.cpp \
     form.cpp
 
 HEADERS += \
@@ -101,6 +102,8 @@ HEADERS += \
     Fudp/FudpMessage/progsubmit.h \
     Fudp/FudpMessage/progbroadcastanswer.h \
     Fudp/FudpMessage/progfirmcorrupt.h \
+    Log/logwriter.h \
+    Log/singletone.h \
     form.h
 
 QMAKE_CXXFLAGS += -std=c++0x

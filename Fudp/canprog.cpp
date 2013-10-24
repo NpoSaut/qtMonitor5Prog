@@ -10,6 +10,8 @@ namespace Fudp
 CanProg::CanProg(PropStore *pStore, QObject *parent) :
     pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor()
 {
+    CanInternals::canDrv.start();
+
     pStore->get(129, myTicket.blockId);
     pStore->get(130, myTicket.module);
     pStore->get(131, myTicket.blockSerialNumber);
@@ -55,7 +57,7 @@ void CanProg::connect(const DeviceTickets &tickets)
     {
         initWaitTimer.stop();
         emit sendProgStatus(pStore->data());
-        emit sendState("Установлено соединение.");
+        emit sendState(tr("Установлено соединение."));
     }
     else if (myTicket <= tickets) // Броадкаст
     {
@@ -83,7 +85,7 @@ void CanProg::getFileList()
     }
 
     emit sendFileList(fileList);
-    emit sendState("Отправлен список файлов.");
+    emit sendState(tr("Отправлен список файлов."));
 }
 
 void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
@@ -106,7 +108,7 @@ void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
         errorCode = ProgRead::fileNotFound;
     }
     emit sendFile(errorCode, buffer);
-    emit sendState("Прочитан файл " + fileName);
+    emit sendState(tr("Прочитан файл ") + fileName);
 }
 
 void CanProg::deleteFile(const QString &fileName)
@@ -118,7 +120,7 @@ void CanProg::deleteFile(const QString &fileName)
         errorCode = ProgRmAck::FileNotExists;
 
     emit sendDeleteFileAck(errorCode);
-    emit sendState("Удален файл " + fileName);
+    emit sendState(tr("Удален файл ") + fileName);
 }
 
 void CanProg::deleteAllFiles(qint32 securityKey)
@@ -130,7 +132,7 @@ void CanProg::deleteAllFiles(qint32 securityKey)
         QFile(fileName).remove();
     }
     emit sendDeleteAllFilesAck();
-    emit sendState("Удалены все файлы");
+    emit sendState(tr("Удалены все файлы"));
 
 }
 
@@ -153,7 +155,7 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
     else
         errorCode = ProgCreateAck::FileAlreadyExists;
     emit sendCreateFileAck(errorCode);
-    emit sendState("Создается файл" + fileName);
+    emit sendState(tr("Создается файл") + fileName);
 }
 
 void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray &data)
@@ -220,7 +222,7 @@ void CanProg::progModeExit()
 
 bool CanProg::checkProgram()
 {
-    emit sendState("Проверка целостности прошивки...");
+    emit sendState(tr("Проверка целостности прошивки..."));
     QDir dir = QDir(".");
     QStringList files = parseDir(dir);
 
