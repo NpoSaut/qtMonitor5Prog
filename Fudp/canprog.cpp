@@ -216,7 +216,6 @@ void CanProg::progModeExit()
     CanInternals::canDrv.stop();
     QDir::setCurrent("C:/");
     monitor.start("MonMSUL/root/Monitor.exe");
-    exit(0);
 }
 
 bool CanProg::checkProgram()
