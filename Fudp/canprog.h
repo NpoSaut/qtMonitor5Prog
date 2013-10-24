@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QDir>
 #include <QTimer>
+#include <QProcess>
 #include "FudpMessage/workingwithfudpmessage.h"
 #include "PropStore/propstore.h"
 
@@ -12,6 +13,10 @@ using namespace FudpMessage;
 
 namespace Fudp
 {
+
+void hideWindow();
+void showWindow();
+
 class CanProg : public QObject
 {
     Q_OBJECT
@@ -28,6 +33,7 @@ private:
     QList<DevFileInfo> fileList;
     DeviceTickets myTicket;
     QTimer initWaitTimer;
+    QProcess monitor;
 
     void progModeExit ();
     bool checkProgram ();
@@ -44,6 +50,10 @@ signals:
     void sendDeleteParamAck(qint8 errorCode);
     void sendFirmCorrupt();
 
+    void sendState(QString state);
+    void sendFileInfo(QString fileName, qint32 fileSize);
+    void senValueReceiveBytes(qint32 receiveBytes);
+
 public slots:
     void connect(const DeviceTickets &tickets);
     void getFileList();
@@ -58,6 +68,7 @@ public slots:
 
 private slots:
     void periodicalCheck();
+    void startDriver(int exitCode);
 };
 }
 #endif // CANPROG_H

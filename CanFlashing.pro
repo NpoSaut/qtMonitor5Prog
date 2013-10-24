@@ -4,13 +4,13 @@
 #
 #-------------------------------------------------
 
-QT       += core
+QT       += core gui
 
-QT       -= gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = CanFlashing
-CONFIG   += console
-CONFIG   -= app_bundle
+CONFIG   -= console
+#CONFIG   -= app_bundle
 
 TEMPLATE = app
 
@@ -56,7 +56,8 @@ SOURCES += \
     PropStore/simplefilepropstore.cpp \
     Fudp/FudpMessage/progsubmit.cpp \
     Fudp/FudpMessage/progbroadcastanswer.cpp \
-    Fudp/FudpMessage/progfirmcorrupt.cpp
+    Fudp/FudpMessage/progfirmcorrupt.cpp \
+    form.cpp
 
 HEADERS += \
     Can/canframe.h \
@@ -99,7 +100,10 @@ HEADERS += \
     PropStore/simplefilepropstore.h \
     Fudp/FudpMessage/progsubmit.h \
     Fudp/FudpMessage/progbroadcastanswer.h \
-    Fudp/FudpMessage/progfirmcorrupt.h
+    Fudp/FudpMessage/progfirmcorrupt.h \
+    form.h
 
 QMAKE_CXXFLAGS += -std=c++0x
+
+FORMS += form.ui
 

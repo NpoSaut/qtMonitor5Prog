@@ -1,11 +1,14 @@
 #include "canprog.h"
 
-#include <QProcess>
+
+// HACK
+// Кастыль!!
+#include "Can/CanNik/workingwithmessage.h"
 
 namespace Fudp
 {
 CanProg::CanProg(PropStore *pStore, QObject *parent) :
-    pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer()
+    pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor()
 {
     pStore->get(129, myTicket.blockId);
     pStore->get(130, myTicket.module);
@@ -39,6 +42,8 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 
     QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(periodicalCheck()));
 
+    QObject::connect(&monitor, SIGNAL(finished(int)), this, SLOT(startDriver(int)));
+
     initWaitTimer.setInterval(3000);
     initWaitTimer.setSingleShot(true);
     initWaitTimer.start();
@@ -50,6 +55,7 @@ void CanProg::connect(const DeviceTickets &tickets)
     {
         initWaitTimer.stop();
         emit sendProgStatus(pStore->data());
+        emit sendState("Установлено соединение.");
     }
     else if (myTicket <= tickets) // Броадкаст
     {
@@ -57,7 +63,7 @@ void CanProg::connect(const DeviceTickets &tickets)
     }
     else
     {
-//        progModeExit();
+        progModeExit();
     }
 }
 
@@ -77,6 +83,7 @@ void CanProg::getFileList()
     }
 
     emit sendFileList(fileList);
+    emit sendState("Отправлен список файлов.");
 }
 
 void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
@@ -99,6 +106,7 @@ void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
         errorCode = ProgRead::fileNotFound;
     }
     emit sendFile(errorCode, buffer);
+    emit sendState("Прочитан файл " + fileName);
 }
 
 void CanProg::deleteFile(const QString &fileName)
@@ -110,6 +118,7 @@ void CanProg::deleteFile(const QString &fileName)
         errorCode = ProgRmAck::FileNotExists;
 
     emit sendDeleteFileAck(errorCode);
+    emit sendState("Удален файл " + fileName);
 }
 
 void CanProg::deleteAllFiles(qint32 securityKey)
@@ -121,6 +130,8 @@ void CanProg::deleteAllFiles(qint32 securityKey)
         QFile(fileName).remove();
     }
     emit sendDeleteAllFilesAck();
+    emit sendState("Удалены все файлы");
+
 }
 
 void CanProg::createFile(const QString &fileName, qint32 fileSize)
@@ -142,6 +153,7 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
     else
         errorCode = ProgCreateAck::FileAlreadyExists;
     emit sendCreateFileAck(errorCode);
+    emit sendState("Создается файл" + fileName);
 }
 
 void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray &data)
@@ -175,11 +187,12 @@ void CanProg::submit()
 
 void CanProg::periodicalCheck()
 {
-    //if (checkProgram())
+    if (checkProgram())
         progModeExit();
-    //else
+    else
     {
         emit sendFirmCorrupt();
+        emit sendState(this->tr("Не сошлись контрольные суммы"));
         initWaitTimer.start();
     }
 }
@@ -200,14 +213,15 @@ QStringList CanProg::parseDir(const QDir dir)
 
 void CanProg::progModeExit()
 {
+    CanInternals::canDrv.stop();
     QDir::setCurrent("C:/");
-    QProcess *mainProgram = new QProcess();
-    mainProgram->startDetached("MonMSUL/root/Monitor.exe");
+    monitor.start("MonMSUL/root/Monitor.exe");
     exit(0);
 }
 
 bool CanProg::checkProgram()
 {
+    emit sendState("Проверка целостности прошивки...");
     QDir dir = QDir(".");
     QStringList files = parseDir(dir);
 
@@ -225,6 +239,11 @@ bool CanProg::checkProgram()
          return crc == etalonCrc;
     else
         return false;
+}
+
+void CanProg::startDriver(int exitCode)
+{
+    CanInternals::canDrv.start();
 }
 
 }
