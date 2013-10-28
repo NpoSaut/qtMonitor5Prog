@@ -49,7 +49,6 @@ std::vector<StructForDrv> CanDriver::receiveMessage()
 
     if (count != 0)
     {
-        LOG_WRITER.write(tr("Получили сообщение"));
         byte *data = new byte[count*13];
         WaitForSingleObject(receiveMutex, INFINITE);
         deviceIo(ioctlCanRead, (LPVOID*) &count, 4, (LPVOID*) data, count*13);
@@ -59,7 +58,7 @@ std::vector<StructForDrv> CanDriver::receiveMessage()
         {
             for (int j = 0; j < 13; j ++)
                 outBuf[i].rawData[j] = data[i*13+j];
-//            LOG_WRITER.write(outBuf[i]);
+            LOG_WRITER.write(outBuf[i]);
             //            readLog(outBuf[i]);
         }
 

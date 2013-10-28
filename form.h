@@ -25,9 +25,8 @@ public:
 private:
     Ui::Form *ui;
     CanProg cp;
-    LogWriter log;
     void moveAboutCenter(QLabel *lable, int x, int y);
-    void setSize(QTextEdit *log);
+    void setSize(QTextEdit *textLog);
 
 private slots:
     void showState(const QString state);

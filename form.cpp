@@ -5,7 +5,6 @@
 
 Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
     cp(pStore),
-    log(),
     QWidget(parent),
     ui(new Ui::Form)
 {
@@ -14,11 +13,11 @@ Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
     showFullScreen();
 
     setSize(ui->log);
-    moveAboutCenter(ui->label, ui->log->width()/2, 0);
 
     QObject::connect(&cp, SIGNAL(sendState(QString)), this, SLOT(showState(QString)));
 
-    QObject::connect(&log, SIGNAL(getText(QString)), ui->log, SLOT(append(QString)));
+    QObject::connect(&LOG_WRITER, SIGNAL(setText(QString)), ui->log, SLOT(append(QString)));
+    QObject::connect(&LOG_WRITER, SIGNAL(setColor(QColor)), ui->log, SLOT(setTextColor(QColor)));
 }
 
 Form::~Form()
@@ -28,7 +27,7 @@ Form::~Form()
 
 void Form::showState(const QString state)
 {
-    moveAboutCenter(ui->stateLable, ui->log->width()/2, 100);
+    moveAboutCenter(ui->stateLable, ui->log->width()/2, 0);
     ui->stateLable->setText(state);
 }
 
@@ -40,11 +39,11 @@ void Form::moveAboutCenter(QLabel *lable, int x, int y)
     lable->move(point);
 }
 
-void Form::setSize(QTextEdit *log)
+void Form::setSize(QTextEdit *textLog)
 {
     QRect screen = QApplication::desktop()->screenGeometry();
     screen.setWidth(screen.width()/2);
-    log->setGeometry(screen);
+    textLog->setGeometry(screen);
 }
 
 

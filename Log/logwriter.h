@@ -5,6 +5,9 @@
 #include <QDateTime>
 #include <vector>
 #include <QTextEdit>
+#include <QColor>
+#include <QFile>
+#include <QTextStream>
 #include "singletone.h"
 #include "Can/CanNik/candriver.h"
 
@@ -16,18 +19,24 @@ class LogWriter : public QObject, public Singletone<LogWriter>
 public:
     explicit LogWriter(QObject *parent = 0);
 
-//    void write(const std::vector<unsigned char> &data);
-    void write(const QString &data);
+    void write(const QString &data, QColor color);
     void write(const CanInternals::StructForDrv &data);
     void write(const CanInternals::TransmitData &data);
 
+    void installLog();
+    void finishLog();
+
 private:
     QTextEdit *container;
+    QFile logFile;
+    QTextStream logStream;
 
-    QString vectorToQString(std::vector<unsigned char> data);
+    QString ToQString(CanInternals::StructForDrv data);
+    QString ToQString(CanInternals::TransmitData data);
 
 signals:
-    void getText(QString data);
+    void setText(QString data);
+    void setColor(QColor color);
 
 public slots:
     
