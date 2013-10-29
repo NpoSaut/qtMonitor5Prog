@@ -10,7 +10,7 @@ namespace Fudp
 CanProg::CanProg(PropStore *pStore, QObject *parent) :
     pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor(), log()
 {
-    CanInternals::canDrv.start();
+//    CanInternals::canDrv.start();
 
     pStore->get(129, myTicket.blockId);
     pStore->get(130, myTicket.module);
@@ -182,7 +182,7 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
 
 void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray &data)
 {
-    LOG_WRITER.write(QString(tr("Принята команда на запись в файл %1 блока данных размером %2")).arg(fileName).arg(data.size()), QColor(0, 255, 0));
+    LOG_WRITER.write(QString(tr("Принята команда на запись в файл %1 блока данных размером %2 байт")).arg(fileName).arg(data.size()), QColor(0, 255, 0));
 
     if(QFile::exists(fileName))
     {
@@ -274,6 +274,7 @@ bool CanProg::checkProgram()
 
 void CanProg::startDriver(int exitCode)
 {
+    LOG_WRITER.installLog();
     CanInternals::canDrv.start();
 }
 

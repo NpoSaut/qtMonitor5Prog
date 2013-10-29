@@ -1,4 +1,6 @@
 #include "tpreceivetransaction.h"
+#include "Log/logwriter.h"
+
 namespace IsoTp
 {
 TpReceiveTransaction::TpReceiveTransaction(/*int transmitDescriptor, int acknowlegmentDescriptor, */QObject *parent) :
@@ -59,6 +61,7 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
                 readyFlowControl();
             if ((buffer.size() == buffLength))
             {
+                LOG_WRITER.write(QString(tr("Принят буффер размером %1 байт")).arg(buffer.size()), QColor(255, 255, 0));
                 state = INIT;
                 emit transactionReaceived(buffer);
             }

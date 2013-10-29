@@ -71,7 +71,6 @@ std::vector<StructForDrv> CanDriver::receiveMessage()
 int CanDriver::transmitMessage(TransmitData &td)
 {
     int error;
-    LOG_WRITER.write(td);
     WaitForSingleObject(transmitMutex, INFINITE);
     if(deviceIo(ioctlCanTransmit, (LPVOID*) &td, sizeof(td), (LPVOID*) &error, 4))
     {
