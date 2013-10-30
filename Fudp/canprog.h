@@ -69,7 +69,7 @@ public slots:
 
 private slots:
     void periodicalCheck();
-    void startDriver(int exitCode);
+    void start(int exitCode);
 };
 }
 #endif // CANPROG_H

@@ -44,7 +44,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 
     QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(periodicalCheck()));
 
-    QObject::connect(&monitor, SIGNAL(finished(int)), this, SLOT(startDriver(int)));
+    QObject::connect(&monitor, SIGNAL(finished(int)), this, SLOT(start(int)));
 
     initWaitTimer.setInterval(3000);
     initWaitTimer.setSingleShot(true);
@@ -81,7 +81,7 @@ void CanProg::connect(const DeviceTickets &tickets)
 
 void CanProg::getFileList()
 {
-    LOG_WRITER.write(tr("Принята команда списока файлов"), QColor(0, 255, 0));
+    LOG_WRITER.write(tr("Принята команда на получеие списка файлов"), QColor(0, 255, 0));
 
     QDir dir = QDir(".");
     QStringList files = parseDir(dir);
@@ -243,6 +243,7 @@ QStringList CanProg::parseDir(const QDir dir)
 
 void CanProg::progModeExit()
 {
+    emit sendState(tr(""));
     LOG_WRITER.finishLog();
     CanInternals::canDrv.stop();
     QDir::setCurrent("C:/");
@@ -272,10 +273,12 @@ bool CanProg::checkProgram()
         return false;
 }
 
-void CanProg::startDriver(int exitCode)
+void CanProg::start(int exitCode)
 {
     LOG_WRITER.installLog();
+    QDir::setCurrent("C:/MonMSUL/root");
     CanInternals::canDrv.start();
+    initWaitTimer.start();
 }
 
 }

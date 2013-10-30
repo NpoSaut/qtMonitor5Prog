@@ -1,19 +1,29 @@
 #include "logwriter.h"
+#include "QDir"
 
 LogWriter::LogWriter(QObject *parent) :
-    logFile("log.log"),
+    logFile(QString("C:\\MonMSUL\\%1.log").arg(QDateTime::currentDateTime().toString("dd-MM-yyyy"))),
     logStream(&logFile),
     Singletone<LogWriter>(*this),
     QObject(parent)
 {
 
+    QDir dir = QDir::current();
+
+    QStringList loggers = dir.entryList(QStringList("*.log"),QDir::Files, QDir::Name);
+    if(loggers.size() > 7)
+    {
+        QFile(loggers.at(0)).remove();
+    }
 }
 
 void LogWriter::installLog()
 {
-    logFile.open(QFile::WriteOnly | QIODevice::Unbuffered | QIODevice::Append);
-    logStream << QString(tr("Начало записи в %1\r\n")).arg(QDateTime::currentDateTime().toString("dd:mm:yyyy hh:mm"));
-    logStream << tr("Маркеры: '>>' входящее сообщение, '<<' исходящее сообщение\r\n\r\n");
+    if(logFile.open(QFile::WriteOnly | QIODevice::Unbuffered | QIODevice::Append))
+    {
+        logStream << QString(tr("Начало записи в %1\r\n")).arg(QDateTime::currentDateTime().toString("hh:mm:ss"));
+        logStream << tr("Маркеры: '>>' входящее сообщение, '<<' исходящее сообщение\r\n\r\n");
+    }
 }
 
 void LogWriter::finishLog()
@@ -35,11 +45,15 @@ void LogWriter::write(const QString &data, QColor color)
 
 void LogWriter::write(const CanInternals::StructForDrv &data)
 {
-    logStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz ");
-    logStream << ToQString(data) + "\r\n";
+    int descr = (data.id >> 18) * 0x20 + 0x8;
+    if((descr == FuInit) || (descr == FuProg))
+    {
+        logStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz ");
+        logStream << ToQString(data) + "\r\n";
 
-    emit setColor(QColor(255, 255, 0));
-    emit setText(ToQString(data));
+//        emit setColor(QColor(255, 255, 0));
+//        emit setText(ToQString(data));
+    }
 }
 
 void LogWriter::write(const CanInternals::TransmitData &data)
@@ -47,8 +61,8 @@ void LogWriter::write(const CanInternals::TransmitData &data)
     logStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz ");
     logStream << ToQString(data) + "\r\n";
 
-    emit setColor(QColor(0, 255, 255));
-    emit setText(ToQString(data));
+//    emit setColor(QColor(0, 255, 255));
+//    emit setText(ToQString(data));
 }
 
 QString LogWriter::ToQString(CanInternals::StructForDrv data)

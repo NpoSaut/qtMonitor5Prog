@@ -40,6 +40,7 @@ void TpReceiveTransaction::getFirstFrame(FirstFrame frame)
     }
     else if (state == PROGRESS)
     {
+        LOG_WRITER.write(tr("FirstFrame пришел невовремя"), QColor(255, 0, 255));
         state = BROKEN;
         sendAbort();
     }
@@ -61,7 +62,6 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
                 readyFlowControl();
             if ((buffer.size() == buffLength))
             {
-                LOG_WRITER.write(QString(tr("Принят буффер размером %1 байт")).arg(buffer.size()), QColor(255, 255, 0));
                 state = INIT;
                 emit transactionReaceived(buffer);
             }
@@ -70,12 +70,16 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
         {
             state = BROKEN;
             sendAbort();
-            qDebug() << "IsoTp sequence fail. Wait "
-                     << (consecutiveFrameCounter & 0x0F) << ", but got " << frame.getIndex() << ". :(";
+            LOG_WRITER.write(QString("IsoTp последовательность нарушена. Ожидался фрейм с индексом %1, а получен - с индексом %2").
+                             arg(consecutiveFrameCounter & 0x0F).
+                             arg(frame.getIndex()), QColor(255, 0, 255));
+//            qDebug() << "IsoTp sequence fail. Wait "
+//                     << (consecutiveFrameCounter & 0x0F) << ", but got " << frame.getIndex() << ". :(";
         }
     }
     else if (state == INIT)
     {
+        LOG_WRITER.write(tr("ConsecutiveFrame пришел невовремя"), QColor(255, 0, 0));
         state = BROKEN;
         sendAbort();
     }
