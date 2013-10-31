@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QTimer>
 #include <QProcess>
+#include "Log/logwriter.h"
 #include "FudpMessage/workingwithfudpmessage.h"
 #include "PropStore/propstore.h"
 
@@ -34,7 +35,7 @@ private:
     DeviceTickets myTicket;
     QTimer initWaitTimer;
     QProcess monitor;
-
+    LogWriter log;
     void progModeExit ();
     bool checkProgram ();
 
@@ -68,7 +69,7 @@ public slots:
 
 private slots:
     void periodicalCheck();
-    void startDriver(int exitCode);
+    void start(int exitCode);
 };
 }
 #endif // CANPROG_H

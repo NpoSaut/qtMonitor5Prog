@@ -1,12 +1,11 @@
 #include "workingwithmessage.h"
 
-
 namespace CanInternals
 {
-  CanDriver canDrv;
+CanDriver canDrv;
 
-  void transmit(CanFrame frame)
-  {
+void transmit(CanFrame frame)
+{
     TransmitData td;
     td.control = 1;
     td.counter = 1;
@@ -14,12 +13,12 @@ namespace CanInternals
     td.period = 50;
     td.dataLength = 8;
     for(int i = 0; i < 8; i++)
-      td.data[i] = frame[i+1];
+        td.data[i] = frame[i+1];
     canDrv.transmitMessage(td);
-  }
+}
 
-  std::vector<CanFrame> receive()
-  {
+std::vector<CanFrame> receive()
+{
     auto receivedMessages = canDrv.receiveMessage();
     std::vector<CanFrame> outFrames ( receivedMessages.size() );
     for (int i = 0; i < outFrames.size(); i ++)
@@ -29,27 +28,27 @@ namespace CanInternals
         outFrames[i].setData (v);
     }
     return outFrames;
-  }
+}
 
-  ReceiveMessageThread receiveMessagetLoop ("can0");
+ReceiveMessageThread receiveMessagetLoop ("can0");
 
-  ReceiveMessageThread::ReceiveMessageThread(QString interfaceName)
-  {
+ReceiveMessageThread::ReceiveMessageThread(QString interfaceName)
+{
     this->start();
-  }
+}
 
-  void ReceiveMessageThread::run()
-  {
+void ReceiveMessageThread::run()
+{
     while(true)
-      {
+    {
         msleep(1);
         auto receivedMessages = receive();
         for (int i = 0; i < receivedMessages.size(); i ++)
-          {
+        {
             emit messageReceived(receivedMessages[i]);
-          }
-      }
-  }
+        }
+    }
+}
 }
 
 
