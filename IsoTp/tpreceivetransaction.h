@@ -40,6 +40,8 @@ signals:
     void transactionReaceived(std::vector<byte> data);
     void sendFlowControl(FlowControlFrame frame);
 
+    void watingTimeOut();
+
 public slots:
     void getSingleFrame(SingleFrame frame);
     void getFirstFrame(FirstFrame frame);

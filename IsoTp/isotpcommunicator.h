@@ -21,9 +21,12 @@ private:
 
 signals:
     void bufferReceived(const std::vector<byte> &buffer);
+    void waitingTimeOut();
 
 public slots:
     void transactionReceived(const std::vector<byte> &buffer);
+
+    void timeOut();
 };
 }
 #endif // ISOTPCOMMUNICATOR_H

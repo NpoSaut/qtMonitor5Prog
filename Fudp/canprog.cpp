@@ -10,7 +10,7 @@ namespace Fudp
 CanProg::CanProg(PropStore *pStore, QObject *parent) :
     pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor(), log()
 {
-//    CanInternals::canDrv.start();
+    progMode = false;
 
     pStore->get(129, myTicket.blockId);
     pStore->get(130, myTicket.module);
@@ -41,12 +41,14 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(&worker, SIGNAL(getParamSetRq(qint8,qint32)), this, SLOT(setParam(qint8,qint32)));
     QObject::connect(&worker, SIGNAL(getParamRmRq(qint8)), this, SLOT(deleteParam(qint8)));
     QObject::connect(&worker, SIGNAL(getProgSubmit()), this, SLOT(submit()));
+    QObject::connect(&worker, SIGNAL(waitingTimeOut()), this, SLOT(periodicalCheck()));
 
-    QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(periodicalCheck()));
+    QObject::connect(&initWaitTimer, SIGNAL(timeOut()), this, SLOT(periodicalCheck()));
+
 
     QObject::connect(&monitor, SIGNAL(finished(int)), this, SLOT(start(int)));
 
-    initWaitTimer.setInterval(3000);
+    initWaitTimer.setInterval(1000);
     initWaitTimer.setSingleShot(true);
     initWaitTimer.start();
 
@@ -55,155 +57,173 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 
 void CanProg::connect(const DeviceTickets &tickets)
 {
-    if (myTicket == tickets)
-    {
-        LOG_WRITER.write(tr("Установлено соединение"), QColor(0, 255, 0));
+        if (myTicket == tickets)
+        {
+            LOG_WRITER.write(tr("Установлено соединение"), QColor(0, 255, 0));
 
-        initWaitTimer.stop();
+            initWaitTimer.stop();
 
-        LOG_WRITER.write(tr("Отправляю список свойств"), QColor(0, 255, 0));
+            LOG_WRITER.write(tr("Отправка списка свойств"), QColor(0, 255, 0));
 
-        emit sendProgStatus(pStore->data());
-        emit sendState(tr("Идет прошивка..."));
-    }
-    else if (myTicket <= tickets) // Броадкаст
-    {        
-        LOG_WRITER.write(tr("Получен броадкаст"), QColor(0, 255, 0));
-        LOG_WRITER.write(tr("Отправляю ответ"), QColor(0, 255, 0));
+            progMode = true;
 
-        emit sendAnswerToBroadcast(myTicket);
-    }
-    else
-    {
-        progModeExit();
-    }
+            emit sendProgStatus(pStore->data());
+            emit sendState(tr("Идет прошивка"));
+        }
+        else if (myTicket <= tickets) // Броадкаст
+        {
+            LOG_WRITER.write(tr("Получен броадкаст"), QColor(0, 255, 0));
+            LOG_WRITER.write(tr("Отправка ответа"), QColor(0, 255, 0));
+
+            emit sendAnswerToBroadcast(myTicket);
+        }
+        else
+        {
+            progModeExit();
+        }
 }
 
 void CanProg::getFileList()
 {
-    LOG_WRITER.write(tr("Принята команда на получеие списка файлов"), QColor(0, 255, 0));
-
-    QDir dir = QDir(".");
-    QStringList files = parseDir(dir);
-
-    fileList.clear();
-    foreach(QString fileName, files)
+    if(progMode)
     {
-        QFile file(fileName);
-        file.open(QIODevice::ReadOnly);
+        QDir dir = QDir(".");
+        QStringList files = parseDir(dir);
 
-        DevFileInfo fileInfo(fileName.remove(0,2), file.readAll());
-        fileList.append(fileInfo);
+        fileList.clear();
+        foreach(QString fileName, files)
+        {
+            QFile file(fileName);
+            file.open(QIODevice::ReadOnly);
+
+            DevFileInfo fileInfo(fileName.remove(0,2), file.readAll());
+            fileList.append(fileInfo);
+        }
+
+        LOG_WRITER.write(tr("Отправка списка файлов"), QColor(0, 255, 0));
+        emit sendFileList(fileList);
     }
-
-    LOG_WRITER.write(tr("Отправляю список файлов"), QColor(0, 255, 0));
-    emit sendFileList(fileList);
 }
 
 void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
 {
-    LOG_WRITER.write(QString(tr("Принята команда на чтение файла %1")).arg(fileName), QColor(0, 255, 0));
-
-    qint8 errorCode = 0;
-    QByteArray buffer;
-    if(QFile::exists(fileName))
+    if(progMode)
     {
-        QFile file(fileName);
-
-        if (offset+readSize > file.size())
-            errorCode = ProgRead::invalidOffset;
+        qint8 errorCode = 0;
+        QByteArray buffer;
+        if(QFile::exists(fileName))
         {
-            if(file.open(QIODevice::ReadOnly));
-            buffer.append(file.read(readSize));
+            QFile file(fileName);
+
+            if (offset+readSize > file.size())
+                errorCode = ProgRead::invalidOffset;
+            {
+                if(file.open(QIODevice::ReadOnly));
+                buffer.append(file.read(readSize));
+            }
         }
+        else
+        {
+            errorCode = ProgRead::fileNotFound;
+        }
+        LOG_WRITER.write(tr("Отправка ") + fileName, QColor(0, 255, 0));
+        emit sendFile(errorCode, buffer);
     }
-    else
-    {
-        errorCode = ProgRead::fileNotFound;
-    }
-    LOG_WRITER.write(tr("Отправляю ") + fileName, QColor(0, 255, 0));
-    emit sendFile(errorCode, buffer);
 }
 
 void CanProg::deleteFile(const QString &fileName)
 {
-    LOG_WRITER.write(QString(tr("Принята команда на удаление файла %1")).arg(fileName), QColor(0, 255, 0));
-    qint8 errorCode = 0;
-    if(QFile::exists(fileName))
-        QFile(fileName).remove();
-    else
-        errorCode = ProgRmAck::FileNotExists;
+    if(progMode)
+    {
+        LOG_WRITER.write(QString(tr("Удаление файла %1")).arg(fileName), QColor(0, 255, 0));
+        qint8 errorCode = 0;
+        if(QFile::exists(fileName))
+            QFile(fileName).remove();
+        else
+            errorCode = ProgRmAck::FileNotExists;
 
-    LOG_WRITER.write(tr("Отправляю подтверждение удаления"), QColor(0, 255, 0));
-    emit sendDeleteFileAck(errorCode);
+        LOG_WRITER.write(QString(tr("Отправка подтверждения удаления файла %1")).arg(fileName), QColor(0, 255, 0));
+        emit sendDeleteFileAck(errorCode);
+    }
 }
 
 void CanProg::deleteAllFiles(qint32 securityKey)
 {
-    LOG_WRITER.write(tr("Принята команда на удаление всех файлов"), QColor(0, 255, 0));
-    QDir dir = QDir::current();
-    QStringList files = dir.entryList();
-    foreach(QString fileName, files)
+    if(progMode)
     {
-        QFile(fileName).remove();
-    }
+        LOG_WRITER.write(tr("Удаление всех файлов"), QColor(0, 255, 0));
+        QDir dir = QDir::current();
+        QStringList files = dir.entryList();
+        foreach(QString fileName, files)
+        {
+            QFile(fileName).remove();
+        }
 
-    LOG_WRITER.write(tr("Отправляю подверждение удаления"), QColor(0, 255, 0));
-    emit sendDeleteAllFilesAck();
+        LOG_WRITER.write(tr("Отправка подверждения удаления"), QColor(0, 255, 0));
+        emit sendDeleteAllFilesAck();
+    }
 
 }
 
 void CanProg::createFile(const QString &fileName, qint32 fileSize)
 {
-    LOG_WRITER.write(QString(tr("Принята команда на создание файла %1, размером %2")).arg(fileName).arg(fileSize), QColor(0, 255, 0));
-
-    qint8 errorCode = 0;
-    if(!QFile::exists(fileName))
+    if(progMode)
     {
-        bool success = true;
-        int lastSlashPosition = fileName.lastIndexOf('/');
-        if (lastSlashPosition != -1)
-            success &= QDir::current().mkpath(fileName.left(lastSlashPosition));
-        QFile file(fileName);
-        success &= file.open(QIODevice::WriteOnly);
-        file.resize(fileSize);
-        file.close();
+        LOG_WRITER.write(QString(tr("Создание файла %1, размером %2")).arg(fileName).arg(fileSize), QColor(0, 255, 0));
 
-        errorCode = success ? 0 : ProgCreateAck::ErrorCreate;
-        LOG_WRITER.write(QString(tr("Отправляю подтверждение создание файла %1, размером %2")).arg(file.fileName()).arg(file.size()), QColor(0, 255, 0));
+        qint8 errorCode = 0;
+        if(!QFile::exists(fileName))
+        {
+            bool success = true;
+            int lastSlashPosition = fileName.lastIndexOf('/');
+            if (lastSlashPosition != -1)
+                success &= QDir::current().mkpath(fileName.left(lastSlashPosition));
+            QFile file(fileName);
+            success &= file.open(QIODevice::WriteOnly);
+            file.resize(fileSize);
+            file.close();
+
+            errorCode = success ? 0 : ProgCreateAck::ErrorCreate;
+            LOG_WRITER.write(QString(tr("Отправка подтверждения создания файла %1, размером %2")).arg(file.fileName()).arg(file.size()), QColor(0, 255, 0));
+        }
+        else
+        {
+            LOG_WRITER.write(tr("Отправка сообщение об ошибке"), QColor(0, 255, 0));
+            errorCode = ProgCreateAck::FileAlreadyExists;
+        }
+        emit sendCreateFileAck(errorCode);
     }
-    else
-    {
-        LOG_WRITER.write(tr("Отправляю сообщение об ошибке"), QColor(0, 255, 0));
-        errorCode = ProgCreateAck::FileAlreadyExists;
-    }
-    emit sendCreateFileAck(errorCode);
 }
 
 void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray &data)
 {
-    LOG_WRITER.write(QString(tr("Принята команда на запись в файл %1 блока данных размером %2 байт")).arg(fileName).arg(data.size()), QColor(0, 255, 0));
-
-    if(QFile::exists(fileName))
+    if(progMode)
     {
-        QFile file(fileName);
-        if(file.open(QIODevice::ReadWrite))
+        LOG_WRITER.write(QString(tr("Запись в файл %1 блока данных размером %2 байт")).arg(fileName).arg(data.size()), QColor(0, 255, 0));
+
+        if(QFile::exists(fileName))
         {
-            file.seek(offset);
-            file.write(data);
+            QFile file(fileName);
+            if(file.open(QIODevice::ReadWrite))
+            {
+                file.seek(offset);
+                file.write(data);
+            }
+            file.close();
         }
-        file.close();
     }
 }
 
 void CanProg::setParam(qint8 key, qint32 value)
 {
-    emit sendSetParamAck( pStore->set(key, value) ? 0 : 3 );
+    if(progMode)
+        emit sendSetParamAck( pStore->set(key, value) ? 0 : 3 );
 }
 
 void CanProg::deleteParam(qint8 key)
 {
-    emit sendDeleteParamAck( pStore->del(key) ? 0 : 2 );
+    if(progMode)
+        emit sendDeleteParamAck( pStore->del(key) ? 0 : 2 );
 }
 
 void CanProg::submit()
@@ -213,16 +233,17 @@ void CanProg::submit()
 
 void CanProg::periodicalCheck()
 {
-    LOG_WRITER.write(tr("Проверяю целостность прошивки"), QColor(0, 255, 0));
+    if(progMode)
+        LOG_WRITER.write(tr("Проверка целостности прошивки"), QColor(0, 255, 0));
 
     if (checkProgram())
         progModeExit();
     else
     {
-        LOG_WRITER.write(tr("Прошивка повреждена"), QColor(255, 0, 0));
+        LOG_WRITER.write(tr("Не сошлась контрольная сумма"), QColor(255, 0, 0));
 
         emit sendFirmCorrupt();
-        emit sendState(tr("Не сошлись контрольные суммы"));
+        emit sendState(tr("Прошивка повреждена"));
         initWaitTimer.start();
     }
 }
@@ -243,6 +264,7 @@ QStringList CanProg::parseDir(const QDir dir)
 
 void CanProg::progModeExit()
 {
+    progMode = false;
     emit sendState(tr(""));
     LOG_WRITER.finishLog();
     CanInternals::canDrv.stop();

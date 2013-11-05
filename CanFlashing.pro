@@ -16,7 +16,6 @@ TEMPLATE = app
 
 
 SOURCES += \
-    form.cpp \
     Log/logwriter.cpp \
     Can/canframe.cpp \
     Can/CanNik/candriver.cpp \
@@ -58,10 +57,10 @@ SOURCES += \
     PropStore/simplefilepropstore.cpp \
     Fudp/FudpMessage/progsubmit.cpp \
     Fudp/FudpMessage/progbroadcastanswer.cpp \
-    Fudp/FudpMessage/progfirmcorrupt.cpp
+    Fudp/FudpMessage/progfirmcorrupt.cpp \
+    form.cpp
 
 HEADERS += \
-    form.h \
     Log/logwriter.h \
     Log/singletone.h \
     Can/canframe.h \
@@ -104,7 +103,8 @@ HEADERS += \
     PropStore/simplefilepropstore.h \
     Fudp/FudpMessage/progsubmit.h \
     Fudp/FudpMessage/progbroadcastanswer.h \
-    Fudp/FudpMessage/progfirmcorrupt.h
+    Fudp/FudpMessage/progfirmcorrupt.h \
+    form.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

@@ -11,6 +11,7 @@ IsoTpCommunicator::IsoTpCommunicator(int transmitDescriptor, int acknowlegmentDe
     receiver.setAcknowlegmentDescriptor(acknowlegmentDescriptor);
 
     QObject::connect(&receiver, SIGNAL(transactionReaceived(std::vector<byte>)), this, SLOT(transactionReceived(std::vector<byte>)));
+    QObject::connect(&receiver, SIGNAL(watingTimeOut()), this, SLOT(timeOut()));
 
 }
 
@@ -28,5 +29,10 @@ void IsoTpCommunicator::setAcknowlegmentDescriptor(int acknowlegmentDescriptor)
 {
     receiver.setAcknowlegmentDescriptor(acknowlegmentDescriptor);
     sender.setAcknowlegmentDescriptor(acknowlegmentDescriptor);
+}
+
+void IsoTpCommunicator::timeOut()
+{
+    emit waitingTimeOut();
 }
 }

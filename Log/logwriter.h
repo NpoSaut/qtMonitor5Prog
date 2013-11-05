@@ -19,7 +19,7 @@ class LogWriter : public QObject, public Singletone<LogWriter>
 public:
     explicit LogWriter(QObject *parent = 0);
 
-    void write(const QString &data, QColor color);
+    void write(const QString &data, QColor color, int error = 0);
     void write(const CanInternals::StructForDrv &data);
     void write(const CanInternals::TransmitData &data);
 
@@ -33,6 +33,7 @@ private:
     QTextEdit *container;
     QFile logFile;
     QTextStream logStream;
+    QStringList buffer;
 
     QString ToQString(CanInternals::StructForDrv data);
     QString ToQString(CanInternals::TransmitData data);

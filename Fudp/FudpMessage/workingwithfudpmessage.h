@@ -51,6 +51,8 @@ signals:
     void getParamRmRq(qint8 key);
     void getProgSubmit();
 
+    void waitingTimeOut();
+
 public slots:
     void receiveData(const std::vector<byte> &data);
 
@@ -64,6 +66,8 @@ public slots:
     void sendParamSetAck(qint8 errorCode);
     void sendParamRmAck(qint8 errorCode);
     void sendProgFirmCorrupt();
+
+    void timeOut();
 };
 }
 
