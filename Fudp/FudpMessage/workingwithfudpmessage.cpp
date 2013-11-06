@@ -126,6 +126,12 @@ void WorkingWithFudpMessage::sendProgCreateAck(qint8 errorCode)
     communicator2.send(createAck.encode());
 }
 
+void WorkingWithFudpMessage::sendProgWriteAck(qint8 errorCode)
+{
+    ProgWriteAck writeAck(errorCode);
+    communicator2.send(writeAck.encode());
+}
+
 void WorkingWithFudpMessage::sendParamRmAck(qint8 errorCode)
 {
     ParamRmAck rmParam(errorCode);
@@ -142,6 +148,12 @@ void WorkingWithFudpMessage::sendParamSetAck(qint8 errorCode)
 {
     ParamSetAck setParam(errorCode);
     communicator2.send(setParam.encode());
+}
+
+void WorkingWithFudpMessage::sendSubmitAck()
+{
+    ProgSubmitAck submitAck;
+    communicator2.send(submitAck.encode());
 }
 
 void WorkingWithFudpMessage::timeOut()

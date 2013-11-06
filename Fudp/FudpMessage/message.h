@@ -22,6 +22,7 @@ enum MessageId
     progCreate = 0x09,
     progCreateAck = 0x0a,
     progWrite = 0x0b,
+    progWriteAck = 0x0c,
     progMrProper = 0x0d,
     progMrProperRm = 0x0e,
     paramSetRq = 0x0f,
@@ -29,7 +30,8 @@ enum MessageId
     paramRmRq = 0x11,
     paramRmAck = 0x12,
     progSubmit = 0x13,
-    progBroadcastAnswer = 0x14,
+    progSubmitAck = 0x14,
+    progBroadcastAnswer = 0x00,
     progFirmCorrupt = 0xFF
 };
 

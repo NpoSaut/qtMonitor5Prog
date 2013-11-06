@@ -48,9 +48,11 @@ signals:
     void sendDeleteFileAck(qint8 errorCode);
     void sendDeleteAllFilesAck();
     void sendCreateFileAck(qint8 errorCode);
+    void sendWriteFileAck(qint8 errorCode);
     void sendSetParamAck(qint8 errorCode);
     void sendDeleteParamAck(qint8 errorCode);
     void sendFirmCorrupt();
+    void sendSubmitAck();
 
     void sendState(QString state);
     void sendFileInfo(QString fileName, qint32 fileSize);

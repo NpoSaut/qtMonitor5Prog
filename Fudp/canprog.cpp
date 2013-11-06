@@ -27,9 +27,11 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(this, SIGNAL(sendDeleteFileAck(qint8)), &worker, SLOT(sendProgRmAck(qint8)));
     QObject::connect(this, SIGNAL(sendDeleteAllFilesAck()), &worker, SLOT(sendProgMrPropperAck()));
     QObject::connect(this, SIGNAL(sendCreateFileAck(qint8)), &worker, SLOT(sendProgCreateAck(qint8)));
+    QObject::connect(this, SIGNAL(sendWriteFileAck(qint8)), &worker, SLOT(sendProgWriteAck(qint8)));
     QObject::connect(this, SIGNAL(sendSetParamAck(qint8)), &worker, SLOT(sendParamSetAck(qint8)));
     QObject::connect(this, SIGNAL(sendDeleteParamAck(qint8)), &worker, SLOT(sendParamRmAck(qint8)));
     QObject::connect(this, SIGNAL(sendFirmCorrupt()), &worker, SLOT(sendProgFirmCorrupt()));
+    QObject::connect(this, SIGNAL(sendSubmitAck()), &worker, SLOT(sendSubmitAck()));
 
     QObject::connect(&worker, SIGNAL(getProgInit(DeviceTickets)), this, SLOT(connect(DeviceTickets)));
     QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(getFileList()));
@@ -199,6 +201,7 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
 {
     if(progMode)
     {
+        qint8 errorCode = 0;
         LOG_WRITER.write(QString(tr("Запись в файл %1 блока данных размером %2 байт")).arg(fileName).arg(data.size()), QColor(0, 255, 0));
 
         if(QFile::exists(fileName))
@@ -207,10 +210,13 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
             if(file.open(QIODevice::ReadWrite))
             {
                 file.seek(offset);
-                file.write(data);
+                if(file.write(data) == -1)
+                    errorCode = 255;
             }
             file.close();
         }
+        LOG_WRITER.write(tr("Отправка подтверждения записи"), QColor(0, 255, 0));
+        emit sendWriteFileAck(errorCode);
     }
 }
 
@@ -237,7 +243,10 @@ void CanProg::periodicalCheck()
         LOG_WRITER.write(tr("Проверка целостности прошивки"), QColor(0, 255, 0));
 
     if (checkProgram())
+    {
+        emit sendSubmitAck();
         progModeExit();
+    }
     else
     {
         LOG_WRITER.write(tr("Не сошлась контрольная сумма"), QColor(255, 0, 0));
@@ -274,8 +283,8 @@ void CanProg::progModeExit()
 
 bool CanProg::checkProgram()
 {
-
-    emit sendState(tr("Проверка целостности прошивки..."));
+    if(progMode)
+        emit sendState(tr("Проверка целостности прошивки..."));
     QDir dir = QDir(".");
     QStringList files = parseDir(dir);
 

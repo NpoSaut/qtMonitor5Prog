@@ -16,12 +16,14 @@
 #include "progrm.h"
 #include "progrmack.h"
 #include "progwrite.h"
+#include "progwriteack.h"
 #include "paramsetack.h"
 #include "paramsetrq.h"
 #include "paramrmack.h"
 #include "paramrmrq.h"
 #include "progbroadcastanswer.h"
 #include "progfirmcorrupt.h"
+#include "progsubmitack.h"
 
 using namespace IsoTp;
 
@@ -63,9 +65,11 @@ public slots:
     void sendProgRmAck(qint8 errorCode);
     void sendProgMrPropperAck();
     void sendProgCreateAck(qint8 errorCode);
+    void sendProgWriteAck(qint8 errorCode);
     void sendParamSetAck(qint8 errorCode);
     void sendParamRmAck(qint8 errorCode);
     void sendProgFirmCorrupt();
+    void sendSubmitAck();
 
     void timeOut();
 };

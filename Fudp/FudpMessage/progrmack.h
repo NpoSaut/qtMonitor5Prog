@@ -14,7 +14,6 @@ public:
     std::vector<byte> encode();
     void decode(const std::vector<byte> &data);
 
-    qint8 errorCode;
 
     enum ProgRmErrors
     {
@@ -23,6 +22,7 @@ public:
     };
 
 private:
+    qint8 errorCode;
     QHash<int, QString> rmError;
 
 };
