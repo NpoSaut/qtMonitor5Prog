@@ -34,7 +34,6 @@ private:
     QList<DevFileInfo> fileList;
     DeviceTickets myTicket;
     QTimer initWaitTimer;
-    QTimer messageWaitTimer;
     QProcess monitor;
     LogWriter log;
     bool progMode;

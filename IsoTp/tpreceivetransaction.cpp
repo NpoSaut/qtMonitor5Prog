@@ -4,7 +4,7 @@
 namespace IsoTp
 {
 TpReceiveTransaction::TpReceiveTransaction(/*int transmitDescriptor, int acknowlegmentDescriptor, */QObject *parent) :
-    QObject(parent), state (INIT)
+    QObject(parent), state (INIT), timer()
 {
     blockSize = 32;
     consIndex = blockSize;    
@@ -15,8 +15,6 @@ TpReceiveTransaction::TpReceiveTransaction(/*int transmitDescriptor, int acknowl
 
     QObject::connect(this, SIGNAL(sendFlowControl(FlowControlFrame)), &movingFrames, SLOT(transmitFlowControlFrame(FlowControlFrame)));
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(timeout()));
-
-    timer.start(3000);
 }
 
 void TpReceiveTransaction::getSingleFrame(SingleFrame frame)
@@ -63,7 +61,7 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
             if ((buffer.size() < buffLength) && (blockSize == consIndex))
                 readyFlowControl();
             else
-                timer.start(3000);
+                timer.start(5000);
             if ((buffer.size() == buffLength))
             {
                 timer.stop();
@@ -98,7 +96,7 @@ void TpReceiveTransaction::readyFlowControl()
 {
     consIndex = 0;
     FlowControlFrame fcFrame(FlowControlFlag(ClearToSend), blockSize, 0);
-    timer.start(3000);
+    timer.start(5000);
     emit sendFlowControl(fcFrame);
 }
 
