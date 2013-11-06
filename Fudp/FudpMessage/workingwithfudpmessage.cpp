@@ -9,6 +9,7 @@ WorkingWithFudpMessage::WorkingWithFudpMessage(int initDescriptor, int transmitD
 {
     QObject::connect(&communicator1, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
     QObject::connect(&communicator2, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
+    QObject::connect(&communicator2, SIGNAL(waitingTimeOut()), this, SLOT(timeOut()));
 }
 
 void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
@@ -141,6 +142,11 @@ void WorkingWithFudpMessage::sendParamSetAck(qint8 errorCode)
 {
     ParamSetAck setParam(errorCode);
     communicator2.send(setParam.encode());
+}
+
+void WorkingWithFudpMessage::timeOut()
+{
+    emit waitingTimeOut();
 }
 
 }

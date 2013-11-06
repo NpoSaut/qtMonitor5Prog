@@ -10,9 +10,13 @@ Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->trainLable->hide();
+    ui->log->hide();
+
     showFullScreen();
 
-    setSize(ui->log);
+    setSize(ui->log, ui->stateLable);
+
 
     QObject::connect(&cp, SIGNAL(sendState(QString)), this, SLOT(showState(QString)));
 
@@ -27,8 +31,17 @@ Form::~Form()
 
 void Form::showState(const QString state)
 {
-    moveAboutCenter(ui->stateLable, ui->log->width()/2, 0);
+    QString train("                   ooOOOO\n                oo          _____\n              _I__n_n__||_|| ________\n          >(_________|_7_|-|______|\n            /o  ()()   ()()   o      oo  oo");
+    if (ui->log->isHidden())
+    {
+        ui->trainLable->show();
+        ui->log->show();
+        moveAboutCenter(ui->trainLable, ui->log->width()/2+45, 40);
+        moveAboutCenter(ui->stateLable, ui->log->width()/2, 25);
+    }
     ui->stateLable->setText(state);
+    ui->trainLable->setAlignment(Qt::AlignLeft);
+    ui->trainLable->setText(train);
 }
 
 void Form::moveAboutCenter(QLabel *lable, int x, int y)
@@ -39,11 +52,12 @@ void Form::moveAboutCenter(QLabel *lable, int x, int y)
     lable->move(point);
 }
 
-void Form::setSize(QTextEdit *textLog)
+void Form::setSize(QTextEdit *textLog, QLabel *lable)
 {
     QRect screen = QApplication::desktop()->screenGeometry();
     screen.setWidth(screen.width()/2);
     textLog->setGeometry(screen);
+    lable->setGeometry(screen);
 }
 
 
