@@ -6,7 +6,6 @@
 #include <QDir>
 #include <QTimer>
 #include <QProcess>
-#include "Log/logwriter.h"
 #include "FudpMessage/workingwithfudpmessage.h"
 #include "PropStore/propstore.h"
 
@@ -36,7 +35,6 @@ private:
     QTimer initWaitTimer;
     QTimer messageWaitTimer;
     QProcess monitor;
-    LogWriter log;
     bool progMode;
     void progModeExit ();
     bool checkProgram ();

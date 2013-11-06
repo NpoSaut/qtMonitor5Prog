@@ -16,7 +16,6 @@ TEMPLATE = app
 
 
 SOURCES += \
-    Log/logwriter.cpp \
     Can/canframe.cpp \
     Can/CanNik/candriver.cpp \
     main.cpp \
@@ -61,8 +60,6 @@ SOURCES += \
     form.cpp
 
 HEADERS += \
-    Log/logwriter.h \
-    Log/singletone.h \
     Can/canframe.h \
     Can/CanNik/candriver.h \
     Can/can.h \

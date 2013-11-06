@@ -1,5 +1,4 @@
 #include "tpreceivetransaction.h"
-#include "Log/logwriter.h"
 
 namespace IsoTp
 {
@@ -42,7 +41,6 @@ void TpReceiveTransaction::getFirstFrame(FirstFrame frame)
     }
     else if (state == PROGRESS)
     {
-        LOG_WRITER.write(tr("FirstFrame пришел невовремя"), QColor(255, 0, 255), 1);
         state = BROKEN;
         sendAbort();
     }
@@ -75,16 +73,10 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
         {
             state = BROKEN;
             sendAbort();
-            LOG_WRITER.write(QString(tr("IsoTp последовательность нарушена. Ожидался фрейм с индексом %1, а получен - с индексом %2")).
-                             arg(consecutiveFrameCounter & 0x0F).
-                             arg(frame.getIndex()), QColor(255, 0, 255), 1);
-//            qDebug() << "IsoTp sequence fail. Wait "
-//                     << (consecutiveFrameCounter & 0x0F) << ", but got " << frame.getIndex() << ". :(";
         }
     }
     else if (state == INIT)
     {
-        LOG_WRITER.write(tr("ConsecutiveFrame пришел невовремя"), QColor(255, 0, 0), 1);
         state = BROKEN;
         sendAbort();
     }
@@ -112,7 +104,6 @@ void TpReceiveTransaction::timeout()
 {
     timer.stop();
     sendAbort();
-    LOG_WRITER.write(tr("Вышло время ожидания сообщения"), QColor(255, 0, 0), 1);
     emit watingTimeOut();
 }
 

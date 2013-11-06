@@ -1,5 +1,4 @@
 #include "tpsendtransaction.h"
-#include "Log/logwriter.h"
 
 namespace IsoTp
 {
@@ -48,10 +47,7 @@ void TpSendTransaction::send(const std::vector<byte> &buffer)
 void TpSendTransaction::getFlowControl(FlowControlFrame frame)
 {
     if (frame.getFrlag() == FlowControlFlag(Abort))
-    {
-        LOG_WRITER.write(tr("Пришел флаг отмены трашзакции"), QColor(255, 0, 255), 1);
         timer.stop();
-    }
     else
         if (frame.getFrlag() == FlowControlFlag(ClearToSend))
         {

@@ -6,7 +6,6 @@
 #include <QTextEdit>
 #include "Fudp/canprog.h"
 #include "PropStore/simplefilepropstore.h"
-#include "Log/logwriter.h"
 
 using namespace Fudp;
 

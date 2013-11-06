@@ -11,17 +11,13 @@ Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
     ui->setupUi(this);
 
     ui->trainLable->hide();
-    ui->log->hide();
 
     showFullScreen();
 
-    setSize(ui->log, ui->stateLable);
+//    setSize(ui->log, ui->stateLable);
 
 
     QObject::connect(&cp, SIGNAL(sendState(QString)), this, SLOT(showState(QString)));
-
-    QObject::connect(&LOG_WRITER, SIGNAL(setText(QString)), ui->log, SLOT(append(QString)));
-    QObject::connect(&LOG_WRITER, SIGNAL(setColor(QColor)), ui->log, SLOT(setTextColor(QColor)));
 }
 
 Form::~Form()
@@ -32,12 +28,11 @@ Form::~Form()
 void Form::showState(const QString state)
 {
     QString train("                   ooOOOO\n                oo          _____\n              _I__n_n__||_|| ________\n          >(_________|_7_|-|______|\n            /o  ()()   ()()   o      oo  oo");
-    if (ui->log->isHidden())
+    if (ui->trainLable->isHidden())
     {
         ui->trainLable->show();
-        ui->log->show();
-        moveAboutCenter(ui->trainLable, ui->log->width()/2+45, 40);
-        moveAboutCenter(ui->stateLable, ui->log->width()/2, 25);
+        moveAboutCenter(ui->trainLable, 0, 0);
+        moveAboutCenter(ui->stateLable, 0, 0);
     }
     ui->stateLable->setText(state);
     ui->trainLable->setAlignment(Qt::AlignLeft);
