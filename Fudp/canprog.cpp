@@ -43,7 +43,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(&worker, SIGNAL(getProgSubmit()), this, SLOT(submit()));
     QObject::connect(&worker, SIGNAL(waitingTimeOut()), this, SLOT(periodicalCheck()));
 
-    QObject::connect(&initWaitTimer, SIGNAL(timeOut()), this, SLOT(periodicalCheck()));
+    QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(periodicalCheck()));
 
 
     QObject::connect(&monitor, SIGNAL(finished(int)), this, SLOT(start(int)));
