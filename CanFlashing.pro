@@ -57,7 +57,9 @@ SOURCES += \
     Fudp/FudpMessage/progsubmit.cpp \
     Fudp/FudpMessage/progbroadcastanswer.cpp \
     Fudp/FudpMessage/progfirmcorrupt.cpp \
-    form.cpp
+    form.cpp \
+    Fudp/FudpMessage/progwriteack.cpp \
+    Fudp/FudpMessage/progsubmitack.cpp
 
 HEADERS += \
     Can/canframe.h \
@@ -101,7 +103,9 @@ HEADERS += \
     Fudp/FudpMessage/progsubmit.h \
     Fudp/FudpMessage/progbroadcastanswer.h \
     Fudp/FudpMessage/progfirmcorrupt.h \
-    form.h
+    form.h \
+    Fudp/FudpMessage/progwriteack.h \
+    Fudp/FudpMessage/progsubmitack.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

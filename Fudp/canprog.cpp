@@ -27,9 +27,11 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(this, SIGNAL(sendDeleteFileAck(qint8)), &worker, SLOT(sendProgRmAck(qint8)));
     QObject::connect(this, SIGNAL(sendDeleteAllFilesAck()), &worker, SLOT(sendProgMrPropperAck()));
     QObject::connect(this, SIGNAL(sendCreateFileAck(qint8)), &worker, SLOT(sendProgCreateAck(qint8)));
+    QObject::connect(this, SIGNAL(sendWriteFileAck(qint8)), &worker, SLOT(sendProgWriteAck(qint8)));
     QObject::connect(this, SIGNAL(sendSetParamAck(qint8)), &worker, SLOT(sendParamSetAck(qint8)));
     QObject::connect(this, SIGNAL(sendDeleteParamAck(qint8)), &worker, SLOT(sendParamRmAck(qint8)));
     QObject::connect(this, SIGNAL(sendFirmCorrupt()), &worker, SLOT(sendProgFirmCorrupt()));
+    QObject::connect(this, SIGNAL(sendSubmitAck()), &worker, SLOT(sendSubmitAck()));
 
     QObject::connect(&worker, SIGNAL(getProgInit(DeviceTickets)), this, SLOT(connect(DeviceTickets)));
     QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(getFileList()));
@@ -62,7 +64,7 @@ void CanProg::connect(const DeviceTickets &tickets)
             progMode = true;
 
             emit sendProgStatus(pStore->data());
-            emit sendState(tr("Идет прошивка"));
+            emit sendState(tr("�?дет прошивка"));
         }
         else if (myTicket <= tickets) // Броадкаст
         {
@@ -180,13 +182,15 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
 {
     if(progMode)
     {
+        qint8 errorCode = 0;
         if(QFile::exists(fileName))
         {
             QFile file(fileName);
             if(file.open(QIODevice::ReadWrite))
             {
                 file.seek(offset);
-                file.write(data);
+                if(file.write(data) == -1)
+                    errorCode = 255;
             }
             file.close();
         }
@@ -213,7 +217,10 @@ void CanProg::submit()
 void CanProg::periodicalCheck()
 {
     if (checkProgram())
+    {
+        emit sendSubmitAck();
         progModeExit();
+    }
     else
     {
         emit sendFirmCorrupt();
@@ -247,8 +254,8 @@ void CanProg::progModeExit()
 
 bool CanProg::checkProgram()
 {
-
-    emit sendState(tr("Проверка целостности прошивки..."));
+    if(progMode)
+        emit sendState(tr("Проверка целостности прошивки..."));
     QDir dir = QDir(".");
     QStringList files = parseDir(dir);
 
