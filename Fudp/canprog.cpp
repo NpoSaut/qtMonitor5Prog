@@ -1,4 +1,4 @@
-#include "canprog.h"
+﻿#include "canprog.h"
 #include <QColor>
 
 // HACK
@@ -64,8 +64,6 @@ void CanProg::connect(const DeviceTickets &tickets)
             LOG_WRITER.write(tr("Установлено соединение"), QColor(0, 255, 0));
 
             initWaitTimer.stop();
-
-            LOG_WRITER.write(tr("Отправка списка свойств"), QColor(0, 255, 0));
 
             progMode = true;
 
@@ -202,7 +200,7 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
     if(progMode)
     {
         qint8 errorCode = 0;
-        LOG_WRITER.write(QString(tr("Запись в файл %1 блока данных размером %2 байт")).arg(fileName).arg(data.size()), QColor(0, 255, 0));
+        LOG_WRITER.write(QString(tr("Запись в файл %1")).arg(fileName), QColor(0, 255, 0));
 
         if(QFile::exists(fileName))
         {
@@ -235,6 +233,7 @@ void CanProg::deleteParam(qint8 key)
 void CanProg::submit()
 {
     periodicalCheck();
+    emit sendSubmitAck();
 }
 
 void CanProg::periodicalCheck()
@@ -244,7 +243,9 @@ void CanProg::periodicalCheck()
 
     if (checkProgram())
     {
-        emit sendSubmitAck();
+        if(progMode)
+            emit sendSubmitAck();
+
         progModeExit();
     }
     else
@@ -273,8 +274,9 @@ QStringList CanProg::parseDir(const QDir dir)
 
 void CanProg::progModeExit()
 {
+    if(progMode)
+        emit sendState(tr(""));
     progMode = false;
-    emit sendState(tr(""));
     LOG_WRITER.finishLog();
     CanInternals::canDrv.stop();
     QDir::setCurrent("C:/");

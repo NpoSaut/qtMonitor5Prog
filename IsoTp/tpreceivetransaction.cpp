@@ -40,7 +40,7 @@ void TpReceiveTransaction::getFirstFrame(FirstFrame frame)
     }
     else if (state == PROGRESS)
     {
-        LOG_WRITER.write(tr("FirstFrame пришел невовремя"), QColor(255, 0, 255), 1);
+        LOG_WRITER.write(tr("Неожиданный FirstFrame"), QColor(255, 0, 255), 1);
         state = BROKEN;
         sendAbort();
     }
@@ -82,7 +82,7 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
     }
     else if (state == INIT)
     {
-        LOG_WRITER.write(tr("ConsecutiveFrame пришел невовремя"), QColor(255, 0, 0), 1);
+        LOG_WRITER.write(tr("Неожиданный ConsecutiveFrame"), QColor(255, 0, 0), 1);
         state = BROKEN;
         sendAbort();
     }

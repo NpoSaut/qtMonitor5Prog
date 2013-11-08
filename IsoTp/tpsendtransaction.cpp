@@ -49,7 +49,7 @@ void TpSendTransaction::getFlowControl(FlowControlFrame frame)
 {
     if (frame.getFrlag() == FlowControlFlag(Abort))
     {
-        LOG_WRITER.write(tr("Пришел флаг отмены трашзакции"), QColor(255, 0, 255), 1);
+        LOG_WRITER.write(tr("Пришел флаг отмены транзакции"), QColor(255, 0, 255), 1);
         timer.stop();
     }
     else
