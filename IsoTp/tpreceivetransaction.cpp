@@ -6,7 +6,7 @@ namespace IsoTp
 TpReceiveTransaction::TpReceiveTransaction(/*int transmitDescriptor, int acknowlegmentDescriptor, */QObject *parent) :
     QObject(parent), state (INIT), timer()
 {
-    blockSize = 32;
+    blockSize = 0;
     consIndex = blockSize;    
 
     QObject::connect(&movingFrames, SIGNAL(receiveSingleFrame(SingleFrame)), this, SLOT(getSingleFrame(SingleFrame)));
@@ -76,8 +76,6 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
             LOG_WRITER.write(QString(tr("IsoTp последовательность нарушена. Ожидался фрейм с индексом %1, а получен - с индексом %2")).
                              arg(consecutiveFrameCounter & 0x0F).
                              arg(frame.getIndex()), QColor(255, 0, 255), 1);
-//            qDebug() << "IsoTp sequence fail. Wait "
-//                     << (consecutiveFrameCounter & 0x0F) << ", but got " << frame.getIndex() << ". :(";
         }
     }
     else if (state == INIT)
@@ -110,7 +108,6 @@ void TpReceiveTransaction::timeout()
 {
     timer.stop();
     sendAbort();
-    LOG_WRITER.write(tr("Вышло время ожидания сообщения"), QColor(255, 0, 0), 1);
     emit watingTimeOut();
 }
 

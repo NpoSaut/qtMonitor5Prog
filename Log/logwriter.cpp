@@ -9,12 +9,12 @@ LogWriter::LogWriter(QObject *parent) :
     QObject(parent)
 {
 
-    QDir dir = QDir::current();
+    QDir dir("C:/MonMSUL");
 
-    QStringList loggers = dir.entryList(QStringList("*.log"),QDir::Files, QDir::Time);
+    QStringList loggers = dir.entryList(QStringList("*.log"), QDir::Files, QDir::Time);
     if(loggers.size() >= 7)
     {
-        QFile(loggers.at(6)).remove();
+        QFile(loggers.at(loggers.size()-1)).remove();
     }
 }
 
@@ -63,9 +63,6 @@ void LogWriter::write(const CanInternals::StructForDrv &data)
             buffer.erase(buffer.begin());
             buffer.append(ToQString(data) + "\r\n");
         }
-
-//        logStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz ");
-//        logStream << ToQString(data) + "\r\n";
     }
 }
 
@@ -78,9 +75,6 @@ void LogWriter::write(const CanInternals::TransmitData &data)
         buffer.erase(buffer.begin());
         buffer.append(ToQString(data) + "\r\n");
     }
-
-//    logStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz ");
-//    logStream << ToQString(data) + "\r\n";
 }
 
 QString LogWriter::ToQString(CanInternals::StructForDrv data)

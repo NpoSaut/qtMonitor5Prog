@@ -6,10 +6,9 @@
 #include <QDir>
 #include <QTimer>
 #include <QProcess>
-#include "Log/logwriter.h"
 #include "FudpMessage/workingwithfudpmessage.h"
 #include "PropStore/propstore.h"
-
+#include "Log/logwriter.h"
 using namespace FudpMessage;
 
 namespace Fudp
@@ -37,6 +36,8 @@ private:
     QProcess monitor;
     LogWriter log;
     bool progMode;
+    bool isSerialNumber;
+
     void progModeExit ();
     bool checkProgram ();
 
@@ -58,6 +59,8 @@ signals:
     void sendFileInfo(QString fileName, qint32 fileSize);
     void senValueReceiveBytes(qint32 receiveBytes);
 
+    void noSerialNumber();
+
 public slots:
     void connect(const DeviceTickets &tickets);
     void getFileList();
@@ -69,10 +72,11 @@ public slots:
     void setParam(qint8 key, qint32 value);
     void deleteParam(qint8 key);
     void submit();
+    void inputBlockSerialNumber(qint32 blockSerialNumber);
 
 private slots:
-    void periodicalCheck();
     void start(int exitCode);
+    void periodicalCheck();
 };
 }
 #endif // CANPROG_H

@@ -11,7 +11,8 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor(), log()
 {
     progMode = false;
-
+    isSerialNumber = false;
+    
     pStore->get(129, myTicket.blockId);
     pStore->get(130, myTicket.module);
     pStore->get(131, myTicket.blockSerialNumber);
@@ -54,15 +55,19 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     initWaitTimer.setSingleShot(true);
     initWaitTimer.start();
 
-    LOG_WRITER.installLog();
+    if(myTicket.blockSerialNumber != 0)
+    {
+        LOG_WRITER.installLog();
+        isSerialNumber = true;
+    }
 }
 
 void CanProg::connect(const DeviceTickets &tickets)
 {
+    if(isSerialNumber)
         if (myTicket == tickets)
         {
-            LOG_WRITER.write(tr("Установлено соединение"), QColor(0, 255, 0));
-
+            LOG_WRITER.write(tr("Соединение установлено"), QColor(0, 255, 0));
             initWaitTimer.stop();
 
             progMode = true;
@@ -73,8 +78,6 @@ void CanProg::connect(const DeviceTickets &tickets)
         else if (myTicket <= tickets) // Броадкаст
         {
             LOG_WRITER.write(tr("Получен броадкаст"), QColor(0, 255, 0));
-            LOG_WRITER.write(tr("Отправка ответа"), QColor(0, 255, 0));
-
             emit sendAnswerToBroadcast(myTicket);
         }
         else
@@ -87,6 +90,7 @@ void CanProg::getFileList()
 {
     if(progMode)
     {
+        LOG_WRITER.write(tr("Запрос списка файлов"), QColor(0, 255, 0));
         QDir dir = QDir(".");
         QStringList files = parseDir(dir);
 
@@ -100,7 +104,6 @@ void CanProg::getFileList()
             fileList.append(fileInfo);
         }
 
-        LOG_WRITER.write(tr("Отправка списка файлов"), QColor(0, 255, 0));
         emit sendFileList(fileList);
     }
 }
@@ -109,6 +112,7 @@ void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
 {
     if(progMode)
     {
+        LOG_WRITER.write(QString(tr("Чтение файла %1")).arg(fileName), QColor(0, 255, 0));
         qint8 errorCode = 0;
         QByteArray buffer;
         if(QFile::exists(fileName))
@@ -126,7 +130,6 @@ void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
         {
             errorCode = ProgRead::fileNotFound;
         }
-        LOG_WRITER.write(tr("Отправка ") + fileName, QColor(0, 255, 0));
         emit sendFile(errorCode, buffer);
     }
 }
@@ -142,7 +145,6 @@ void CanProg::deleteFile(const QString &fileName)
         else
             errorCode = ProgRmAck::FileNotExists;
 
-        LOG_WRITER.write(QString(tr("Отправка подтверждения удаления файла %1")).arg(fileName), QColor(0, 255, 0));
         emit sendDeleteFileAck(errorCode);
     }
 }
@@ -151,7 +153,7 @@ void CanProg::deleteAllFiles(qint32 securityKey)
 {
     if(progMode)
     {
-        LOG_WRITER.write(tr("Удаление всех файлов"), QColor(0, 255, 0));
+        LOG_WRITER.write(tr("Удаление всех фалов"), QColor(0, 255, 0));
         QDir dir = QDir::current();
         QStringList files = dir.entryList();
         foreach(QString fileName, files)
@@ -159,7 +161,6 @@ void CanProg::deleteAllFiles(qint32 securityKey)
             QFile(fileName).remove();
         }
 
-        LOG_WRITER.write(tr("Отправка подверждения удаления"), QColor(0, 255, 0));
         emit sendDeleteAllFilesAck();
     }
 
@@ -169,8 +170,7 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
 {
     if(progMode)
     {
-        LOG_WRITER.write(QString(tr("Создание файла %1, размером %2")).arg(fileName).arg(fileSize), QColor(0, 255, 0));
-
+        LOG_WRITER.write(QString(tr("Создание файла %1")).arg(fileName), QColor(0, 255, 0));
         qint8 errorCode = 0;
         if(!QFile::exists(fileName))
         {
@@ -184,13 +184,10 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
             file.close();
 
             errorCode = success ? 0 : ProgCreateAck::ErrorCreate;
-            LOG_WRITER.write(QString(tr("Отправка подтверждения создания файла %1, размером %2")).arg(file.fileName()).arg(file.size()), QColor(0, 255, 0));
         }
         else
-        {
-            LOG_WRITER.write(tr("Отправка сообщение об ошибке"), QColor(0, 255, 0));
             errorCode = ProgCreateAck::FileAlreadyExists;
-        }
+
         emit sendCreateFileAck(errorCode);
     }
 }
@@ -213,7 +210,6 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
             }
             file.close();
         }
-        LOG_WRITER.write(tr("Отправка подтверждения записи"), QColor(0, 255, 0));
         emit sendWriteFileAck(errorCode);
     }
 }
@@ -221,13 +217,19 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
 void CanProg::setParam(qint8 key, qint32 value)
 {
     if(progMode)
+    {
+        LOG_WRITER.write(QString(tr("Запись свойства %1 со значением %2")).arg(key).arg(value), QColor(0, 255, 0));
         emit sendSetParamAck( pStore->set(key, value) ? 0 : 3 );
+    }
 }
 
 void CanProg::deleteParam(qint8 key)
 {
     if(progMode)
+    {
+        LOG_WRITER.write(QString(tr("Удаление совйства %1")).arg(key), QColor(0, 255, 0));
         emit sendDeleteParamAck( pStore->del(key) ? 0 : 2 );
+    }
 }
 
 void CanProg::submit()
@@ -238,24 +240,26 @@ void CanProg::submit()
 
 void CanProg::periodicalCheck()
 {
-    if(progMode)
-        LOG_WRITER.write(tr("Проверка целостности прошивки"), QColor(0, 255, 0));
-
-    if (checkProgram())
-    {
+    if(isSerialNumber)
+    {        
         if(progMode)
-            emit sendSubmitAck();
+            LOG_WRITER.write(tr("Проверка целостности прошивки"), QColor(0, 255, 0));
 
-        progModeExit();
+        if (checkProgram())
+        {
+            emit sendSubmitAck();
+            progModeExit();
+        }
+        else
+        {
+            LOG_WRITER.write(tr("Не сошлась контрольная сумма"), QColor(255, 0, 0));
+            emit sendFirmCorrupt();
+            emit sendState(tr("Прошивка повреждена"));
+            initWaitTimer.start();
+        }
     }
     else
-    {
-        LOG_WRITER.write(tr("Не сошлась контрольная сумма"), QColor(255, 0, 0));
-
-        emit sendFirmCorrupt();
-        emit sendState(tr("Прошивка повреждена"));
-        initWaitTimer.start();
-    }
+        emit noSerialNumber();
 }
 
 QStringList CanProg::parseDir(const QDir dir)
@@ -306,9 +310,17 @@ bool CanProg::checkProgram()
         return false;
 }
 
+void CanProg::inputBlockSerialNumber(qint32 blockSerialNumber)
+{
+    pStore->set(131, blockSerialNumber);
+    myTicket.blockSerialNumber = blockSerialNumber;
+    isSerialNumber = true;
+    LOG_WRITER.installLog();
+    initWaitTimer.start();
+}
+
 void CanProg::start(int exitCode)
 {
-    LOG_WRITER.installLog();
     QDir::setCurrent("C:/MonMSUL/root");
     CanInternals::canDrv.start();
     initWaitTimer.start();

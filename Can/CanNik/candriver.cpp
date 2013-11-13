@@ -1,5 +1,4 @@
 #include "candriver.h"
-#include "Log/logwriter.h"
 
 namespace CanInternals
 {
@@ -58,8 +57,6 @@ std::vector<StructForDrv> CanDriver::receiveMessage()
         {
             for (int j = 0; j < 13; j ++)
                 outBuf[i].rawData[j] = data[i*13+j];
-            LOG_WRITER.write(outBuf[i]);
-            //            readLog(outBuf[i]);
         }
 
         delete[] data;
@@ -75,8 +72,6 @@ int CanDriver::transmitMessage(TransmitData &td)
     if(deviceIo(ioctlCanTransmit, (LPVOID*) &td, sizeof(td), (LPVOID*) &error, 4))
     {
         ReleaseMutex(transmitMutex);
-        LOG_WRITER.write(td);
-        //        transmitLog(td);
         return 0;
     }
     else if(error == 0)
