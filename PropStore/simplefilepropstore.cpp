@@ -4,17 +4,22 @@
 
 #include <QDebug>
 
+#include <QStringList>
+
 SimpleFilePropStore::SimpleFilePropStore(QFile &file)
     : file (file), map ()
 {
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    QTextStream in(&file);
-    while (!in.atEnd())
+    QTextStream fileIn(&file);
+//    QTextStream lineIn(&line);
+    while (!fileIn.atEnd())
     {
+        QStringList line(fileIn.readLine().split(" "));
         int k, v;
-        in >> k >> v;
-        map[k] = v;
+//        lineIn >> k >> v;
+
+        map[QString(line.at(0)).toInt()] = QString(line.at(1)).toInt();
     }
 
     file.close();

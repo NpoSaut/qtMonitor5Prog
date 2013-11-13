@@ -5,7 +5,7 @@ namespace IsoTp
 TpReceiveTransaction::TpReceiveTransaction(/*int transmitDescriptor, int acknowlegmentDescriptor, */QObject *parent) :
     QObject(parent), state (INIT), timer()
 {
-    blockSize = 32;
+    blockSize = 0;
     consIndex = blockSize;    
 
     QObject::connect(&movingFrames, SIGNAL(receiveSingleFrame(SingleFrame)), this, SLOT(getSingleFrame(SingleFrame)));

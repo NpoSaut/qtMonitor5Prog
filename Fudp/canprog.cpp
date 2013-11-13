@@ -1,4 +1,4 @@
-#include "canprog.h"
+﻿#include "canprog.h"
 #include <QColor>
 
 // HACK
@@ -11,7 +11,8 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor()
 {
     progMode = false;
-
+    isSerialNumber = false;
+    
     pStore->get(129, myTicket.blockId);
     pStore->get(130, myTicket.module);
     pStore->get(131, myTicket.blockSerialNumber);
@@ -53,10 +54,14 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     initWaitTimer.setInterval(1000);
     initWaitTimer.setSingleShot(true);
     initWaitTimer.start();
+
+    if(myTicket.blockSerialNumber != 0)
+        isSerialNumber = true;
 }
 
 void CanProg::connect(const DeviceTickets &tickets)
 {
+    if(isSerialNumber)
         if (myTicket == tickets)
         {
             initWaitTimer.stop();
@@ -64,7 +69,7 @@ void CanProg::connect(const DeviceTickets &tickets)
             progMode = true;
 
             emit sendProgStatus(pStore->data());
-            emit sendState(tr("�?дет прошивка"));
+            emit sendState(tr("Идет прошивка"));
         }
         else if (myTicket <= tickets) // Броадкаст
         {
@@ -216,17 +221,22 @@ void CanProg::submit()
 
 void CanProg::periodicalCheck()
 {
-    if (checkProgram())
+    if(isSerialNumber)
     {
-        emit sendSubmitAck();
-        progModeExit();
+        if (checkProgram())
+        {
+            emit sendSubmitAck();
+            progModeExit();
+        }
+        else
+        {
+            emit sendFirmCorrupt();
+            emit sendState(tr("Прошивка повреждена"));
+            initWaitTimer.start();
+        }
     }
     else
-    {
-        emit sendFirmCorrupt();
-        emit sendState(tr("Прошивка повреждена"));
-        initWaitTimer.start();
-    }
+        emit noSerialNumber();
 }
 
 QStringList CanProg::parseDir(const QDir dir)
@@ -273,6 +283,14 @@ bool CanProg::checkProgram()
          return crc == etalonCrc;
     else
         return false;
+}
+
+void CanProg::inputBlockSerialNumber(qint32 blockSerialNumber)
+{
+    pStore->set(131, blockSerialNumber);
+    myTicket.blockSerialNumber = blockSerialNumber;
+    isSerialNumber = true;
+    initWaitTimer.start();
 }
 
 void CanProg::start(int exitCode)

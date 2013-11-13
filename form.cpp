@@ -12,12 +12,15 @@ Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
 
     ui->trainLable->hide();
 
+    ui->blockSerialNumberOk->hide();
+    ui->editblockSerialNumber->hide();
+    ui->lableBlockSerialNumber->hide();
+
     showFullScreen();
 
-//    setSize(ui->log, ui->stateLable);
-
-
     QObject::connect(&cp, SIGNAL(sendState(QString)), this, SLOT(showState(QString)));
+    QObject::connect(&cp, SIGNAL(noSerialNumber()), this, SLOT(inputSerialNumber()));
+    QObject::connect(this, SIGNAL(setSerialNumber(qint32)), &cp, SLOT(inputBlockSerialNumber(qint32)));
 }
 
 Form::~Form()
@@ -27,7 +30,7 @@ Form::~Form()
 
 void Form::showState(const QString state)
 {
-    QString train("                   ooOOOO\n                oo          _____\n              _I__n_n__||_|| ________\n          >(_________|_7_|-|______|\n            /o  ()()   ()()   o      oo  oo");
+    QString train("                   ooOOOO\n                oo          _____\n              _I__n_n__||_||_ _______\n          >(_________|_7_|-|______|\n            /o  ()()   ()()   o      oo  oo");
     if (ui->trainLable->isHidden())
     {
         ui->trainLable->show();
@@ -39,20 +42,38 @@ void Form::showState(const QString state)
     ui->trainLable->setText(train);
 }
 
-void Form::moveAboutCenter(QLabel *lable, int x, int y)
+void Form::inputSerialNumber()
 {
-    QPoint point = QDesktopWidget().availableGeometry().center();
-    point.setY(point.y() + y - lable->height()/2);
-    point.setX(point.x() + x - lable->width()/2);
-    lable->move(point);
+    moveAboutCenter(ui->lableBlockSerialNumber, 0, -25);
+    ui->lableBlockSerialNumber->show();
+
+    moveAboutCenter(ui->editblockSerialNumber, 0, 0);
+    ui->editblockSerialNumber->show();
+
+    moveAboutCenter(ui->blockSerialNumberOk, 0, 25);
+    ui->blockSerialNumberOk->show();
 }
 
-void Form::setSize(QTextEdit *textLog, QLabel *lable)
+void Form::moveAboutCenter(QWidget *frame, int x, int y)
+{
+    QPoint point = QDesktopWidget().availableGeometry().center();
+    point.setY(point.y() + y - frame->height()/2);
+    point.setX(point.x() + x - frame->width()/2);
+    frame->move(point);
+}
+
+void Form::setSize(QWidget *frame)
 {
     QRect screen = QApplication::desktop()->screenGeometry();
     screen.setWidth(screen.width()/2);
-    textLog->setGeometry(screen);
-    lable->setGeometry(screen);
+    frame->setGeometry(screen);
 }
 
+void Form::on_blockSerialNumberOk_pressed()
+{
+    ui->blockSerialNumberOk->hide();
+    ui->editblockSerialNumber->hide();
+    ui->lableBlockSerialNumber->hide();
 
+    emit setSerialNumber((qint32)ui->editblockSerialNumber->text().toInt());
+}

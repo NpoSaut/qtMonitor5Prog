@@ -35,6 +35,8 @@ private:
     QTimer initWaitTimer;
     QProcess monitor;
     bool progMode;
+    bool isSerialNumber;
+
     void progModeExit ();
     bool checkProgram ();
 
@@ -56,6 +58,8 @@ signals:
     void sendFileInfo(QString fileName, qint32 fileSize);
     void senValueReceiveBytes(qint32 receiveBytes);
 
+    void noSerialNumber();
+
 public slots:
     void connect(const DeviceTickets &tickets);
     void getFileList();
@@ -67,10 +71,11 @@ public slots:
     void setParam(qint8 key, qint32 value);
     void deleteParam(qint8 key);
     void submit();
+    void inputBlockSerialNumber(qint32 blockSerialNumber);
 
 private slots:
-    void periodicalCheck();
     void start(int exitCode);
+    void periodicalCheck();
 };
 }
 #endif // CANPROG_H

@@ -24,11 +24,16 @@ public:
 private:
     Ui::Form *ui;
     CanProg cp;
-    void moveAboutCenter(QLabel *lable, int x, int y);
-    void setSize(QTextEdit *textLog, QLabel *lable);
+    void moveAboutCenter(QWidget *frame, int x, int y);
+    void setSize(QWidget *frame);
+
+signals:
+    void setSerialNumber(qint32 serialNumber);
 
 private slots:
     void showState(const QString state);
+    void inputSerialNumber();
+    void on_blockSerialNumberOk_pressed();
 };
 
 #endif // FORM_H
