@@ -10,6 +10,9 @@ Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    ui->blockSerialNumberOk->setShortcut(Qt::Key_Return);
+    ui->blockSerialNumberOk->setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 0);"));
+
     ui->trainLable->hide();
 
     ui->blockSerialNumberOk->hide();
@@ -44,13 +47,14 @@ void Form::showState(const QString state)
 
 void Form::inputSerialNumber()
 {
-    moveAboutCenter(ui->lableBlockSerialNumber, 0, -25);
+    moveAboutCenter(ui->lableBlockSerialNumber, 0, -75);
     ui->lableBlockSerialNumber->show();
 
     moveAboutCenter(ui->editblockSerialNumber, 0, 0);
     ui->editblockSerialNumber->show();
+    ui->editblockSerialNumber->setFocus();
 
-    moveAboutCenter(ui->blockSerialNumberOk, 0, 25);
+    moveAboutCenter(ui->blockSerialNumberOk, 0, 50);
     ui->blockSerialNumberOk->show();
 }
 
@@ -71,9 +75,12 @@ void Form::setSize(QWidget *frame)
 
 void Form::on_blockSerialNumberOk_pressed()
 {
-    ui->blockSerialNumberOk->hide();
-    ui->editblockSerialNumber->hide();
-    ui->lableBlockSerialNumber->hide();
+    if(ui->editblockSerialNumber->text()!="")
+    {
+        ui->blockSerialNumberOk->hide();
+        ui->editblockSerialNumber->hide();
+        ui->lableBlockSerialNumber->hide();
 
-    emit setSerialNumber((qint32)ui->editblockSerialNumber->text().toInt());
+        emit setSerialNumber((qint32)ui->editblockSerialNumber->text().toInt());
+    }
 }

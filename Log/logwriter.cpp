@@ -2,19 +2,19 @@
 #include "QDir"
 
 LogWriter::LogWriter(QObject *parent) :
-    logFile(QString("C:\\MonMSUL\\%1.log").arg(QDateTime::currentDateTime().toString("dd-MM-yyyy"))),
+    logFile(QString("C:\\MonMSUL\\log%1.log").arg(QDateTime::currentDateTime().toString("hhmm"))),
     buffer(),
     logStream(&logFile),
     Singletone<LogWriter>(*this),
     QObject(parent)
 {
 
-    QDir dir = QDir::current();
+    QDir dir("C:/MonMSUL");
 
-    QStringList loggers = dir.entryList(QStringList("*.log"),QDir::Files, QDir::Name);
-    if(loggers.size() > 7)
+    QStringList loggers = dir.entryList(QStringList("*.log"), QDir::Files, QDir::Time);
+    if(loggers.size() >= 7)
     {
-        QFile(loggers.at(0)).remove();
+        QFile(loggers.at(loggers.size()-1)).remove();
     }
 }
 
@@ -23,7 +23,7 @@ void LogWriter::installLog()
     if(logFile.open(QFile::WriteOnly | QIODevice::Unbuffered | QIODevice::Append))
     {
         logStream << "|----------------------------------------------------------------|\r\n";
-        logStream << QString(tr("Начало записи в %1\r\n")).arg(QDateTime::currentDateTime().toString("hh:mm:ss"));
+        logStream << QString(tr("Начало записи %1\r\n")).arg(QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss"));
         logStream << tr("Маркеры: '>>' входящее сообщение, '<<' исходящее сообщение\r\n\r\n");
     }
 
@@ -63,9 +63,6 @@ void LogWriter::write(const CanInternals::StructForDrv &data)
             buffer.erase(buffer.begin());
             buffer.append(ToQString(data) + "\r\n");
         }
-
-//        logStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz ");
-//        logStream << ToQString(data) + "\r\n";
     }
 }
 
@@ -78,15 +75,12 @@ void LogWriter::write(const CanInternals::TransmitData &data)
         buffer.erase(buffer.begin());
         buffer.append(ToQString(data) + "\r\n");
     }
-
-//    logStream << QDateTime::currentDateTime().toString("hh:mm:ss.zzz ");
-//    logStream << ToQString(data) + "\r\n";
 }
 
 QString LogWriter::ToQString(CanInternals::StructForDrv data)
 {
     QString time;
-    time.append(QDateTime::currentDateTime().toString("hh:mm:ss.zzz") + ">> ");
+    time.append(QDateTime::currentDateTime().toString("hh:mm:ss.zzz") + " >> ");
 
     QString mess;
     mess.sprintf(" %04x | ", (data.id >> 18) * 0x20 + 0x8);
@@ -104,7 +98,7 @@ QString LogWriter::ToQString(CanInternals::StructForDrv data)
 QString LogWriter::ToQString(CanInternals::TransmitData data)
 {
     QString time;
-    time.append(QDateTime::currentDateTime().toString("hh:mm:ss.zzz") + "<< ");
+    time.append(QDateTime::currentDateTime().toString("hh:mm:ss.zzz") + " << ");
 
     QString mess;
     mess.sprintf(" %04x | ", (data.id >> 18) * 0x20 + 0x8);

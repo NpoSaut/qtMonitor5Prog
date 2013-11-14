@@ -199,6 +199,7 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
             }
             file.close();
         }
+        emit sendWriteFileAck(errorCode);
     }
 }
 
@@ -217,6 +218,7 @@ void CanProg::deleteParam(qint8 key)
 void CanProg::submit()
 {
     periodicalCheck();
+    emit sendSubmitAck();
 }
 
 void CanProg::periodicalCheck()

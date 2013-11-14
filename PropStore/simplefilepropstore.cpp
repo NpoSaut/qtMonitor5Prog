@@ -12,14 +12,12 @@ SimpleFilePropStore::SimpleFilePropStore(QFile &file)
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
     QTextStream fileIn(&file);
-//    QTextStream lineIn(&line);
     while (!fileIn.atEnd())
     {
         QStringList line(fileIn.readLine().split(" "));
-        int k, v;
-//        lineIn >> k >> v;
 
-        map[QString(line.at(0)).toInt()] = QString(line.at(1)).toInt();
+        if(line.at(0) != "")
+            map[QString(line.at(0)).toInt()] = QString(line.at(1)).toInt();
     }
 
     file.close();
