@@ -6,7 +6,7 @@ ProgList::ProgList()
 {
 }
 
-ProgList::ProgList(const QList<DevFileInfo> &listDevFileInfo) :
+ProgList::ProgList(const QMap<QString, DevFileInfo> &listDevFileInfo) :
     listDevFileInfo(listDevFileInfo)
 {
 }
@@ -17,16 +17,18 @@ std::vector<byte> ProgList::encode()
     QDataStream in(&buffer, QIODevice::WriteOnly);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    in << (byte)MessageId(progList);
-    for(QList<DevFileInfo>::iterator i = listDevFileInfo.begin(); i != listDevFileInfo.end(); i++)
-    {
-        in << (byte)i->getFileNameSize();
+    auto keys = listDevFileInfo.keys();
 
-        QByteArray t = i->getFileName("Windows-1251");
+    in << (byte)MessageId(progList);
+    foreach(QString key, keys)
+    {
+        in << (byte)key.length();
+
+        QByteArray t = Message::changeCodec(key, "Windows-1251");
         for (int i =0; i < t.size(); i ++)
             in << (quint8)t.at(i);
 
-        in << i->getFileSize() << (quint32) i->getControlSum();
+        in << listDevFileInfo.take(key).getFileSize() << (quint32) listDevFileInfo.take(key).getControlSum();
     }
     return Message::fromQByteArrayToVector(buffer);
 }
@@ -52,8 +54,8 @@ void ProgList::decode(const std::vector<byte> &data)
         qint32 controlSum;
         out >> controlSum;
 
-        DevFileInfo dfi(fName, fSize, controlSum);
-        listDevFileInfo.append(dfi);
+        DevFileInfo dfi(fSize, controlSum);
+        listDevFileInfo.insert(fName, dfi);
     }
 
 }

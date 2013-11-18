@@ -9,10 +9,14 @@ class DevFileInfo
 {
 public:
     DevFileInfo();
-    DevFileInfo(QString name, qint32 fSize, qint32 cSum);
-    DevFileInfo(QString name, QByteArray data);
-    QByteArray getFileName(QString newCodec = "UTF-8");
-    QByteArray &getData(QString newCodec = "UTF-8");
+    DevFileInfo(qint32 fSize);
+    DevFileInfo(qint32 fSize, qint32 cSum);
+    DevFileInfo(QByteArray data);
+
+    bool setData(const QByteArray &data);
+    QByteArray getData();
+
+    QByteArray getData(qint32 offset, qint32 readSize);
     qint32 getFileSize();
     quint16 getControlSum();
     qint8 getFileNameSize();

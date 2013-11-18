@@ -9,16 +9,16 @@ Debugging::Debugging(int transmitDescriptor, int acknowlegmentDescriptor, QObjec
 
 void Debugging::createFile(const std::vector<byte> &data)
 {
-    DevFileInfo devFile("SomeText.txt", Message::fromVectorToQByteArray(data));
+    DevFileInfo devFile(Message::fromVectorToQByteArray(data));
 
-    QFile file(devFile.getFileName());
-    file.open(QIODevice::Append);
+//    QFile file(devFile.getFileName());
+//    file.open(QIODevice::Append);
     //QDataStream in(&file);
 
     //in << devFile.getData();
-    file.write(devFile.getData());
-    file.close();
-    qDebug() << "File created";
+//    file.write(devFile.getData());
+//    file.close();
+//    qDebug() << "File created";
 }
 
 void Debugging::send(const QByteArray &arr)

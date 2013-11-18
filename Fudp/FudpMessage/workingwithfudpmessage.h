@@ -60,7 +60,7 @@ public slots:
 
     void sendAnswerToBroadcast(DeviceTickets ticket);
     void sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary);
-    void sendProgList(const QList<DevFileInfo> &list);
+    void sendProgList(const QMap<QString, DevFileInfo> &list);
     void sendProgRead(qint8 errorCode, const QByteArray &data);
     void sendProgRmAck(qint8 errorCode);
     void sendProgMrPropperAck();

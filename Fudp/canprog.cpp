@@ -12,7 +12,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 {
     progMode = false;
     isSerialNumber = false;
-    
+
     pStore->get(129, myTicket.blockId);
     pStore->get(130, myTicket.module);
     pStore->get(131, myTicket.blockSerialNumber);
@@ -23,7 +23,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 
     QObject::connect(this, SIGNAL(sendAnswerToBroadcast(DeviceTickets)), &worker, SLOT(sendAnswerToBroadcast(DeviceTickets)));
     QObject::connect(this, SIGNAL(sendProgStatus(QVector<QPair<quint8,qint32> >)), &worker, SLOT(sendProgStatus(QVector<QPair<quint8,qint32> >)));
-    QObject::connect(this, SIGNAL(sendFileList(QList<DevFileInfo>)), &worker, SLOT(sendProgList(QList<DevFileInfo>)));
+    QObject::connect(this, SIGNAL(sendFileList(QMap<QString, DevFileInfo>)), &worker, SLOT(sendProgList(QMap<QString, DevFileInfo>)));
     QObject::connect(this, SIGNAL(sendFile(qint8,QByteArray)), &worker, SLOT(sendProgRead(qint8,QByteArray)));
     QObject::connect(this, SIGNAL(sendDeleteFileAck(qint8)), &worker, SLOT(sendProgRmAck(qint8)));
     QObject::connect(this, SIGNAL(sendDeleteAllFilesAck()), &worker, SLOT(sendProgMrPropperAck()));
@@ -94,8 +94,10 @@ void CanProg::getFileList()
             QFile file(fileName);
             file.open(QIODevice::ReadOnly);
 
-            DevFileInfo fileInfo(fileName.remove(0,2), file.readAll());
-            fileList.append(fileInfo);
+            DevFileInfo fileInfo(/*fileName.remove(0,2), */file.readAll());
+            fileList.insert(fileName, fileInfo);
+
+            file.close();
         }
 
         emit sendFileList(fileList);
@@ -108,16 +110,12 @@ void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
     {
         qint8 errorCode = 0;
         QByteArray buffer;
-        if(QFile::exists(fileName))
+        if(fileList.contains(fileName))
         {
-            QFile file(fileName);
-
-            if (offset+readSize > file.size())
+            if (offset+readSize > fileList[fileName].getFileSize())
                 errorCode = ProgRead::invalidOffset;
-            {
-                if(file.open(QIODevice::ReadOnly));
-                buffer.append(file.read(readSize));
-            }
+            else
+                buffer.append(fileList[fileName].getData(offset, readSize));
         }
         else
         {
@@ -132,8 +130,8 @@ void CanProg::deleteFile(const QString &fileName)
     if(progMode)
     {
         qint8 errorCode = 0;
-        if(QFile::exists(fileName))
-            QFile(fileName).remove();
+        if(fileList.contains(fileName))
+            fileList.remove(fileName);
         else
             errorCode = ProgRmAck::FileNotExists;
 
@@ -145,12 +143,13 @@ void CanProg::deleteAllFiles(qint32 securityKey)
 {
     if(progMode)
     {
-        QDir dir = QDir::current();
-        QStringList files = dir.entryList();
-        foreach(QString fileName, files)
-        {
-            QFile(fileName).remove();
-        }
+        fileList.clear();
+//        QDir dir = QDir::current();
+//        QStringList files = dir.entryList();
+//        foreach(QString fileName, files)
+//        {
+//            QFile(fileName).remove();
+//        }
 
         emit sendDeleteAllFilesAck();
     }
@@ -163,16 +162,18 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
     {
 
         qint8 errorCode = 0;
-        if(!QFile::exists(fileName))
+        if(!fileList.contains(fileName))
         {
             bool success = true;
             int lastSlashPosition = fileName.lastIndexOf('/');
             if (lastSlashPosition != -1)
                 success &= QDir::current().mkpath(fileName.left(lastSlashPosition));
-            QFile file(fileName);
-            success &= file.open(QIODevice::WriteOnly);
-            file.resize(fileSize);
-            file.close();
+//            QFile file(fileName);
+//            success &= file.open(QIODevice::WriteOnly);
+//            file.resize(fileSize);
+//            file.close();
+            DevFileInfo fileInfo(fileSize);
+            fileList.insert(fileName, fileInfo);
 
             errorCode = success ? 0 : ProgCreateAck::ErrorCreate;
         }
@@ -188,16 +189,18 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
     if(progMode)
     {
         qint8 errorCode = 0;
-        if(QFile::exists(fileName))
+        if(fileList.contains(fileName))
         {
-            QFile file(fileName);
-            if(file.open(QIODevice::ReadWrite))
-            {
-                file.seek(offset);
-                if(file.write(data) == -1)
-                    errorCode = 255;
-            }
-            file.close();
+//            QFile file(fileName);
+//            if(file.open(QIODevice::ReadWrite))
+//            {
+//                file.seek(offset);
+//                if(file.write(data) == -1)
+//                    errorCode = 255;
+//            }
+//            file.close();
+            if(!fileList.take(fileName).setData(data))
+                errorCode = 1;
         }
         emit sendWriteFileAck(errorCode);
     }
@@ -228,6 +231,7 @@ void CanProg::periodicalCheck()
         if (checkProgram())
         {
             emit sendSubmitAck();
+            saveChanges();
             progModeExit();
         }
         else
@@ -268,17 +272,17 @@ bool CanProg::checkProgram()
 {
     if(progMode)
         emit sendState(tr("Проверка целостности прошивки..."));
-    QDir dir = QDir(".");
-    QStringList files = parseDir(dir);
+
+    auto files = fileList.keys();
 
     quint16 crc = 0;
     foreach(QString fileName, files)
     {
-        QFile file(fileName);
-        file.open(QIODevice::ReadOnly);
+//        QFile file(fileName);
+//        file.open(QIODevice::ReadOnly);
 
-        DevFileInfo fileInfo(fileName.remove(0,2), file.readAll());
-        crc ^= fileInfo.getControlSum();
+//        DevFileInfo fileInfo(/*fileName.remove(0,2), */file.readAll());
+        crc ^= fileList.take(fileName).getControlSum();
     }
     qint32 etalonCrc;
     if ( pStore->get(6, etalonCrc) )
@@ -300,6 +304,22 @@ void CanProg::start(int exitCode)
     QDir::setCurrent("C:/MonMSUL/root");
     CanInternals::canDrv.start();
     initWaitTimer.start();
+}
+
+void CanProg::saveChanges()
+{
+    QStringList files = parseDir(QDir("."));
+    foreach(QString fileNme, files)
+    {
+        QFile::remove(fileNme);
+    }
+    auto keys = fileList.keys();
+    foreach(QString key, keys)
+    {
+        QFile file(key);
+        file.open(QIODevice::ReadWrite);
+        file.write(fileList.take(key).getData());
+    }
 }
 
 }

@@ -38,7 +38,7 @@ void Form::showState(const QString state)
     {
         ui->trainLable->show();
         moveAboutCenter(ui->trainLable, 0, 0);
-        moveAboutCenter(ui->stateLable, 0, 0);
+        moveAboutCenter(ui->stateLable, 0, 30);
     }
     ui->stateLable->setText(state);
     ui->trainLable->setAlignment(Qt::AlignLeft);

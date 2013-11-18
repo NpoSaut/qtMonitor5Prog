@@ -10,7 +10,7 @@ class ProgRm : public Message
 {
 public:
     ProgRm();
-    ProgRm(DevFileInfo &file);
+    ProgRm(const QString fileName);
     std::vector<byte> encode();
     void decode(const std::vector<byte> &data);
     QString getFileName();

@@ -30,7 +30,7 @@ private:
     const int FuDev =  0xfc48;
     WorkingWithFudpMessage worker;
     PropStore *pStore;
-    QList<DevFileInfo> fileList;
+    QMap<QString, DevFileInfo> fileList;
     DeviceTickets myTicket;
     QTimer initWaitTimer;
     QProcess monitor;
@@ -39,12 +39,13 @@ private:
 
     void progModeExit ();
     bool checkProgram ();
+    void saveChanges();
 
 signals:
     void sendAnswerToBroadcast(DeviceTickets myTicket);
     void sendProgStatus(QVector< QPair<quint8, qint32> > dictionary);
-    void sendFileList(const QList<DevFileInfo> &list);
-    void sendFile(qint8 errorCode, const QByteArray &data);
+    void sendFileList(QMap<QString, DevFileInfo> list);
+    void sendFile(qint8 errorCode, QByteArray data);
     void sendDeleteFileAck(qint8 errorCode);
     void sendDeleteAllFilesAck();
     void sendCreateFileAck(qint8 errorCode);

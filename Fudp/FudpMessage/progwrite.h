@@ -10,7 +10,7 @@ class ProgWrite : public Message
 {
 public:
     ProgWrite();
-    ProgWrite(DevFileInfo &file, qint32 offset);
+    ProgWrite(QString fileName, DevFileInfo &file, qint32 offset);
     std::vector<byte> encode();
     void decode(const std::vector<byte> &data);
 

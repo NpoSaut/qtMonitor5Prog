@@ -7,8 +7,8 @@ ProgWrite::ProgWrite()
 {
 }
 
-ProgWrite::ProgWrite(DevFileInfo &file, qint32 offset) :
-    fileName(file.getFileName("Windows-1251")), fileData(file.getData("Windows-1251")), offset(offset)
+ProgWrite::ProgWrite(QString fileName, DevFileInfo &file, qint32 offset) :
+    fileName(Message::changeCodec(fileName, "Windows-1251")), fileData(file.getData()), offset(offset)
 {
 }
 

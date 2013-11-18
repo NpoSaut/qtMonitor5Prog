@@ -40,6 +40,7 @@ class Message
 public:
     static QByteArray fromVectorToQByteArray(const std::vector<byte> &data);
     static std::vector<byte> fromQByteArrayToVector(const QByteArray &arr);
+    static QByteArray changeCodec(QString str, QString newCodec);
 
 protected:
     virtual std::vector<byte> encode() =0;

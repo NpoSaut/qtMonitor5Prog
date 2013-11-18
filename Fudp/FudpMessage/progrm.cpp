@@ -6,8 +6,8 @@ ProgRm::ProgRm()
 {
 }
 
-ProgRm::ProgRm(DevFileInfo &file) :
-    fileName(file.getFileName("Windows-1251"))
+ProgRm::ProgRm(const QString fileName) :
+    fileName(Message::changeCodec(fileName, "Windows-1251"))
 {
 }
 
