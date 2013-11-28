@@ -2,7 +2,7 @@
 #include "QDir"
 
 LogWriter::LogWriter(QObject *parent) :
-    logFile(QString("C:\\MonMSUL\\log%1.log").arg(QDateTime::currentDateTime().toString("hhmm"))),
+    logFile(QString("C:/MonMSUL/log%1.log").arg(QDateTime::currentDateTime().toString("hhmm"))),
     buffer(),
     logStream(&logFile),
     Singletone<LogWriter>(*this),

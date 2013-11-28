@@ -1,4 +1,5 @@
 #include "message.h"
+#include <QTextCodec>
 
 namespace FudpMessage
 {
@@ -19,5 +20,12 @@ QByteArray Message::fromVectorToQByteArray(const std::vector<byte> &data)
     for(int i = 0; i<data.size(); i++)
         arr.append((byte)data.at(i));
     return arr;
+}
+
+QByteArray Message::changeCodec(QString str, QString newCodec)
+{
+    QTextCodec *codec = QTextCodec::codecForName(newCodec.toLatin1());
+    QByteArray encodingStr = codec->fromUnicode(str);
+    return encodingStr;
 }
 }

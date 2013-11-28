@@ -12,12 +12,12 @@ class ProgList : public Message
 {
 public:
     ProgList();
-    ProgList(const QList<DevFileInfo> &listDevFileInfo);
+    ProgList(const QMap<QString, DevFileInfo> &listDevFileInfo);
     std::vector<byte> encode();
     void decode(const std::vector<byte> &data);
 
 private:
-    QList<DevFileInfo> listDevFileInfo;
+    QMap<QString, DevFileInfo> listDevFileInfo;
 
 
 };

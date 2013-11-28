@@ -50,13 +50,13 @@ bool SimpleFilePropStore::set(quint8 key, qint32 value)
     map[key] = value;
     bool success = (map[key] == value); // :)
 
-    return sync() & success;
+    return success;
 }
 
 bool SimpleFilePropStore::del(quint8 key)
 {
-    map.erase(map.find (key));
-    return sync();
+    map.erase(map.find(key));
+    return true;
 }
 
 bool SimpleFilePropStore::sync()

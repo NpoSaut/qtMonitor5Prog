@@ -27,6 +27,8 @@ public:
     // Удаляет свойство
     //  Возвращает успешность операции
     virtual bool del (quint8 key) = 0;
+
+    virtual bool sync() = 0;
 };
 
 #endif // PROPSTORE_H

@@ -14,8 +14,8 @@ using namespace FudpMessage;
 namespace Fudp
 {
 
-void hideWindow();
-void showWindow();
+//void hideWindow();
+//void showWindow();
 
 class CanProg : public QObject
 {
@@ -28,24 +28,26 @@ private:
     const int FuInit = 0xfc08;
     const int FuProg = 0xfc28;
     const int FuDev =  0xfc48;
+    LogWriter log;
     WorkingWithFudpMessage worker;
     PropStore *pStore;
-    QList<DevFileInfo> fileList;
+    QMap<QString, DevFileInfo> fileList;
     DeviceTickets myTicket;
     QTimer initWaitTimer;
     QProcess monitor;
-    LogWriter log;
     bool progMode;
     bool isSerialNumber;
 
     void progModeExit ();
     bool checkProgram ();
+    bool saveChanges();
+    void takeFileList();
 
 signals:
     void sendAnswerToBroadcast(DeviceTickets myTicket);
     void sendProgStatus(QVector< QPair<quint8, qint32> > dictionary);
-    void sendFileList(const QList<DevFileInfo> &list);
-    void sendFile(qint8 errorCode, const QByteArray &data);
+    void sendFileList(QMap<QString, DevFileInfo> list);
+    void sendFile(qint8 errorCode, QByteArray data);
     void sendDeleteFileAck(qint8 errorCode);
     void sendDeleteAllFilesAck();
     void sendCreateFileAck(qint8 errorCode);
@@ -73,6 +75,7 @@ public slots:
     void deleteParam(qint8 key);
     void submit();
     void inputBlockSerialNumber(qint32 blockSerialNumber);
+    void timeOut();
 
 private slots:
     void start(int exitCode);

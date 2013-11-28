@@ -1,31 +1,44 @@
 #include "devfileinfo.h"
-
+#include "Log/logwriter.h"
 
 DevFileInfo::DevFileInfo()
 {
 }
 
-DevFileInfo::DevFileInfo(QString name, qint32 fSize, qint32 cSum) :
-    fileName(name), fileSize(fSize), controlSum(cSum)
+DevFileInfo::DevFileInfo(qint32 fSize, qint32 cSum) :
+    fileSize(fSize), controlSum(cSum)
 {
 }
 
-DevFileInfo::DevFileInfo(QString name, QByteArray data) :
-    fileName(name), fileData(data), fileSize(data.size()), controlSum(calcControlSumm())
+DevFileInfo::DevFileInfo(QByteArray data) :
+    fileData(data), fileSize(data.size()), controlSum(calcControlSumm())
 {
 
 }
 
-QByteArray DevFileInfo::getFileName(QString newCodec)
+DevFileInfo::DevFileInfo(qint32 fSize) :
+    fileSize(fSize)
 {
-    QTextCodec *codec = QTextCodec::codecForName(newCodec.toLatin1());
-    QByteArray encodingFileName = codec->fromUnicode(fileName);
-    return encodingFileName;
+
 }
 
-QByteArray &DevFileInfo::getData(QString newCodec)
+bool DevFileInfo::setData(const QByteArray &data)
+{
+    if(fileData.length() + data.length() > fileSize)
+        return false;
+    fileData.append(data);
+    controlSum = calcControlSumm();
+    return true;
+}
+
+QByteArray DevFileInfo::getData()
 {
     return fileData;
+}
+
+QByteArray DevFileInfo::getData(qint32 offset, qint32 readSize)
+{
+    return fileData.mid(offset, offset+readSize);
 }
 
 qint32 DevFileInfo::getFileSize()
