@@ -8,13 +8,12 @@ LogWriter::LogWriter(QObject *parent) :
     Singletone<LogWriter>(*this),
     QObject(parent)
 {
-
     QDir dir("C:/MonMSUL");
 
     QStringList loggers = dir.entryList(QStringList("*.log"), QDir::Files, QDir::Time);
     if(loggers.size() >= 7)
     {
-        QFile(loggers.at(loggers.size()-1)).remove();
+        QFile("C:/MonMSUL/" + loggers.at(loggers.size()-1)).remove();
     }
 }
 
@@ -68,6 +67,7 @@ void LogWriter::write(const CanInternals::StructForDrv &data)
 
 void LogWriter::write(const CanInternals::TransmitData &data)
 {
+
     if(buffer.length() < 66)
         buffer.append(ToQString(data) + "\r\n");
     else

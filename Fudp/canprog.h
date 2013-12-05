@@ -25,9 +25,9 @@ public:
     QStringList parseDir(const QDir dir);
 
 private:
-    const int FuInit = 0xfc08;
-    const int FuProg = 0xfc28;
-    const int FuDev =  0xfc48;
+    const int FuInit = 0x66a8;
+    const int FuProg = 0x66c8;
+    const int FuDev =  0x66e8;
     LogWriter log;
     WorkingWithFudpMessage worker;
     PropStore *pStore;
@@ -38,7 +38,7 @@ private:
     bool progMode;
     bool isSerialNumber;
 
-    void progModeExit ();
+    void progModeExit (int errorCode = 0);
     bool checkProgram ();
     bool saveChanges();
     void takeFileList();
@@ -55,7 +55,7 @@ signals:
     void sendSetParamAck(qint8 errorCode);
     void sendDeleteParamAck(qint8 errorCode);
     void sendFirmCorrupt();
-    void sendSubmitAck();
+    void sendSubmitAck(qint8 errorCode);
 
     void sendState(QString state);
     void sendFileInfo(QString fileName, qint32 fileSize);
@@ -73,7 +73,7 @@ public slots:
     void writeFile(const QString &fileName, qint32 offset, const QByteArray &data);
     void setParam(qint8 key, qint32 value);
     void deleteParam(qint8 key);
-    void submit();
+    void submit(qint8 subimtKey);
     void inputBlockSerialNumber(qint32 blockSerialNumber);
     void timeOut();
 

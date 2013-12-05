@@ -32,7 +32,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(this, SIGNAL(sendSetParamAck(qint8)), &worker, SLOT(sendParamSetAck(qint8)));
     QObject::connect(this, SIGNAL(sendDeleteParamAck(qint8)), &worker, SLOT(sendParamRmAck(qint8)));
     QObject::connect(this, SIGNAL(sendFirmCorrupt()), &worker, SLOT(sendProgFirmCorrupt()));
-    QObject::connect(this, SIGNAL(sendSubmitAck()), &worker, SLOT(sendSubmitAck()));
+    QObject::connect(this, SIGNAL(sendSubmitAck(qint8)), &worker, SLOT(sendSubmitAck(qint8)));
 
     QObject::connect(&worker, SIGNAL(getProgInit(DeviceTickets)), this, SLOT(connect(DeviceTickets)));
     QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(getFileList()));
@@ -43,7 +43,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(&worker, SIGNAL(getProgWrite(QString,qint32,QByteArray)), this, SLOT(writeFile(QString,qint32,QByteArray)));
     QObject::connect(&worker, SIGNAL(getParamSetRq(qint8,qint32)), this, SLOT(setParam(qint8,qint32)));
     QObject::connect(&worker, SIGNAL(getParamRmRq(qint8)), this, SLOT(deleteParam(qint8)));
-    QObject::connect(&worker, SIGNAL(getProgSubmit()), this, SLOT(submit()));
+    QObject::connect(&worker, SIGNAL(getProgSubmit(qint8)), this, SLOT(submit(qint8)));
     QObject::connect(&worker, SIGNAL(waitingTimeOut()), this, SLOT(timeOut()));
 
     QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(periodicalCheck()));
@@ -68,7 +68,6 @@ void CanProg::connect(const DeviceTickets &tickets)
     if(isSerialNumber)
         if (myTicket == tickets)
         {
-            LOG_WRITER.write(tr("Соединение установлено"), QColor(0, 255, 0));
             initWaitTimer.stop();
 
             progMode = true;
@@ -78,7 +77,6 @@ void CanProg::connect(const DeviceTickets &tickets)
         }
         else if (myTicket <= tickets) // Броадкаст
         {
-            LOG_WRITER.write(tr("Получен броадкаст"), QColor(0, 255, 0));
             emit sendAnswerToBroadcast(myTicket);
         }
         else
@@ -222,9 +220,23 @@ void CanProg::deleteParam(qint8 key)
     }
 }
 
-void CanProg::submit()
+void CanProg::submit(qint8 submitKey)
 {
-    periodicalCheck();
+    if(submitKey == 0)
+    {
+        periodicalCheck();
+    }
+    else
+    {
+        takeFileList();
+
+        pStore->get(129, myTicket.blockId);
+        pStore->get(130, myTicket.module);
+        pStore->get(131, myTicket.blockSerialNumber);
+        pStore->get(133, myTicket.channel);
+        pStore->get(134, myTicket.modification);
+
+    }
 }
 
 void CanProg::periodicalCheck()
@@ -237,12 +249,9 @@ void CanProg::periodicalCheck()
 
         if (checkProgram())
         {
-            if(!pStore->sync())
+            if(!pStore->sync() || !saveChanges())
                 errorCode = 1;
-            if(!saveChanges())
-                errorCode = 2;
-            emit sendSubmitAck();
-            progModeExit();
+            progModeExit(errorCode);
         }
         else
         {
@@ -270,10 +279,13 @@ QStringList CanProg::parseDir(const QDir dir)
     return fileList;
 }
 
-void CanProg::progModeExit()
+void CanProg::progModeExit(int errorCode)
 {
     if(progMode)
-        emit sendState(tr(""));
+    {;
+        emit sendState(tr(""));    
+        emit sendSubmitAck(errorCode);
+    }
     progMode = false;
     LOG_WRITER.finishLog();
     CanInternals::canDrv.stop();

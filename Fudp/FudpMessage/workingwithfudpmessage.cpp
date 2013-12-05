@@ -1,5 +1,5 @@
 #include "workingwithfudpmessage.h"
-
+#include "Log/logwriter.h"
 namespace FudpMessage
 {
 WorkingWithFudpMessage::WorkingWithFudpMessage(int initDescriptor, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
@@ -78,7 +78,10 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     }
     case MessageId(progSubmit):
     {
-        emit getProgSubmit();
+        ProgSubmit sb;
+        sb.decode(data);
+        LOG_WRITER.write(QString(tr("%1")).arg(sb.applyCanges()), QColor(0, 0, 255));
+        emit getProgSubmit(sb.applyCanges());
         break;
     }
     }
@@ -150,9 +153,9 @@ void WorkingWithFudpMessage::sendParamSetAck(qint8 errorCode)
     communicator2.send(setParam.encode());
 }
 
-void WorkingWithFudpMessage::sendSubmitAck()
+void WorkingWithFudpMessage::sendSubmitAck(qint8 finalCode)
 {
-    ProgSubmitAck submitAck;
+    ProgSubmitAck submitAck(finalCode);
     communicator2.send(submitAck.encode());
 }
 
