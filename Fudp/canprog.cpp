@@ -337,6 +337,7 @@ bool CanProg::saveChanges()
 {
     bool success = true;
     auto keys = fileList.keys();
+    QDir::remove("C:/MonMSUL/root"); // TODO: Внимание! Захардкоженый путь!!!
     foreach(QString key, keys)
     {
         QFile file(key);
