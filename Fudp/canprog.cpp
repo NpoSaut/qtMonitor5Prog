@@ -362,7 +362,10 @@ void CanProg::takeFileList()
         file.open(QIODevice::ReadOnly);
 
         DevFileInfo fileInfo(/*fileName.remove(0,2), */file.readAll());
-        fileList[fileName] = fileInfo;
+
+        // Очень не хорошо, наверное, просто так взять и обрезать фиксированную часть имени файла.
+        // TODO: Нужно по-хорошему получать путь к файлу относительно папки приложения
+        fileList[fileName.remove(0, dir.path().length() + 1)] = fileInfo;
 
         file.close();
     }
