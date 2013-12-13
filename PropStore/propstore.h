@@ -28,6 +28,7 @@ public:
     //  Возвращает успешность операции
     virtual bool del (quint8 key) = 0;
 
+    // Синхронизирует данные в кэше и файле.
     virtual bool sync() = 0;
 };
 
