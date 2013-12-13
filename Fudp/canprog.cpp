@@ -51,7 +51,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 
     QObject::connect(&monitor, SIGNAL(finished(int)), this, SLOT(start(int)));
 
-    initWaitTimer.setInterval(1000);
+    initWaitTimer.setInterval(2000);
     initWaitTimer.setSingleShot(true);
     initWaitTimer.start();
 
