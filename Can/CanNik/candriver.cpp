@@ -6,7 +6,7 @@ CanDriver::CanDriver(QObject *parent) :
     QObject(parent)
 {
     canEnable = false;
-    start();
+//    start();
 }
 
 void CanDriver::start()

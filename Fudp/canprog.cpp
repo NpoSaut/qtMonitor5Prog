@@ -1,5 +1,6 @@
 ﻿#include "canprog.h"
 #include <QColor>
+#include <io.h>
 
 // HACK
 // Кастыль!!
@@ -53,7 +54,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 
     initWaitTimer.setInterval(1000);
     initWaitTimer.setSingleShot(true);
-    initWaitTimer.start();
+//    initWaitTimer.start();
 
     if(myTicket.blockSerialNumber != 0)
     {
@@ -282,7 +283,7 @@ QStringList CanProg::parseDir(const QDir dir)
 void CanProg::progModeExit(int errorCode)
 {
     if(progMode)
-    {;
+    {
         emit sendState(tr(""));    
         emit sendSubmitAck(errorCode);
     }
@@ -338,7 +339,9 @@ bool CanProg::saveChanges()
     bool success = true;
     auto keys = fileList.keys();
     QDir rootDir ("C:/MonMSUL/root"); // TODO: Внимание! Захардкоженый путь!!!
-    rootDir.removeRecursively();
+    QStringList deleteList = parseDir(rootDir);
+    foreach(QString name, deleteList)
+        QFile(name).remove();
     rootDir.mkpath(".");
 
     foreach(QString key, keys)
@@ -348,9 +351,12 @@ bool CanProg::saveChanges()
         {
             if(file.write(fileList[key].getData()) == -1)
                 success = false;
-//                LOG_WRITER.write(tr("Ошибка записи"), QColor(255, 0, 0));
+//            LOG_WRITER.write(QString(tr("Записано байт %1")).arg(fileList[key].getData().size()), QColor(255, 0, 0));
             file.close();
+            _commit(file.handle());
         }
+        else
+            success = false;
     }    
     return success;
 }
@@ -376,6 +382,12 @@ void CanProg::timeOut()
 {
     takeFileList();
     periodicalCheck();
+}
+
+void CanProg::drvStart()
+{
+    canDrv.start();
+    initWaitTimer.start();
 }
 
 }

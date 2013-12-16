@@ -30,6 +30,7 @@ Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
     QObject::connect(&cp, SIGNAL(sendState(QString)), this, SLOT(showState(QString)));
     QObject::connect(&cp, SIGNAL(noSerialNumber()), this, SLOT(inputSerialNumber()));
     QObject::connect(this, SIGNAL(setSerialNumber(qint32)), &cp, SLOT(inputBlockSerialNumber(qint32)));
+    QObject::connect(this, SIGNAL(startDrv()), &cp, SLOT(drvStart()));
 }
 
 Form::~Form()
@@ -78,6 +79,11 @@ void Form::setSize(QWidget *frame)
     QRect screen = QApplication::desktop()->screenGeometry();
     screen.setWidth(screen.width()/2);
     frame->setGeometry(screen);
+}
+
+void Form::drvStart()
+{
+    emit startDrv();
 }
 
 void Form::on_blockSerialNumberOk_pressed()

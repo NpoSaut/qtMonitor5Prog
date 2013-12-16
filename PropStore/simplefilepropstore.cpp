@@ -15,7 +15,7 @@ SimpleFilePropStore::SimpleFilePropStore(QFile &file)
     {
         QStringList line(fileIn.readLine().split(" "));
 
-        if(line.at(0) != "")
+        if(line.at(0) != "" && line.size() == 2)
             map[QString(line.at(0)).toInt()] = QString(line.at(1)).toInt();
     }
 

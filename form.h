@@ -20,6 +20,7 @@ class Form : public QWidget
 public:
     explicit Form(SimpleFilePropStore *pStore, QWidget *parent = 0);
     ~Form();
+    void drvStart();
     
 private:
     Ui::Form *ui;
@@ -29,6 +30,7 @@ private:
 
 signals:
     void setSerialNumber(qint32 serialNumber);
+    void startDrv();
 
 private slots:
     void showState(const QString state);

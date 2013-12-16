@@ -76,6 +76,7 @@ public slots:
     void submit(qint8 subimtKey);
     void inputBlockSerialNumber(qint32 blockSerialNumber);
     void timeOut();
+    void drvStart();
 
 private slots:
     void start(int exitCode);
