@@ -8,7 +8,7 @@
 
 // Словарь свойст, хранящийся в простом текстовом файле
 //  Каждая строка файла - запись. Содержит ключь и значение, разделённые пробелом.
-//  Значения не кешируются в памяти, на каждое действие происходит работа с файлом.
+//  Значения кешируются в памяти.
 class SimpleFilePropStore : public PropStore
 {
 public:
@@ -29,12 +29,12 @@ public:
     virtual bool set (quint8 key, qint32 value);
 
     // Удаляет свойство
-    //  Возвращает успешность операции
     virtual bool del (quint8 key);
 
-private:
-     bool sync ();
+    // Синхронизирует данные в кэше и файле.
+    bool sync ();
 
+private:
     QFile &file;
     QMap<quint8, qint32> map;
 };

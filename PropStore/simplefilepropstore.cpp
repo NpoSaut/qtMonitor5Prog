@@ -1,9 +1,8 @@
 #include "simplefilepropstore.h"
 
+#include <io.h>
+
 #include <QTextStream>
-
-#include <QDebug>
-
 #include <QStringList>
 
 SimpleFilePropStore::SimpleFilePropStore(QFile &file)
@@ -16,7 +15,7 @@ SimpleFilePropStore::SimpleFilePropStore(QFile &file)
     {
         QStringList line(fileIn.readLine().split(" "));
 
-        if(line.at(0) != "")
+        if(line.at(0) != "" && line.size() == 2)
             map[QString(line.at(0)).toInt()] = QString(line.at(1)).toInt();
     }
 
@@ -50,25 +49,34 @@ bool SimpleFilePropStore::set(quint8 key, qint32 value)
     map[key] = value;
     bool success = (map[key] == value); // :)
 
-    return sync() & success;
+    return success;
 }
 
 bool SimpleFilePropStore::del(quint8 key)
 {
-    map.erase(map.find (key));
-    return sync();
+    map.erase(map.find(key));
+    return true;
 }
 
 bool SimpleFilePropStore::sync()
 {
-    if ( file.open(QIODevice::WriteOnly | QIODevice::Text) )
+    SimpleFilePropStore storeInFile (file);
+    if ( map != storeInFile.map )
     {
-        QTextStream out(&file);
-        foreach (quint8 k, map.keys())
-            out << k << " " << map[k] << endl;
+        if ( file.open(QIODevice::WriteOnly | QIODevice::Text) )
+        {
+            QTextStream out(&file);
+            foreach (quint8 k, map.keys())
+                out << k << " " << map[k] << endl;
 
-        file.close();
-        return true;
+            file.close();
+            _commit(file.handle());
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     else
     {

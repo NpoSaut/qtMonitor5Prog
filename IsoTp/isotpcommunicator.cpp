@@ -1,4 +1,5 @@
 #include "isotpcommunicator.h"
+#include "Log/logwriter.h"
 namespace IsoTp
 {
 //TpReceiveTransaction IsoTpCommunicator::receiver;

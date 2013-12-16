@@ -27,9 +27,9 @@ public:
     void finishLog();
 
 private:
-    const int FuInit = 0xfc08;
-    const int FuProg = 0xfc28;
-    const int FuDev =  0xfc48;
+    const int FuInit = 0x66a8;
+    const int FuProg = 0x66c8;
+    const int FuDev =  0x66e8;
     QTextEdit *container;
     QFile logFile;
     QTextStream logStream;

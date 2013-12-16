@@ -1,5 +1,5 @@
 #include "devfileinfo.h"
-
+#include "Log/logwriter.h"
 
 DevFileInfo::DevFileInfo()
 {
@@ -27,7 +27,7 @@ bool DevFileInfo::setData(const QByteArray &data)
     if(fileData.length() + data.length() > fileSize)
         return false;
     fileData.append(data);
-    calcControlSumm();
+    controlSum = calcControlSumm();
     return true;
 }
 

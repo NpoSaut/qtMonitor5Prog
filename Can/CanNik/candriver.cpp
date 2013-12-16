@@ -1,12 +1,12 @@
 #include "candriver.h"
-
+#include "Log/logwriter.h"
 namespace CanInternals
 {
 CanDriver::CanDriver(QObject *parent) :
     QObject(parent)
 {
     canEnable = false;
-    start();
+//    start();
 }
 
 void CanDriver::start()
@@ -67,6 +67,7 @@ std::vector<StructForDrv> CanDriver::receiveMessage()
 
 int CanDriver::transmitMessage(TransmitData &td)
 {
+
     int error;
     WaitForSingleObject(transmitMutex, INFINITE);
     if(deviceIo(ioctlCanTransmit, (LPVOID*) &td, sizeof(td), (LPVOID*) &error, 4))

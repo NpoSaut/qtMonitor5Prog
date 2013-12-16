@@ -23,6 +23,7 @@
 #include "paramrmrq.h"
 #include "progbroadcastanswer.h"
 #include "progfirmcorrupt.h"
+#include "progsubmit.h"
 #include "progsubmitack.h"
 
 using namespace IsoTp;
@@ -51,7 +52,7 @@ signals:
     void getProgWrite(QString fileName, qint32 offset, QByteArray data);
     void getParamSetRq(qint8 key, qint32 value);
     void getParamRmRq(qint8 key);
-    void getProgSubmit();
+    void getProgSubmit(qint8 key);
 
     void waitingTimeOut();
 
@@ -69,7 +70,7 @@ public slots:
     void sendParamSetAck(qint8 errorCode);
     void sendParamRmAck(qint8 errorCode);
     void sendProgFirmCorrupt();
-    void sendSubmitAck();
+    void sendSubmitAck(qint8 finalCode);
 
     void timeOut();
 };

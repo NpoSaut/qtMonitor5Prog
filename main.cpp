@@ -1,4 +1,4 @@
-//#include <QCoreApplication>
+#include <QCoreApplication>
 #include <QApplication>
 #include <QTimer>
 #include <QFile>
@@ -25,6 +25,8 @@ int main(int argc, char *argv[])
 
     Form w(&pStore);
     w.show();
+    w.drvStart();
+//    canDrv.start();
 //    CanProg cp(&pStore);
 
     return a.exec();

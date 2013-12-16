@@ -1,4 +1,5 @@
 #include "workingwithframes.h"
+#include "Log/logwriter.h"
 
 namespace IsoTpFrames
 {

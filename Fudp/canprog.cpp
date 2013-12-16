@@ -1,5 +1,6 @@
 ﻿#include "canprog.h"
 #include <QColor>
+#include <io.h>
 
 // HACK
 // Кастыль!!
@@ -32,7 +33,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(this, SIGNAL(sendSetParamAck(qint8)), &worker, SLOT(sendParamSetAck(qint8)));
     QObject::connect(this, SIGNAL(sendDeleteParamAck(qint8)), &worker, SLOT(sendParamRmAck(qint8)));
     QObject::connect(this, SIGNAL(sendFirmCorrupt()), &worker, SLOT(sendProgFirmCorrupt()));
-    QObject::connect(this, SIGNAL(sendSubmitAck()), &worker, SLOT(sendSubmitAck()));
+    QObject::connect(this, SIGNAL(sendSubmitAck(qint8)), &worker, SLOT(sendSubmitAck(qint8)));
 
     QObject::connect(&worker, SIGNAL(getProgInit(DeviceTickets)), this, SLOT(connect(DeviceTickets)));
     QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(getFileList()));
@@ -43,8 +44,8 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     QObject::connect(&worker, SIGNAL(getProgWrite(QString,qint32,QByteArray)), this, SLOT(writeFile(QString,qint32,QByteArray)));
     QObject::connect(&worker, SIGNAL(getParamSetRq(qint8,qint32)), this, SLOT(setParam(qint8,qint32)));
     QObject::connect(&worker, SIGNAL(getParamRmRq(qint8)), this, SLOT(deleteParam(qint8)));
-    QObject::connect(&worker, SIGNAL(getProgSubmit()), this, SLOT(submit()));
-    QObject::connect(&worker, SIGNAL(waitingTimeOut()), this, SLOT(periodicalCheck()));
+    QObject::connect(&worker, SIGNAL(getProgSubmit(qint8)), this, SLOT(submit(qint8)));
+    QObject::connect(&worker, SIGNAL(waitingTimeOut()), this, SLOT(timeOut()));
 
     QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(periodicalCheck()));
 
@@ -53,10 +54,12 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 
     initWaitTimer.setInterval(1000);
     initWaitTimer.setSingleShot(true);
-    initWaitTimer.start();
+//    initWaitTimer.start();
 
     if(myTicket.blockSerialNumber != 0)
         isSerialNumber = true;
+        takeFileList();
+    }
 }
 
 void CanProg::connect(const DeviceTickets &tickets)
@@ -85,21 +88,8 @@ void CanProg::getFileList()
 {
     if(progMode)
     {
-        QDir dir = QDir(".");
-        QStringList files = parseDir(dir);
-
-        fileList.clear();
-        foreach(QString fileName, files)
-        {
-            QFile file(fileName);
-            file.open(QIODevice::ReadOnly);
-
-            DevFileInfo fileInfo(/*fileName.remove(0,2), */file.readAll());
-            fileList.insert(fileName, fileInfo);
-
-            file.close();
-        }
-
+        LOG_WRITER.write(tr("Запрос списка файлов"), QColor(0, 255, 0));
+        takeFileList();
         emit sendFileList(fileList);
     }
 }
@@ -131,7 +121,10 @@ void CanProg::deleteFile(const QString &fileName)
     {
         qint8 errorCode = 0;
         if(fileList.contains(fileName))
+        {
+            LOG_WRITER.write(QString(tr("Удаление файла %1")).arg(fileName), QColor(0, 255, 0));
             fileList.remove(fileName);
+        }
         else
             errorCode = ProgRmAck::FileNotExists;
 
@@ -173,8 +166,7 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
 //            file.resize(fileSize);
 //            file.close();
             DevFileInfo fileInfo(fileSize);
-            fileList.insert(fileName, fileInfo);
-
+            fileList[fileName] = fileInfo;
             errorCode = success ? 0 : ProgCreateAck::ErrorCreate;
         }
         else
@@ -195,11 +187,13 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
 //            if(file.open(QIODevice::ReadWrite))
 //            {
 //                file.seek(offset);
-//                if(file.write(data) == -1)
+//                if(file.write(data) == -1)54
+
 //                    errorCode = 255;
 //            }
 //            file.close();
-            if(!fileList.take(fileName).setData(data))
+            LOG_WRITER.write(QString(tr("Запись в файл %1")).arg(fileName), QColor(0, 255, 0));
+            if(!fileList[fileName].setData(data))
                 errorCode = 1;
         }
         emit sendWriteFileAck(errorCode);
@@ -218,21 +212,38 @@ void CanProg::deleteParam(qint8 key)
         emit sendDeleteParamAck( pStore->del(key) ? 0 : 2 );
 }
 
-void CanProg::submit()
+void CanProg::submit(qint8 submitKey)
 {
-    periodicalCheck();
-    emit sendSubmitAck();
+    if(submitKey == 0)
+    {
+        periodicalCheck();
+    }
+    else
+    {
+        takeFileList();
+
+        pStore->get(129, myTicket.blockId);
+        pStore->get(130, myTicket.module);
+        pStore->get(131, myTicket.blockSerialNumber);
+        pStore->get(133, myTicket.channel);
+        pStore->get(134, myTicket.modification);
+
+    }
 }
 
 void CanProg::periodicalCheck()
 {
     if(isSerialNumber)
     {
+        int errorCode = 0;
+        if(progMode)
+            LOG_WRITER.write(tr("Проверка целостности прошивки"), QColor(0, 255, 0));
+
         if (checkProgram())
         {
-            emit sendSubmitAck();
-            saveChanges();
-            progModeExit();
+            if(!pStore->sync() || !saveChanges())
+                errorCode = 1;
+            progModeExit(errorCode);
         }
         else
         {
@@ -259,8 +270,13 @@ QStringList CanProg::parseDir(const QDir dir)
     return fileList;
 }
 
-void CanProg::progModeExit()
+void CanProg::progModeExit(int errorCode)
 {
+    if(progMode)
+    {
+        emit sendState(tr(""));    
+        emit sendSubmitAck(errorCode);
+    }
     progMode = false;
     emit sendState(tr(""));
     CanInternals::canDrv.stop();
@@ -282,11 +298,11 @@ bool CanProg::checkProgram()
 //        file.open(QIODevice::ReadOnly);
 
 //        DevFileInfo fileInfo(/*fileName.remove(0,2), */file.readAll());
-        crc ^= fileList.take(fileName).getControlSum();
+        crc ^= fileList[fileName].getControlSum();
     }
     qint32 etalonCrc;
     if ( pStore->get(6, etalonCrc) )
-         return crc == etalonCrc;
+        return crc == etalonCrc;
     else
         return false;
 }
@@ -294,6 +310,7 @@ bool CanProg::checkProgram()
 void CanProg::inputBlockSerialNumber(qint32 blockSerialNumber)
 {
     pStore->set(131, blockSerialNumber);
+    pStore->sync();
     myTicket.blockSerialNumber = blockSerialNumber;
     isSerialNumber = true;
     initWaitTimer.start();
@@ -306,20 +323,60 @@ void CanProg::start(int exitCode)
     initWaitTimer.start();
 }
 
-void CanProg::saveChanges()
+bool CanProg::saveChanges()
 {
-    QStringList files = parseDir(QDir("."));
-    foreach(QString fileNme, files)
-    {
-        QFile::remove(fileNme);
-    }
+    bool success = true;
     auto keys = fileList.keys();
+    QDir rootDir ("C:/MonMSUL/root"); // TODO: Внимание! Захардкоженый путь!!!
+    QStringList deleteList = parseDir(rootDir);
+    foreach(QString name, deleteList)
+        QFile(name).remove();
+    rootDir.mkpath(".");
+
     foreach(QString key, keys)
     {
         QFile file(key);
-        file.open(QIODevice::ReadWrite);
-        file.write(fileList.take(key).getData());
+        if(file.open(QIODevice::ReadWrite))
+        {
+            if(file.write(fileList[key].getData()) == -1)
+                success = false;
+//            LOG_WRITER.write(QString(tr("Записано байт %1")).arg(fileList[key].getData().size()), QColor(255, 0, 0));
+            file.close();
+            _commit(file.handle());
+        }
+        else
+            success = false;
+    }    
+    return success;
+}
+
+void CanProg::takeFileList()
+{
+    QDir dir = QDir(".");
+    QStringList files = parseDir(dir);
+    fileList.clear();
+    foreach(QString fileName, files)
+    {
+        QFile file(fileName);
+        file.open(QIODevice::ReadOnly);
+
+        DevFileInfo fileInfo(/*fileName.remove(0,2), */file.readAll());
+        fileList[fileName] = fileInfo;
+
+        file.close();
     }
+}
+
+void CanProg::timeOut()
+{
+    takeFileList();
+    periodicalCheck();
+}
+
+void CanProg::drvStart()
+{
+    canDrv.start();
+    initWaitTimer.start();
 }
 
 }
