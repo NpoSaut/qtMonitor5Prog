@@ -9,7 +9,7 @@
 namespace Fudp
 {
 CanProg::CanProg(PropStore *pStore, QObject *parent) :
-    pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor()
+    pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor(), log()
 {
     progMode = false;
     isSerialNumber = false;
