@@ -13,7 +13,7 @@ public:
     DevFileInfo(qint32 fSize, qint32 cSum);
     DevFileInfo(QByteArray data);
 
-    bool setData(const QByteArray &data);
+    bool setData(const QByteArray &data, int offset);
     QByteArray getData();
 
     QByteArray getData(qint32 offset, qint32 readSize);

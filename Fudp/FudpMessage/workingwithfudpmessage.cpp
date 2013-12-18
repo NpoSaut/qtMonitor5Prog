@@ -80,7 +80,6 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     {
         ProgSubmit sb;
         sb.decode(data);
-        LOG_WRITER.write(QString(tr("%1")).arg(sb.applyCanges()), QColor(0, 0, 255));
         emit getProgSubmit(sb.applyCanges());
         break;
     }

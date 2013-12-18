@@ -22,11 +22,13 @@ DevFileInfo::DevFileInfo(qint32 fSize) :
 
 }
 
-bool DevFileInfo::setData(const QByteArray &data)
+bool DevFileInfo::setData(const QByteArray &data, int offset)
 {
     if(fileData.length() + data.length() > fileSize)
         return false;
-    fileData.append(data);
+    if (offset ==0 && fileData.size()>0)
+        fileData.clear();
+    fileData.insert(offset, data);
     controlSum = calcControlSumm();
     return true;
 }
