@@ -57,6 +57,8 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 //    initWaitTimer.start();
 
     if(myTicket.blockSerialNumber != 0)
+    {
+        LOG_WRITER.installLog();
         isSerialNumber = true;
         takeFileList();
     }

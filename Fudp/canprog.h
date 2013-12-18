@@ -8,6 +8,7 @@
 #include <QProcess>
 #include "FudpMessage/workingwithfudpmessage.h"
 #include "PropStore/propstore.h"
+#include "Log/logwriter.h"
 
 using namespace FudpMessage;
 
