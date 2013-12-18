@@ -19,15 +19,12 @@ using namespace Fudp;
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
     QFile pFile("C:/MonMSUL/prop.txt");
     SimpleFilePropStore pStore(pFile);
 
     Form w(&pStore);
     w.show();
+    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
     w.drvStart();
-//    canDrv.start();
-//    CanProg cp(&pStore);
-
     return a.exec();
 }

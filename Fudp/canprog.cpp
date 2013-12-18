@@ -78,6 +78,7 @@ void CanProg::connect(const DeviceTickets &tickets)
         }
         else if (myTicket <= tickets) // Броадкаст
         {
+            LOG_WRITER.write(tr("Получен броадкаст"), QColor(0, 255, 0));
             emit sendAnswerToBroadcast(myTicket);
         }
         else
@@ -196,7 +197,7 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
 //            }
 //            file.close();
             LOG_WRITER.write(QString(tr("Запись в файл %1")).arg(fileName), QColor(0, 255, 0));
-            if(!fileList[fileName].setData(data))
+            if(!fileList[fileName].setData(data, offset))
                 errorCode = 1;
         }
         emit sendWriteFileAck(errorCode);
@@ -229,14 +230,21 @@ void CanProg::submit(qint8 submitKey)
     }
     else
     {
+        int errorCode = 2;
         takeFileList();
 
-        pStore->get(129, myTicket.blockId);
-        pStore->get(130, myTicket.module);
-        pStore->get(131, myTicket.blockSerialNumber);
-        pStore->get(133, myTicket.channel);
-        pStore->get(134, myTicket.modification);
-
+        if(!pStore->get(129, myTicket.blockId))
+            errorCode = 3;
+        if(!pStore->get(130, myTicket.module))
+            errorCode = 3;
+        if(!pStore->get(131, myTicket.blockSerialNumber))
+            errorCode = 3;
+        if(!pStore->get(133, myTicket.channel))
+            errorCode = 3;
+        if(!pStore->get(134, myTicket.modification))
+            errorCode = 3;
+        emit sendSubmitAck(errorCode);
+        periodicalCheck();
     }
 }
 
@@ -351,13 +359,13 @@ bool CanProg::saveChanges()
         {
             if(file.write(fileList[key].getData()) == -1)
                 success = false;
-//            LOG_WRITER.write(QString(tr("Записано байт %1")).arg(fileList[key].getData().size()), QColor(255, 0, 0));
-            file.close();
+            file.flush();
             _commit(file.handle());
+            file.close();
         }
         else
             success = false;
-    }    
+    }
     return success;
 }
 

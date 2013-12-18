@@ -68,9 +68,9 @@ bool SimpleFilePropStore::sync()
             QTextStream out(&file);
             foreach (quint8 k, map.keys())
                 out << k << " " << map[k] << endl;
-
-            file.close();
+            file.flush();
             _commit(file.handle());
+            file.close();
             return true;
         }
         else
