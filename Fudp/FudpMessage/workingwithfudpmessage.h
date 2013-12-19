@@ -39,6 +39,7 @@ public:
 private:
     IsoTpCommunicator communicator1;
     IsoTpCommunicator communicator2;
+    int count;
 
 signals:
     void transmitData(std::vector<byte> data);

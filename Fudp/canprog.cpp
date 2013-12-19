@@ -9,7 +9,7 @@
 namespace Fudp
 {
 CanProg::CanProg(PropStore *pStore, QObject *parent) :
-    pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor(), log()
+    pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor()
 {
     progMode = false;
     isSerialNumber = false;
@@ -19,7 +19,6 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
     pStore->get(131, myTicket.blockSerialNumber);
     pStore->get(133, myTicket.channel);
     pStore->get(134, myTicket.modification);
-
     QDir::setCurrent("C:/MonMSUL/root");
 
     QObject::connect(this, SIGNAL(sendAnswerToBroadcast(DeviceTickets)), &worker, SLOT(sendAnswerToBroadcast(DeviceTickets)));
@@ -58,7 +57,7 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 
     if(myTicket.blockSerialNumber != 0)
     {
-        LOG_WRITER.installLog();
+        //LOG_WRITER.installLog();
         isSerialNumber = true;
         takeFileList();
     }
@@ -78,7 +77,8 @@ void CanProg::connect(const DeviceTickets &tickets)
         }
         else if (myTicket <= tickets) // Броадкаст
         {
-            LOG_WRITER.write(tr("Получен броадкаст"), QColor(0, 255, 0));
+            //LOG_WRITER.write(tr("Получен броадкаст"), QColor(0, 255, 0));
+            initWaitTimer.stop();
             emit sendAnswerToBroadcast(myTicket);
         }
         else
@@ -91,7 +91,7 @@ void CanProg::getFileList()
 {
     if(progMode)
     {
-        LOG_WRITER.write(tr("Запрос списка файлов"), QColor(0, 255, 0));
+        //LOG_WRITER.write(tr("Запрос списка файлов"), QColor(0, 255, 0));
         takeFileList();
         emit sendFileList(fileList);
     }
@@ -101,6 +101,7 @@ void CanProg::readFile(const QString &fileName, qint32 offset, qint32 readSize)
 {
     if(progMode)
     {
+        //LOG_WRITER.write(QString(tr("Чтение файла %1")).arg(fileName), QColor(0, 255, 0));
         qint8 errorCode = 0;
         QByteArray buffer;
         if(fileList.contains(fileName))
@@ -125,7 +126,7 @@ void CanProg::deleteFile(const QString &fileName)
         qint8 errorCode = 0;
         if(fileList.contains(fileName))
         {
-            LOG_WRITER.write(QString(tr("Удаление файла %1")).arg(fileName), QColor(0, 255, 0));
+            //LOG_WRITER.write(QString(tr("Удаление файла %1")).arg(fileName), QColor(0, 255, 0));
             fileList.remove(fileName);
         }
         else
@@ -156,7 +157,7 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
 {
     if(progMode)
     {
-
+        //LOG_WRITER.write(QString(tr("Создание файла %1")).arg(fileName), QColor(0, 255, 0));
         qint8 errorCode = 0;
         if(!fileList.contains(fileName))
         {
@@ -195,7 +196,7 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
 //                    errorCode = 255;
 //            }
 //            file.close();
-            LOG_WRITER.write(QString(tr("Запись в файл %1")).arg(fileName), QColor(0, 255, 0));
+            //LOG_WRITER.write(QString(tr("Запись в файл %1")).arg(fileName), QColor(0, 255, 0));
             if(!fileList[fileName].setData(data, offset))
                 errorCode = 1;
         }
@@ -206,13 +207,19 @@ void CanProg::writeFile(const QString &fileName, qint32 offset, const QByteArray
 void CanProg::setParam(qint8 key, qint32 value)
 {
     if(progMode)
+    {
+        //LOG_WRITER.write(QString(tr("Запись свойства %1 со значением %2")).arg(key).arg(value), QColor(0, 255, 0));
         emit sendSetParamAck( pStore->set(key, value) ? 0 : 3 );
+    }
 }
 
 void CanProg::deleteParam(qint8 key)
 {
     if(progMode)
+    {
+        //LOG_WRITER.write(QString(tr("Удаление совйства %1")).arg(key), QColor(0, 255, 0));
         emit sendDeleteParamAck( pStore->del(key) ? 0 : 2 );
+    }
 }
 
 void CanProg::submit(qint8 submitKey)
@@ -246,8 +253,8 @@ void CanProg::periodicalCheck()
     if(isSerialNumber)
     {
         int errorCode = 0;
-        if(progMode)
-            LOG_WRITER.write(tr("Проверка целостности прошивки"), QColor(0, 255, 0));
+//        if(progMode)
+            //LOG_WRITER.write(tr("Проверка целостности прошивки"), QColor(0, 255, 0));
 
         if (checkProgram())
         {
@@ -257,6 +264,7 @@ void CanProg::periodicalCheck()
         }
         else
         {
+            //LOG_WRITER.write(tr("Не сошлась контрольная сумма"), QColor(255, 0, 0));
             emit sendFirmCorrupt();
             emit sendState(tr("Прошивка повреждена"));
             initWaitTimer.start();
@@ -289,6 +297,7 @@ void CanProg::progModeExit(int errorCode)
     }
     progMode = false;
     emit sendState(tr(""));
+    //LOG_WRITER.finishLog();
     CanInternals::canDrv.stop();
     QDir::setCurrent("C:/");
     monitor.start("MonMSUL/root/Monitor.exe");
@@ -323,6 +332,7 @@ void CanProg::inputBlockSerialNumber(qint32 blockSerialNumber)
     pStore->sync();
     myTicket.blockSerialNumber = blockSerialNumber;
     isSerialNumber = true;
+    //LOG_WRITER.installLog();
     initWaitTimer.start();
 }
 

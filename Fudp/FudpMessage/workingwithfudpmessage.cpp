@@ -5,7 +5,8 @@ namespace FudpMessage
 WorkingWithFudpMessage::WorkingWithFudpMessage(int initDescriptor, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
     QObject(parent),
     communicator1(transmitDescriptor, initDescriptor),
-    communicator2(transmitDescriptor, acknowlegmentDescriptor)
+    communicator2(transmitDescriptor, acknowlegmentDescriptor),
+    count(0)
 {
     QObject::connect(&communicator1, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
     QObject::connect(&communicator2, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
@@ -13,7 +14,7 @@ WorkingWithFudpMessage::WorkingWithFudpMessage(int initDescriptor, int transmitD
 }
 
 void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
-{
+{    
     switch(data.at(0))
     {
     case MessageId(progInit):

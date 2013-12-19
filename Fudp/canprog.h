@@ -29,7 +29,6 @@ private:
     const int FuInit = 0x66a8;
     const int FuProg = 0x66c8;
     const int FuDev =  0x66e8;
-    LogWriter log;
     WorkingWithFudpMessage worker;
     PropStore *pStore;
     QMap<QString, DevFileInfo> fileList;

@@ -107,6 +107,8 @@ HEADERS += \
     Fudp/FudpMessage/progwriteack.h \
     Fudp/FudpMessage/progsubmitack.h \
     Log/singletone.h \
+    Log/logwriter.h \
+    Log/singletone.h \
     Log/logwriter.h
 
 QMAKE_CXXFLAGS += -std=c++0x

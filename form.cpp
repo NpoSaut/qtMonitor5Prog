@@ -19,7 +19,7 @@ Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
     ui->editblockSerialNumber->hide();
     ui->lableBlockSerialNumber->hide();
 
-    showFullScreen();
+    showFullScreen();    
 
     QObject::connect(&cp, SIGNAL(sendState(QString)), this, SLOT(showState(QString)));
     QObject::connect(&cp, SIGNAL(noSerialNumber()), this, SLOT(inputSerialNumber()));
@@ -38,6 +38,7 @@ void Form::showState(const QString state)
     if (ui->trainLable->isHidden())
     {
         ui->trainLable->show();
+//        ui->log->show();
         moveAboutCenter(ui->trainLable, 0, 0);
         moveAboutCenter(ui->stateLable, 0, 30);
     }

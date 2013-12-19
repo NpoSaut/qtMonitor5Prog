@@ -20,6 +20,7 @@ void TpReceiveTransaction::getSingleFrame(SingleFrame frame)
 {
     timer.stop();
     emit transactionReaceived(frame.getData());
+    timer.start(5000);
 }
 
 void TpReceiveTransaction::getFirstFrame(FirstFrame frame)
@@ -39,6 +40,7 @@ void TpReceiveTransaction::getFirstFrame(FirstFrame frame)
     }
     else if (state == PROGRESS)
     {
+        //LOG_WRITER.write(tr("Неожиданный FirstFrame"), QColor(255, 0, 255), 1);
         state = BROKEN;
         sendAbort();
     }
@@ -71,10 +73,14 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
         {
             state = BROKEN;
             sendAbort();
+            //LOG_WRITER.write(QString(tr("IsoTp последовательность нарушена. Ожидался фрейм с индексом %1, а получен - с индексом %2")).
+//                             arg(consecutiveFrameCounter & 0x0F).
+//                             arg(frame.getIndex()), QColor(255, 0, 255), 1);
         }
     }
     else if (state == INIT)
     {
+        //LOG_WRITER.write(tr("Неожиданный ConsecutiveFrame"), QColor(255, 0, 0), 1);
         state = BROKEN;
         sendAbort();
     }
