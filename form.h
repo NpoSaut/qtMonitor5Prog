@@ -32,10 +32,14 @@ signals:
     void setSerialNumber(qint32 serialNumber);
     void startDrv();
 
-private slots:
+public slots:
     void showState(const QString state);
+
+private slots:
+    void initLables();
     void inputSerialNumber();
     void on_blockSerialNumberOk_pressed();
+    void hideElements();
 };
 
 #endif // FORM_H

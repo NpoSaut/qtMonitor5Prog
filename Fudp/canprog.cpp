@@ -48,7 +48,6 @@ CanProg::CanProg(PropStore *pStore, QObject *parent) :
 
     QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(periodicalCheck()));
 
-
     QObject::connect(&monitor, SIGNAL(finished(int)), this, SLOT(start(int)));
 
     initWaitTimer.setInterval(1000);
@@ -73,6 +72,8 @@ void CanProg::connect(const DeviceTickets &tickets)
             progMode = true;
 
             emit sendProgStatus(pStore->data());
+
+            emit initConnection();
             emit sendState(tr("Идет прошивка"));
         }
         else if (myTicket <= tickets) // Броадкаст
@@ -260,12 +261,15 @@ void CanProg::periodicalCheck()
         {
             if(!pStore->sync() || !saveChanges())
                 errorCode = 1;
-            progModeExit(errorCode);
+
+            emit sendSubmitAck(errorCode);
+            progModeExit();
         }
         else
         {
             //LOG_WRITER.write(tr("Не сошлась контрольная сумма"), QColor(255, 0, 0));
             emit sendFirmCorrupt();
+            emit initConnection();
             emit sendState(tr("Прошивка повреждена"));
             initWaitTimer.start();
         }
@@ -283,20 +287,17 @@ QStringList CanProg::parseDir(const QDir dir)
         if (fileInfo.isDir())
             fileList.append(parseDir(fileInfo.filePath()));
         else
-            fileList.append(fileInfo.filePath());
+            fileList.append(fileInfo.filePath().remove("./"));
     }
     return fileList;
 }
 
-void CanProg::progModeExit(int errorCode)
+void CanProg::progModeExit()
 {
     if(progMode)
-    {
-        emit sendState(tr(""));    
-        emit sendSubmitAck(errorCode);
-    }
+        emit exit();
     progMode = false;
-    emit sendState(tr(""));
+    initWaitTimer.stop();
     //LOG_WRITER.finishLog();
     CanInternals::canDrv.stop();
     QDir::setCurrent("C:/");
@@ -309,7 +310,6 @@ bool CanProg::checkProgram()
         emit sendState(tr("Проверка целостности прошивки..."));
 
     auto files = fileList.keys();
-
     quint16 crc = 0;
     foreach(QString fileName, files)
     {
@@ -355,7 +355,7 @@ bool CanProg::saveChanges()
 
     foreach(QString key, keys)
     {
-        QFile file(key);
+        QFile file("./" + key);
         if(file.open(QIODevice::ReadWrite))
         {
             if(file.write(fileList[key].getData()) == -1)

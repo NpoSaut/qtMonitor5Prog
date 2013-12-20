@@ -13,16 +13,14 @@ Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
     ui->blockSerialNumberOk->setShortcut(Qt::Key_Return);
     ui->blockSerialNumberOk->setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 0);"));
 
-    ui->trainLable->hide();
-
-    ui->blockSerialNumberOk->hide();
-    ui->editblockSerialNumber->hide();
-    ui->lableBlockSerialNumber->hide();
+    hideElements();
 
     showFullScreen();    
 
     QObject::connect(&cp, SIGNAL(sendState(QString)), this, SLOT(showState(QString)));
     QObject::connect(&cp, SIGNAL(noSerialNumber()), this, SLOT(inputSerialNumber()));
+    QObject::connect(&cp, SIGNAL(exit()), this, SLOT(hideElements()));
+    QObject::connect(&cp, SIGNAL(initConnection()), this, SLOT(initLables()));
     QObject::connect(this, SIGNAL(setSerialNumber(qint32)), &cp, SLOT(inputBlockSerialNumber(qint32)));
     QObject::connect(this, SIGNAL(startDrv()), &cp, SLOT(drvStart()));
 }
@@ -34,15 +32,18 @@ Form::~Form()
 
 void Form::showState(const QString state)
 {
-    QString train("                   ooOOOO\n                oo          _____\n              _I__n_n__||_||_ _______\n          >(_________|_7_|-|______|\n            /o  ()()   ()()   o      oo  oo");
-    if (ui->trainLable->isHidden())
-    {
-        ui->trainLable->show();
-//        ui->log->show();
-        moveAboutCenter(ui->trainLable, 0, 0);
-        moveAboutCenter(ui->stateLable, 0, 30);
-    }
     ui->stateLable->setText(state);
+}
+
+void Form::initLables()
+{
+    QString train("                   ooOOOO\n                oo          _____\n              _I__n_n__||_||_ _______\n          >(_________|_7_|-|______|\n            /o  ()()   ()()   o      oo  oo");
+
+    ui->trainLable->show();
+    ui->stateLable->show();
+//        ui->log->show();
+    moveAboutCenter(ui->trainLable, 0, 0);
+    moveAboutCenter(ui->stateLable, 0, 30);
     ui->trainLable->setAlignment(Qt::AlignLeft);
     ui->trainLable->setText(train);
 }
@@ -90,4 +91,13 @@ void Form::on_blockSerialNumberOk_pressed()
 
         emit setSerialNumber((qint32)ui->editblockSerialNumber->text().toInt());
     }
+}
+
+void Form::hideElements()
+{
+    ui->trainLable->hide();
+    ui->stateLable->hide();
+    ui->blockSerialNumberOk->hide();
+    ui->editblockSerialNumber->hide();
+    ui->lableBlockSerialNumber->hide();
 }

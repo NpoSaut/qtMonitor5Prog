@@ -38,7 +38,7 @@ private:
     bool progMode;
     bool isSerialNumber;
 
-    void progModeExit (int errorCode = 0);
+    void progModeExit ();
     bool checkProgram ();
     bool saveChanges();
     void takeFileList();
@@ -57,9 +57,10 @@ signals:
     void sendFirmCorrupt();
     void sendSubmitAck(qint8 errorCode);
 
+    void initConnection();
     void sendState(QString state);
     void sendFileInfo(QString fileName, qint32 fileSize);
-    void senValueReceiveBytes(qint32 receiveBytes);
+    void exit();
 
     void noSerialNumber();
 

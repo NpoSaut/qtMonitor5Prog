@@ -19,14 +19,13 @@ DevFileInfo::DevFileInfo(QByteArray data) :
 DevFileInfo::DevFileInfo(qint32 fSize) :
     fileSize(fSize)
 {
-
 }
 
 bool DevFileInfo::setData(const QByteArray &data, int offset)
 {
-    if(fileData.length() + data.length() > fileSize)
+    if(fileData.length() + data.length() > fileSize || offset > fileData.length())
         return false;
-    if (offset ==0 && fileData.size()>0)
+    if (offset == 0 && fileData.size()>0)
         fileData.clear();
     fileData.insert(offset, data);
     controlSum = calcControlSumm();
