@@ -3,8 +3,7 @@
 #include <windows.h>
 #include <QDesktopWidget>
 
-Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
-    cp(pStore),
+Form::Form(const CanProgWorker *canProgWorker, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Form)
 {
@@ -15,14 +14,12 @@ Form::Form(SimpleFilePropStore *pStore, QWidget *parent) :
 
     hideElements();
 
-    showFullScreen();    
+    showFullScreen();
 
-    QObject::connect(&cp, SIGNAL(sendState(QString)), this, SLOT(showState(QString)));
-    QObject::connect(&cp, SIGNAL(noSerialNumber()), this, SLOT(inputSerialNumber()));
-    QObject::connect(&cp, SIGNAL(exit()), this, SLOT(hideElements()));
-    QObject::connect(&cp, SIGNAL(initConnection()), this, SLOT(initLables()));
-    QObject::connect(this, SIGNAL(setSerialNumber(qint32)), &cp, SLOT(inputBlockSerialNumber(qint32)));
-    QObject::connect(this, SIGNAL(startDrv()), &cp, SLOT(drvStart()));
+    QObject::connect(canProgWorker, SIGNAL(stateChanged(QString)), this, SLOT(showState(QString)));
+    QObject::connect(canProgWorker, SIGNAL(serialNumberMissed()), this, SLOT(inputSerialNumber()));
+    QObject::connect(canProgWorker, SIGNAL(inProgModeChanged(bool)), this, SLOT(onModeChanged(bool)));
+    QObject::connect(this, SIGNAL(setSerialNumber(qint32)), canProgWorker, SLOT(storeSerialNumber(qint32)));
 }
 
 Form::~Form()
@@ -74,11 +71,6 @@ void Form::setSize(QWidget *frame)
     QRect screen = QApplication::desktop()->screenGeometry();
     screen.setWidth(screen.width()/2);
     frame->setGeometry(screen);
-}
-
-void Form::drvStart()
-{
-    emit startDrv();
 }
 
 void Form::on_blockSerialNumberOk_pressed()

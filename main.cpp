@@ -7,8 +7,7 @@
 #include <QProcess>
 #include <tchar.h>
 #include "form.h"
-#include "Fudp/canprog.h"
-#include "PropStore/simplefilepropstore.h"
+#include "canprogworker.h"
 
 using namespace CanInternals;
 using namespace IsoTpFrames;
@@ -19,12 +18,10 @@ using namespace Fudp;
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    QFile pFile("C:/MonMSUL/prop.txt");
-    SimpleFilePropStore pStore(pFile);
 
-    Form w(&pStore);
+    CanProgWorker canProgWorker ("C:/MonMSUL/prop.txt");
+    Form w(&canProgWorker);
     w.show();
-    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
-    w.drvStart();
+//    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
     return a.exec();
 }

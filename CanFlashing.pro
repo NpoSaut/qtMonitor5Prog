@@ -60,6 +60,7 @@ SOURCES += \
     form.cpp \
     Fudp/FudpMessage/progwriteack.cpp \
     Fudp/FudpMessage/progsubmitack.cpp \
+    canprogworker.cpp
 
 HEADERS += \
     Can/canframe.h \
@@ -109,7 +110,8 @@ HEADERS += \
     Log/singletone.h \
     Log/logwriter.h \
     Log/singletone.h \
-    Log/logwriter.h
+    Log/logwriter.h \
+    canprogworker.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

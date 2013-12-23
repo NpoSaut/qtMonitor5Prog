@@ -4,8 +4,8 @@
 #include <QWidget>
 #include <QLabel>
 #include <QTextEdit>
-#include "Fudp/canprog.h"
-#include "PropStore/simplefilepropstore.h"
+
+#include "canprogworker.h"
 
 using namespace Fudp;
 
@@ -18,28 +18,29 @@ class Form : public QWidget
     Q_OBJECT
     
 public:
-    explicit Form(SimpleFilePropStore *pStore, QWidget *parent = 0);
+    explicit Form(const CanProgWorker *canProgWorker, QWidget *parent = 0);
     ~Form();
-    void drvStart();
     
 private:
     Ui::Form *ui;
-    CanProg cp;
     void moveAboutCenter(QWidget *frame, int x, int y);
     void setSize(QWidget *frame);
 
 signals:
     void setSerialNumber(qint32 serialNumber);
-    void startDrv();
 
 public slots:
     void showState(const QString state);
 
 private slots:
-    void initLables();
+    void onModeChanged (bool progMode) { if (progMode) initLables(); else hideElements(); }
     void inputSerialNumber();
     void on_blockSerialNumberOk_pressed();
+
+private:
+    void initLables();
     void hideElements();
+
 };
 
 #endif // FORM_H
