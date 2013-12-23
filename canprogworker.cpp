@@ -12,21 +12,22 @@ CanProgWorker::CanProgWorker(QString storeFileName, QObject *parent) :
 void CanProgWorker::run()
 {
     QFile storeFile (storeFileName);
-    pStore = new SimpleFilePropStore (storeFile);
-    prog = new CanProg (pStore);
+    SimpleFilePropStore pStore (storeFile);
+    CanProg prog (&pStore);
 
-    QObject::connect(prog, SIGNAL(sendState(QString)), this, SLOT(processProgStateChange(QString)));
-    QObject::connect(prog, SIGNAL(noSerialNumber()), this, SLOT(processProgSerialNumberMissedSignal()));
-    QObject::connect(prog, SIGNAL(exit()), this, SLOT(processProgExit()));
-    QObject::connect(prog, SIGNAL(initConnection()), this, SLOT(processProgConnect()));
+    QObject::connect(&prog, SIGNAL(sendState(QString)), this, SLOT(processProgStateChange(QString)));
+    QObject::connect(&prog, SIGNAL(noSerialNumber()), this, SLOT(processProgSerialNumberMissedSignal()));
+    QObject::connect(&prog, SIGNAL(exit()), this, SLOT(processProgExit()));
+    QObject::connect(&prog, SIGNAL(initConnection()), this, SLOT(processProgConnect()));
+    QObject::connect(this, SIGNAL(serialNumberChanged(qint32)), &prog, SLOT(inputBlockSerialNumber(qint32)));
 
-    prog->drvStart();
+    prog.drvStart();
     QThread::run();
 }
 
 void CanProgWorker::storeSerialNumber (qint32 sn)
 {
-    prog->inputBlockSerialNumber(sn);
+    emit serialNumberChanged(sn);
 }
 
 void CanProgWorker::processProgStateChange(QString s)

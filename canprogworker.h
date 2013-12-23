@@ -18,6 +18,8 @@ signals:
     void stateChanged (QString);
     void serialNumberMissed ();
     void inProgModeChanged (bool);
+    //private:
+    void serialNumberChanged (qint32 sn);
     
 public slots:
     void storeSerialNumber (qint32 sn);
@@ -29,9 +31,6 @@ private slots:
     void processProgConnect ();
 
 private:
-    SimpleFilePropStore *pStore;
-    Fudp::CanProg *prog;
-
     QString storeFileName;
 };
 
