@@ -2,10 +2,10 @@
 #include "Log/logwriter.h"
 namespace FudpMessage
 {
-WorkingWithFudpMessage::WorkingWithFudpMessage(int initDescriptor, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
+WorkingWithFudpMessage::WorkingWithFudpMessage(Can *can, int initDescriptor, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
     QObject(parent),
-    communicator1(transmitDescriptor, initDescriptor),
-    communicator2(transmitDescriptor, acknowlegmentDescriptor),
+    communicator1(can, transmitDescriptor, initDescriptor, parent),
+    communicator2(can, transmitDescriptor, acknowlegmentDescriptor, parent),
     count(0)
 {
     QObject::connect(&communicator1, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));

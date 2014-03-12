@@ -13,7 +13,7 @@ class TpReceiveTransaction : public QObject
 {
     Q_OBJECT
 public:
-    explicit TpReceiveTransaction(/*int transmitDescriptor, int acknowlegmentDescriptor, */QObject *parent = 0);
+    explicit TpReceiveTransaction(Can *can,/*int transmitDescriptor, int acknowlegmentDescriptor, */QObject *parent = 0);
     void setTransmitDescriptor(int transmitDescriptor);
     void setAcknowlegmentDescriptor(int acknowlegmentDescriptor);
 

@@ -16,7 +16,7 @@ class Debugging : public QObject
 {
     Q_OBJECT
 public:
-    explicit Debugging(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
+    explicit Debugging(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
     void send(const QByteArray &arr);
 private:    
     IsoTpCommunicator it;
