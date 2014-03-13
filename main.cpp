@@ -8,19 +8,21 @@
 #include <tchar.h>
 #include "form.h"
 #include "canprogworker.h"
+#include "qtCanLib/cannick.h"
 
 using namespace CanInternals;
 using namespace IsoTpFrames;
 using namespace IsoTp;
 using namespace Fudp;
 
-
+Can *can;
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    CanProgWorker canProgWorker ("C:/MonMSUL/prop.txt");
+    can = new CanNick ();
+    CanProgWorker canProgWorker (can, "C:/MonMSUL/prop.txt");
     Form w(&canProgWorker);
     w.show();
 //    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));

@@ -9,7 +9,7 @@
 #include <QFile>
 #include <QTextStream>
 #include "singletone.h"
-#include "Can/CanNik/candriver.h"
+#include "qtCanLib/CanNick/candriver.h"
 
 #define LOG_WRITER LogWriter::instance()
 

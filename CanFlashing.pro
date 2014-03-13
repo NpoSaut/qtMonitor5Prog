@@ -60,7 +60,6 @@ SOURCES += \
     qtCanLib/canframe.cpp \
     qtCanLib/CanNick/workingwithmessage.cpp \
     qtCanLib/CanNick/candriver.cpp \
-    qtCanLib/canniсk.cpp \
     qtCanLib/cannick.cpp
 
 HEADERS += \

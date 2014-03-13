@@ -4,7 +4,9 @@
 
 // HACK
 // Кастыль!!
-#include "Can/CanNik/workingwithmessage.h"
+#include "qtCanLib/CanNick/workingwithmessage.h"
+
+using namespace CanInternals;
 
 namespace Fudp
 {

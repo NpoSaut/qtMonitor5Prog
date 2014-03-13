@@ -31,7 +31,7 @@ private slots:
     void processProgConnect ();
 
 private:
-    const Can *can;
+    Can *can;
     QString storeFileName;
 };
 

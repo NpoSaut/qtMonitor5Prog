@@ -1,5 +1,7 @@
 #include "tpsendtransaction.h"
 
+#include <QDebug>
+
 namespace IsoTp
 {
 TpSendTransaction::TpSendTransaction(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :

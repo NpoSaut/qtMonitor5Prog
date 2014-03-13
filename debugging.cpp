@@ -28,10 +28,10 @@ void Debugging::send(const QByteArray &arr)
 }
 
 
-CanLogger::CanLogger(QObject *parent)
+CanLogger::CanLogger(Can *can, QObject *parent)
     : prev (0)
 {
-    this->connect(&canDev, SIGNAL(messageReceived(CanFrame)), SLOT(logMessage(CanFrame)));
+    this->connect(can, SIGNAL(messageReceived(CanFrame)), SLOT(logMessage(CanFrame)));
 }
 
 void CanLogger::logMessage(CanFrame frame)
