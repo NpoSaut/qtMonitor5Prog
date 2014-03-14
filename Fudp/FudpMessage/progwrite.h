@@ -25,7 +25,7 @@ private:
     QString fileName;
     qint32 offset;
     QByteArray fileData;
-    const qint32 dataSize = 4000;
+    static const qint32 dataSize = 4000;
 };
 }
 

@@ -26,7 +26,7 @@ namespace IsoTpFrames
     void setFlag(FlowControlFlag flag);
 
   private:
-    const int type = IsoTpFrameType(flowControlFrame);
+    static const int type = IsoTpFrameType(flowControlFrame);
     FlowControlFlag flag;
     byte blockSize;
     int separationTime;

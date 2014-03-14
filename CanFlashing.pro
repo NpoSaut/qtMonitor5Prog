@@ -112,9 +112,12 @@ HEADERS += \
     qtCanLib/can.h \
     qtCanLib/CanNick/workingwithmessage.h \
     qtCanLib/CanNick/candriver.h \
-    qtCanLib/cannick.h
+    qtCanLib/cannick.h \
+    qtCanLib/dummycan.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 
 FORMS += form.ui
 
+#For Monitor 5 use: MONITOR_5, LIB_CAN_NICK
+#For Linux use: LIB_SOCKET_CAN

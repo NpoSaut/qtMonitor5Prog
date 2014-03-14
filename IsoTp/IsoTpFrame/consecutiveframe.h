@@ -16,7 +16,7 @@ namespace IsoTpFrames
 
   private:
     int index;
-    const int type = IsoTpFrameType(consecutiveFrame);
+    static const int type = IsoTpFrameType(consecutiveFrame);
     std::vector<byte> data;
 
   };

@@ -1,3 +1,5 @@
+#ifdef LIB_CAN_NICK // не должно это тут быть
+
 #include "logwriter.h"
 #include "QDir"
 
@@ -112,3 +114,5 @@ QString LogWriter::ToQString(CanInternals::TransmitData data)
 
     return time + mess;
 }
+
+#endif // LIB_CAN_NICK

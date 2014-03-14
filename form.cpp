@@ -1,6 +1,5 @@
 #include "form.h"
 #include "ui_form.h"
-#include <windows.h>
 #include <QDesktopWidget>
 
 Form::Form(const CanProgWorker *canProgWorker, QWidget *parent) :

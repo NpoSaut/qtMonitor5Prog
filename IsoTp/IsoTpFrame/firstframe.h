@@ -15,7 +15,7 @@ namespace IsoTpFrames
 
 
   private:
-    const int type = IsoTpFrameType(firstFrame);
+    static const int type = IsoTpFrameType(firstFrame);
     int packetSize;
     std::vector<byte> data;
 

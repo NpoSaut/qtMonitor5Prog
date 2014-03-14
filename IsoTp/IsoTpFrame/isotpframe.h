@@ -1,13 +1,14 @@
 #ifndef ISOTPFRAME_H
 #define ISOTPFRAME_H
 
-#include "QtGlobal"
-#include "qtCanLib/canframe.h"
+#include <QtGlobal>
 
-typedef quint8 byte;
+#include "qtCanLib/canframe.h"
 
 namespace IsoTpFrames
 {
+  typedef quint8 byte;
+
   enum IsoTpFrameType
   {
     singleFrame = 0x0,

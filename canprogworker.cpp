@@ -14,7 +14,7 @@ void CanProgWorker::run()
 {
     QFile storeFile (storeFileName);
     SimpleFilePropStore pStore (storeFile);
-    CanProg prog (can, &pStore, this->parent());
+    CanProg prog (can, &pStore, this->parent ());
 
     QObject::connect(&prog, SIGNAL(sendState(QString)), this, SLOT(processProgStateChange(QString)));
     QObject::connect(&prog, SIGNAL(noSerialNumber()), this, SLOT(processProgSerialNumberMissedSignal()));

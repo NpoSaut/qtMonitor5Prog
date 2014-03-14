@@ -1,8 +1,11 @@
+#include <QMetaType>
+
 #include "workingwithframes.h"
 #include "Log/logwriter.h"
 
 namespace IsoTpFrames
 {
+
 WorkingWithFrames::WorkingWithFrames(Can *can, QObject *parent) :
     QObject(parent),
     can (can)
