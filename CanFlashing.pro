@@ -60,7 +60,11 @@ SOURCES += \
     qtCanLib/canframe.cpp \
     qtCanLib/CanNick/workingwithmessage.cpp \
     qtCanLib/CanNick/candriver.cpp \
-    qtCanLib/cannick.cpp
+    qtCanLib/cannick.cpp \
+    qtCanLib/socketcan.cpp \
+    qtCanLib/socketcan/sktcan.cpp \
+    qtCanLib/socketcan/cansendqueue.cpp \
+    qtDoodahLib/queues.cpp
 
 HEADERS += \
     IsoTp/IsoTpFrame/singleframe.h \
@@ -113,7 +117,14 @@ HEADERS += \
     qtCanLib/CanNick/workingwithmessage.h \
     qtCanLib/CanNick/candriver.h \
     qtCanLib/cannick.h \
-    qtCanLib/dummycan.h
+    qtCanLib/dummycan.h \
+    qtCanLib/socketcan/sktcan.h \
+    qtCanLib/socketcan/cansendqueue.h \
+    qtCanLib/socketcan.h \
+    qtDoodahLib/queues.h \
+    cDoodahLib/packing.h \
+    cDoodahLib/masqarade.h \
+    cDoodahLib/lowlevel.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 
