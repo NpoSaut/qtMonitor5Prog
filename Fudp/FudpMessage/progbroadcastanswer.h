@@ -10,18 +10,18 @@ class ProgBroadcastAnswer
 {
 public:
     ProgBroadcastAnswer();
-    ProgBroadcastAnswer(DeviceTickets ticket);
+    ProgBroadcastAnswer(DeviceTicket ticket);
 
     std::vector<byte> encode();
     void decode(const std::vector<byte> &data);
 
-    DeviceTickets getTicket();
+    DeviceTicket getTicket();
 //    qint8 getIdSystem();
 //    qint16 getIdBlock();
 //    qint8 getModificationOfBlock();
 
 private:
-    DeviceTickets ticket;
+    DeviceTicket ticket;
 //    qint8 idSystem;
 //    qint16 idBlock;
 //    qint8 modificationOfBlock;

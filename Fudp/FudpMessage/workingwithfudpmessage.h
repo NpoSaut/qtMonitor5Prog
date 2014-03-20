@@ -44,7 +44,7 @@ private:
 signals:
     void transmitData(std::vector<byte> data);
 
-    void getProgInit(DeviceTickets tickets);
+    void getProgInit(DeviceTicket tickets);
     void getProgListRq();
     void getProgReadRq(QString fileName, qint32 offset, qint32 readSize);
     void getProgRm(QString fileName);
@@ -60,7 +60,7 @@ signals:
 public slots:
     void receiveData(const std::vector<byte> &data);
 
-    void sendAnswerToBroadcast(DeviceTickets ticket);
+    void sendAnswerToBroadcast(DeviceTicket ticket);
     void sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary);
     void sendProgList(const QMap<QString, DevFileInfo> &list);
     void sendProgRead(qint8 errorCode, const QByteArray &data);

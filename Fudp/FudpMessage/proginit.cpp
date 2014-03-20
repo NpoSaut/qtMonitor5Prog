@@ -6,7 +6,7 @@ ProgInit::ProgInit()
 {
 }
 
-ProgInit::ProgInit(DeviceTickets ticket)  :
+ProgInit::ProgInit(DeviceTicket ticket)  :
     ticket(ticket)
 {
 }
@@ -36,19 +36,19 @@ void ProgInit::decode(const std::vector<byte> &data)
     this->ticket.blockSerialNumber = (((data.at(4) & 0x0f) << 16) | (data.at(5) << 8) | data.at(6));
 }
 
-DeviceTickets ProgInit::getTicket()
+DeviceTicket ProgInit::getTicket()
 {
     return ticket;
 }
 
-bool DeviceTickets::operator ==(const DeviceTickets &ticket)
+bool DeviceTicket::operator ==(const DeviceTicket &ticket)
 {
     return this->modification == ticket.modification && this->blockId == ticket.blockId &&
             this->blockSerialNumber == ticket.blockSerialNumber && this->channel == ticket.channel &&
             this->module == ticket.module;
 }
 
-bool DeviceTickets::operator <=(const DeviceTickets &ticket)
+bool DeviceTicket::operator <=(const DeviceTicket &ticket)
 {
     return (this->modification == ticket.modification           || ticket.modification == 0)
         && (this->blockId == ticket.blockId                     || ticket.blockId == 0)

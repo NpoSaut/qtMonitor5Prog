@@ -21,7 +21,7 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     {
         ProgInit init;
         init.decode(data);
-        DeviceTickets tickets = init.getTicket();
+        DeviceTicket tickets = init.getTicket();
         emit getProgInit((tickets));
         break;
     }
@@ -87,7 +87,7 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     }
 }
 
-void WorkingWithFudpMessage::sendAnswerToBroadcast(DeviceTickets ticket)
+void WorkingWithFudpMessage::sendAnswerToBroadcast(DeviceTicket ticket)
 {
     ProgBroadcastAnswer progBcAnsw(ticket);
     communicator2.send(progBcAnsw.encode());

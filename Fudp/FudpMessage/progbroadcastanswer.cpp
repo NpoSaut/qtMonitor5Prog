@@ -6,7 +6,7 @@ ProgBroadcastAnswer::ProgBroadcastAnswer()
 {
 }
 
-FudpMessage::ProgBroadcastAnswer::ProgBroadcastAnswer(FudpMessage::DeviceTickets ticket)
+FudpMessage::ProgBroadcastAnswer::ProgBroadcastAnswer(FudpMessage::DeviceTicket ticket)
     : ticket(ticket)
 {
 }
@@ -36,7 +36,7 @@ void FudpMessage::ProgBroadcastAnswer::decode(const std::vector<byte> &data)
     this->ticket.blockSerialNumber = (((data.at(4) & 0x0f) << 16) | (data.at(5) << 8) | data.at(6));
 }
 
-FudpMessage::DeviceTickets FudpMessage::ProgBroadcastAnswer::getTicket()
+FudpMessage::DeviceTicket FudpMessage::ProgBroadcastAnswer::getTicket()
 {
     return ticket;
 }

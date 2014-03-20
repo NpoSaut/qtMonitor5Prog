@@ -1,9 +1,18 @@
 #include "canprogworker.h"
 
+#include "processmanager.h"
+#include "ExclusiveCanUpdateManager.h"
+#include "SharedCanUpdateManager.h"
+
+#ifdef LIB_CAN_NICK
+#include "qtCanLib/CanNick/workingwithmessage.h"
+#endif
+
 using namespace Fudp;
 
-CanProgWorker::CanProgWorker(Can *can, QString storeFileName, QObject *parent) :
-    QThread(parent),
+CanProgWorker::CanProgWorker(Can *can, QString firmwareRootDirName, QString storeFileName, QObject *parent) :
+    QThread (parent),
+    firmwareRootDirName (firmwareRootDirName),
     storeFileName (storeFileName),
     can (can)
 {
@@ -14,15 +23,28 @@ void CanProgWorker::run()
 {
     QFile storeFile (storeFileName);
     SimpleFilePropStore pStore (storeFile);
-    CanProg prog (can, &pStore, this->parent ());
+    CanProg prog (can, &pStore, QDir(firmwareRootDirName), this->parent ());
+
+    ProcessManager *processManager = new ProcessManager (firmwareRootDirName, this->parent ());
+    UpdateManager *updateManager;
+#ifdef LIB_CAN_NICK
+    updateManager = new ExclusiveCanUpdateManager (processManager, this->parent ());
+    QObject::connect ((ExclusiveCanUpdateManager *)processManager, SIGNAL(startDriverRequest()), &canDrv, SLOT(start()));
+    QObject::connect ((ExclusiveCanUpdateManager *)processManager, SIGNAL(stopDriverRequest()), &canDrv, SLOT(stop()));
+#else
+    updateManager = new SharedCanUpdateManager (processManager, this->parent ());
+#endif
 
     QObject::connect(&prog, SIGNAL(sendState(QString)), this, SLOT(processProgStateChange(QString)));
     QObject::connect(&prog, SIGNAL(noSerialNumber()), this, SLOT(processProgSerialNumberMissedSignal()));
-    QObject::connect(&prog, SIGNAL(exit()), this, SLOT(processProgExit()));
-    QObject::connect(&prog, SIGNAL(initConnection()), this, SLOT(processProgConnect()));
+    QObject::connect (&prog, SIGNAL(progModeChanged(bool)), this, SLOT(processProgModeChange(bool)));
     QObject::connect(this, SIGNAL(serialNumberChanged(qint32)), &prog, SLOT(inputBlockSerialNumber(qint32)));
 
-    prog.drvStart();
+    QObject::connect (&prog, SIGNAL(progModeChanged(bool)), updateManager, SLOT(setUpdateMode(bool)));
+    QObject::connect (&prog, SIGNAL(crcCheckChanged(bool)), updateManager, SLOT(setIsChecksumOk(bool)));
+
+    updateManager->execute ();
+
     QThread::run();
 }
 
@@ -41,12 +63,7 @@ void CanProgWorker::processProgSerialNumberMissedSignal()
     emit serialNumberMissed();
 }
 
-void CanProgWorker::processProgExit()
+void CanProgWorker::processProgModeChange(bool inProgMode)
 {
-    emit inProgModeChanged(false);
-}
-
-void CanProgWorker::processProgConnect()
-{
-    emit inProgModeChanged(true);
+    emit inProgModeChanged (inProgMode);
 }

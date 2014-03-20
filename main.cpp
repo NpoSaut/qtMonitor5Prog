@@ -8,7 +8,6 @@
 
 #include "form.h"
 #include "canprogworker.h"
-#include "qtCanLib/cannick.h"
 
 // Драйвер CAN
 Can *can;
@@ -36,9 +35,22 @@ int main(int argc, char *argv[])
     can = new DummyCan ();
     #endif
 
-    CanProgWorker canProgWorker (can, "C:/MonMSUL/prop.txt");
-    Form w(&canProgWorker);
-    w.show();
-//    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
-    return a.exec();
+    //    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
+
+    if (a.arguments ().size () >= 2)
+    {
+        CanProgWorker canProgWorker (can, a.arguments ().at(1), a.arguments ().at (2));
+        Form w(&canProgWorker);
+        w.show();
+        return a.exec();
+    }
+    else
+    {
+        qDebug() << "Two arguments needed: ";
+        qDebug() << "first - root directory";
+        qDebug() << "second - path to prop.txt";
+        qDebug() << "This is all.";
+        return 1;
+    }
+
 }

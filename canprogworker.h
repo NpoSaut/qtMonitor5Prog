@@ -11,13 +11,16 @@ class CanProgWorker : public QThread
 {
     Q_OBJECT
 public:
-    explicit CanProgWorker(Can *can, QString storeFileName, QObject *parent = 0);
+    explicit CanProgWorker(Can *can, QString firmwareRootDirName, QString storeFileName, QObject *parent = 0);
     void run();
 
 signals:
     void stateChanged (QString);
     void serialNumberMissed ();
     void inProgModeChanged (bool);
+    void progModeEnter ();
+    void progModeExit ();
+
     //private:
     void serialNumberChanged (qint32 sn);
     
@@ -27,12 +30,11 @@ public slots:
 private slots:
     void processProgStateChange (QString s);
     void processProgSerialNumberMissedSignal ();
-    void processProgExit ();
-    void processProgConnect ();
-
+    void processProgModeChange (bool inProgMode);
 private:
     Can *can;
     QString storeFileName;
+    QString firmwareRootDirName;
 };
 
 #endif // CANPROGWORKER_H

@@ -15,36 +15,41 @@ using namespace FudpMessage;
 namespace Fudp
 {
 
-//void hideWindow();
-//void showWindow();
-
 class CanProg : public QObject
 {
     Q_OBJECT
 public:
-    explicit CanProg(Can *can, PropStore *pStore, QObject *parent = 0);
-    QStringList parseDir(const QDir dir);
+    explicit CanProg(Can *can, PropStore *pStore, QDir rootDir, QObject *parent = 0);
 
 private:
     static const int FuInit = 0x66a8;
     static const int FuProg = 0x66c8;
     static const int FuDev =  0x66e8;
+
     WorkingWithFudpMessage worker;
     PropStore *pStore;
     QMap<QString, DevFileInfo> fileList;
-    DeviceTickets myTicket;
-    QTimer initWaitTimer;
-    QProcess monitor;
+    DeviceTicket myTicket;
+    QDir rootDir;
     bool progMode;
-    bool isSerialNumber;
+    bool isSerialNumberSet;
 
+    QStringList parseDir(const QDir dir);
     void progModeExit ();
-    bool checkProgram ();
+    bool checkFirmware ();
     bool saveChanges();
     void takeFileList();
 
 signals:
-    void sendAnswerToBroadcast(DeviceTickets myTicket);
+    // Наверх
+    void sendState(QString state);
+    void sendFileInfo(QString fileName, qint32 fileSize);
+    void progModeChanged (bool progMode);
+    void crcCheckChanged (bool crcOk);
+    void noSerialNumber();
+
+    // private
+    void sendAnswerToBroadcast(DeviceTicket myTicket);
     void sendProgStatus(QVector< QPair<quint8, qint32> > dictionary);
     void sendFileList(QMap<QString, DevFileInfo> list);
     void sendFile(qint8 errorCode, QByteArray data);
@@ -57,15 +62,8 @@ signals:
     void sendFirmCorrupt();
     void sendSubmitAck(qint8 errorCode);
 
-    void initConnection();
-    void sendState(QString state);
-    void sendFileInfo(QString fileName, qint32 fileSize);
-    void exit();
-
-    void noSerialNumber();
-
-public slots:
-    void connect(const DeviceTickets &tickets);
+private slots:
+    void connect(const DeviceTicket &tickets);
     void getFileList();
     void readFile(const QString &fileName, qint32 offset, qint32 readSize);
     void deleteFile(const QString &fileName);
@@ -76,11 +74,6 @@ public slots:
     void deleteParam(qint8 key);
     void submit(qint8 subimtKey);
     void inputBlockSerialNumber(qint32 blockSerialNumber);
-    void timeOut();
-    void drvStart();
-
-private slots:
-    void start(int exitCode);
     void periodicalCheck();
 };
 }

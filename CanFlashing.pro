@@ -64,7 +64,11 @@ SOURCES += \
     qtCanLib/socketcan.cpp \
     qtCanLib/socketcan/sktcan.cpp \
     qtCanLib/socketcan/cansendqueue.cpp \
-    qtDoodahLib/queues.cpp
+    qtDoodahLib/queues.cpp \
+    processmanager.cpp \
+    UpdateManager.cpp \
+    SharedCanUpdateManager.cpp \
+    ExclusiveCanUpdateManager.cpp
 
 HEADERS += \
     IsoTp/IsoTpFrame/singleframe.h \
@@ -124,7 +128,11 @@ HEADERS += \
     qtDoodahLib/queues.h \
     cDoodahLib/packing.h \
     cDoodahLib/masqarade.h \
-    cDoodahLib/lowlevel.h
+    cDoodahLib/lowlevel.h \
+    processmanager.h \
+    UpdateManager.h \
+    SharedCanUpdateManager.h \
+    ExclusiveCanUpdateManager.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

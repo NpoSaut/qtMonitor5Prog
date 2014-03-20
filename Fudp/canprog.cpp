@@ -1,34 +1,25 @@
 ﻿#include "canprog.h"
-#include <QColor>
-
-#ifdef MONITOR_5
-// HACK
-// Кастыль!!
-#include "qtCanLib/CanNick/workingwithmessage.h"
-using namespace CanInternals;
-#endif
 
 namespace Fudp
 {
-CanProg::CanProg(Can *can, PropStore *pStore, QObject *parent) :
+CanProg::CanProg(Can *can, PropStore *pStore, QDir rootDir, QObject *parent) :
     QObject(parent),
     pStore(pStore),
     worker(can, FuInit, FuDev, FuProg, parent),
     myTicket(),
-    initWaitTimer(),
-    monitor()
+    rootDir(rootDir),
+    progMode (false),
+    isSerialNumberSet (false)
 {
-    progMode = false;
-    isSerialNumber = false;
-
     pStore->get(129, myTicket.blockId);
     pStore->get(130, myTicket.module);
     pStore->get(131, myTicket.blockSerialNumber);
     pStore->get(133, myTicket.channel);
     pStore->get(134, myTicket.modification);
-    QDir::setCurrent("C:/MonMSUL/root");
 
-    QObject::connect(this, SIGNAL(sendAnswerToBroadcast(DeviceTickets)), &worker, SLOT(sendAnswerToBroadcast(DeviceTickets)));
+    QDir::setCurrent( rootDir.absolutePath () );
+
+    QObject::connect(this, SIGNAL(sendAnswerToBroadcast(DeviceTicket)), &worker, SLOT(sendAnswerToBroadcast(DeviceTicket)));
     QObject::connect(this, SIGNAL(sendProgStatus(QVector<QPair<quint8,qint32> >)), &worker, SLOT(sendProgStatus(QVector<QPair<quint8,qint32> >)));
     QObject::connect(this, SIGNAL(sendFileList(QMap<QString, DevFileInfo>)), &worker, SLOT(sendProgList(QMap<QString, DevFileInfo>)));
     QObject::connect(this, SIGNAL(sendFile(qint8,QByteArray)), &worker, SLOT(sendProgRead(qint8,QByteArray)));
@@ -41,7 +32,7 @@ CanProg::CanProg(Can *can, PropStore *pStore, QObject *parent) :
     QObject::connect(this, SIGNAL(sendFirmCorrupt()), &worker, SLOT(sendProgFirmCorrupt()));
     QObject::connect(this, SIGNAL(sendSubmitAck(qint8)), &worker, SLOT(sendSubmitAck(qint8)));
 
-    QObject::connect(&worker, SIGNAL(getProgInit(DeviceTickets)), this, SLOT(connect(DeviceTickets)));
+    QObject::connect(&worker, SIGNAL(getProgInit(DeviceTicket)), this, SLOT(connect(DeviceTicket)));
     QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(getFileList()));
     QObject::connect(&worker, SIGNAL(getProgReadRq(QString,qint32,qint32)), this, SLOT(readFile(QString,qint32,qint32)));
     QObject::connect(&worker, SIGNAL(getProgRm(QString)), this, SLOT(deleteFile(QString)));
@@ -53,40 +44,29 @@ CanProg::CanProg(Can *can, PropStore *pStore, QObject *parent) :
     QObject::connect(&worker, SIGNAL(getProgSubmit(qint8)), this, SLOT(submit(qint8)));
     QObject::connect(&worker, SIGNAL(waitingTimeOut()), this, SLOT(timeOut()));
 
-    QObject::connect(&initWaitTimer, SIGNAL(timeout()), this, SLOT(periodicalCheck()));
-
-    QObject::connect(&monitor, SIGNAL(finished(int)), this, SLOT(start(int)));
-
-    initWaitTimer.setInterval(1000);
-    initWaitTimer.setSingleShot(true);
-//    initWaitTimer.start();
-
     if(myTicket.blockSerialNumber != 0)
     {
         //LOG_WRITER.installLog();
-        isSerialNumber = true;
+        isSerialNumberSet = true;
         takeFileList();
     }
 }
 
-void CanProg::connect(const DeviceTickets &tickets)
+void CanProg::connect(const DeviceTicket &requestedTicket)
 {
-    if(isSerialNumber)
-        if (myTicket == tickets)
+    if(isSerialNumberSet)
+        if (myTicket == requestedTicket)
         {
-            initWaitTimer.stop();
-
             progMode = true;
 
             emit sendProgStatus(pStore->data());
 
-            emit initConnection();
+            emit progModeChanged (true);
             emit sendState(tr("Идет прошивка"));
         }
-        else if (myTicket <= tickets) // Броадкаст
+        else if (myTicket <= requestedTicket) // Броадкаст
         {
             //LOG_WRITER.write(tr("Получен броадкаст"), QColor(0, 255, 0));
-            initWaitTimer.stop();
             emit sendAnswerToBroadcast(myTicket);
         }
         else
@@ -258,13 +238,13 @@ void CanProg::submit(qint8 submitKey)
 
 void CanProg::periodicalCheck()
 {
-    if(isSerialNumber)
+    if(isSerialNumberSet)
     {
         int errorCode = 0;
 //        if(progMode)
             //LOG_WRITER.write(tr("Проверка целостности прошивки"), QColor(0, 255, 0));
 
-        if (checkProgram())
+        if (checkFirmware())
         {
             if(!pStore->sync() || !saveChanges())
                 errorCode = 1;
@@ -276,9 +256,8 @@ void CanProg::periodicalCheck()
         {
             //LOG_WRITER.write(tr("Не сошлась контрольная сумма"), QColor(255, 0, 0));
             emit sendFirmCorrupt();
-            emit initConnection();
+            emit progModeChanged (true);
             emit sendState(tr("Прошивка повреждена"));
-            initWaitTimer.start();
         }
     }
     else
@@ -302,67 +281,43 @@ QStringList CanProg::parseDir(const QDir dir)
 void CanProg::progModeExit()
 {
     if(progMode)
-        emit exit();
+        emit progModeChanged (false);
     progMode = false;
-    initWaitTimer.stop();
     //LOG_WRITER.finishLog();
-#ifdef LIB_CAN_NICK
-    CanInternals::canDrv.stop();
-#endif
-    QDir::setCurrent("C:/");
-    monitor.start("MonMSUL/root/Monitor.exe");
 }
 
-bool CanProg::checkProgram()
+bool CanProg::checkFirmware()
 {
+    bool ok = false;
     if(progMode)
         emit sendState(tr("Проверка целостности прошивки..."));
 
-    auto files = fileList.keys();
     quint16 crc = 0;
+    auto files = fileList.keys();
     foreach(QString fileName, files)
-    {
-//        QFile file(fileName);
-//        file.open(QIODevice::ReadOnly);
-
-//        DevFileInfo fileInfo(/*fileName.remove(0,2), */file.readAll());
         crc ^= fileList[fileName].getControlSum();
-    }
+
     qint32 etalonCrc;
     if ( pStore->get(6, etalonCrc) )
-        return crc == etalonCrc;
-    else
-        return false;
+        ok = (crc == etalonCrc);
+
+    emit crcCheckChanged (ok);
+    return ok;
 }
 
 void CanProg::inputBlockSerialNumber(qint32 blockSerialNumber)
 {
     pStore->set(131, blockSerialNumber);
     pStore->sync();
-    myTicket.blockSerialNumber = blockSerialNumber;
-    isSerialNumber = true;
+    if ( pStore->get (131, myTicket.blockSerialNumber) )
+        isSerialNumberSet = true;
     //LOG_WRITER.installLog();
-    initWaitTimer.start();
-}
-
-void CanProg::start(int exitCode)
-{
-    QDir::setCurrent("C:/MonMSUL/root");
-#ifdef LIB_CAN_NICK
-    CanInternals::canDrv.start();
-#endif
-    initWaitTimer.start();
 }
 
 bool CanProg::saveChanges()
 {
     bool success = true;
     auto keys = fileList.keys();
-#ifdef MONITOR_5
-    QDir rootDir ("C:/MonMSUL/root"); // TODO: Внимание! Захардкоженый путь!!!
-#else
-    QDir rootDir ("./"); // TODO: Внимание! Захардкоженый путь!!!
-#endif
 
     QStringList deleteList = parseDir(rootDir);
     foreach(QString name, deleteList)
@@ -390,8 +345,7 @@ bool CanProg::saveChanges()
 
 void CanProg::takeFileList()
 {
-    QDir dir = QDir(".");
-    QStringList files = parseDir(dir);
+    QStringList files = parseDir(rootDir);
     fileList.clear();
     foreach(QString fileName, files)
     {
@@ -403,20 +357,6 @@ void CanProg::takeFileList()
 
         file.close();
     }
-}
-
-void CanProg::timeOut()
-{
-    takeFileList();
-    periodicalCheck();
-}
-
-void CanProg::drvStart()
-{
-#ifdef MONITOR_5
-    canDrv.start();
-#endif
-    initWaitTimer.start();
 }
 
 }
