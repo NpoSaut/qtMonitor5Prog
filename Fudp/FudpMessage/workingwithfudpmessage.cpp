@@ -99,7 +99,7 @@ void WorkingWithFudpMessage::sendProgStatus(const QVector<QPair<quint8, qint32> 
     communicator2.send(status.encode());
 }
 
-void WorkingWithFudpMessage::sendProgList(const QMap<QString, DevFileInfo> &list)
+void WorkingWithFudpMessage::sendProgList(QMap<QString, DevFileInfo> list)
 {
     ProgList pList(list);
     communicator2.send(pList.encode());

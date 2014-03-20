@@ -6,7 +6,7 @@ ProgList::ProgList()
 {
 }
 
-ProgList::ProgList(const QMap<QString, DevFileInfo> &listDevFileInfo) :
+ProgList::ProgList(QMap<QString, DevFileInfo> &listDevFileInfo) :
     listDevFileInfo(listDevFileInfo)
 {
 }
@@ -28,7 +28,7 @@ std::vector<byte> ProgList::encode()
         for (int i =0; i < t.size(); i ++)
             in << (quint8)t.at(i);
 
-        in << listDevFileInfo.take(key).getFileSize() << (quint32) listDevFileInfo.take(key).getControlSum();
+        in << listDevFileInfo[key].getFileSize() << (quint32) listDevFileInfo[key].getControlSum();
     }
     return Message::fromQByteArrayToVector(buffer);
 }

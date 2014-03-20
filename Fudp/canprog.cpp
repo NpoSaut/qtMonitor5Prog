@@ -336,7 +336,9 @@ void CanProg::discardChanges()
 
 void CanProg::takeFileList()
 {
-    QStringList files = parseDir(rootDir);
+    QDir::setCurrent (rootDir.absolutePath ());
+    QDir workingDir ("./");
+    QStringList files = parseDir(workingDir);
     fileList.clear();
     foreach(QString fileName, files)
     {
