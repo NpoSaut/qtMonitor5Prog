@@ -34,6 +34,9 @@ public:
     // Синхронизирует данные в кэше и файле.
     bool sync ();
 
+    // Обновляет локальную версию данных из файла (не записанные изменения теряются)
+    virtual bool discard ();
+
 private:
     QFile &file;
     QMap<quint8, qint32> map;

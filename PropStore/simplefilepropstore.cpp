@@ -10,18 +10,7 @@
 SimpleFilePropStore::SimpleFilePropStore(QFile &file)
     : file (file), map ()
 {
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QTextStream fileIn(&file);
-    while (!fileIn.atEnd())
-    {
-        QStringList line(fileIn.readLine().split(" "));
-
-        if(line.at(0) != "" && line.size() == 2)
-            map[QString(line.at(0)).toInt()] = QString(line.at(1)).toInt();
-    }
-
-    file.close();
+    discard ();
 }
 
 QList<quint8> SimpleFilePropStore::keys() const
@@ -86,4 +75,20 @@ bool SimpleFilePropStore::sync()
     {
         return false;
     }
+}
+
+bool SimpleFilePropStore::discard()
+{
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QTextStream fileIn(&file);
+    while (!fileIn.atEnd())
+    {
+        QStringList line(fileIn.readLine().split(" "));
+
+        if(line.at(0) != "" && line.size() == 2)
+            map[QString(line.at(0)).toInt()] = QString(line.at(1)).toInt();
+    }
+
+    file.close();
 }

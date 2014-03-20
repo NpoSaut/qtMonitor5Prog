@@ -1,5 +1,7 @@
 #include "canprogworker.h"
 
+#include <QFileInfo>
+
 #include "processmanager.h"
 #include "ExclusiveCanUpdateManager.h"
 #include "SharedCanUpdateManager.h"
@@ -12,10 +14,14 @@ using namespace Fudp;
 
 CanProgWorker::CanProgWorker(Can *can, QString firmwareRootDirName, QString storeFileName, QObject *parent) :
     QThread (parent),
-    firmwareRootDirName (firmwareRootDirName),
-    storeFileName (storeFileName),
     can (can)
 {
+    QFileInfo firmwareRootDirInfo (firmwareRootDirName);
+    this->firmwareRootDirName = firmwareRootDirInfo.absoluteFilePath ();
+
+    QFileInfo storeFileInfo (storeFileName);
+    this->storeFileName = storeFileInfo.absoluteFilePath ();
+
     this->start();
 }
 

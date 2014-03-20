@@ -21,25 +21,6 @@ class CanProg : public QObject
 public:
     explicit CanProg(Can *can, PropStore *pStore, QDir rootDir, QObject *parent = 0);
 
-private:
-    static const int FuInit = 0x66a8;
-    static const int FuProg = 0x66c8;
-    static const int FuDev =  0x66e8;
-
-    WorkingWithFudpMessage worker;
-    PropStore *pStore;
-    QMap<QString, DevFileInfo> fileList;
-    DeviceTicket myTicket;
-    QDir rootDir;
-    bool progMode;
-    bool isSerialNumberSet;
-
-    QStringList parseDir(const QDir dir);
-    void progModeExit ();
-    bool checkFirmware ();
-    bool saveChanges();
-    void takeFileList();
-
 signals:
     // Наверх
     void sendState(QString state);
@@ -74,7 +55,27 @@ private slots:
     void deleteParam(qint8 key);
     void submit(qint8 subimtKey);
     void inputBlockSerialNumber(qint32 blockSerialNumber);
-    void periodicalCheck();
+    void exitProgMode ();
+    bool checkFirmware ();
+    bool saveChanges();
+    void discardChanges ();
+    void takeFileList();
+    void sessionTimeOut ();
+
+private:
+    static const int FuInit = 0x66a8;
+    static const int FuProg = 0x66c8;
+    static const int FuDev =  0x66e8;
+
+    WorkingWithFudpMessage worker;
+    PropStore *pStore;
+    QMap<QString, DevFileInfo> fileList;
+    DeviceTicket myTicket;
+    QDir rootDir;
+    bool progMode;
+    bool isSerialNumberSet;
+
+    QStringList parseDir(const QDir dir);
 };
 }
 #endif // CANPROG_H

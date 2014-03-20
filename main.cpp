@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     can = new DummyCan ();
     #endif
 
-    //    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
+        QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
 
     if (a.arguments ().size () >= 2)
     {

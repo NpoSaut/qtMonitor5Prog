@@ -42,7 +42,7 @@ CanProg::CanProg(Can *can, PropStore *pStore, QDir rootDir, QObject *parent) :
     QObject::connect(&worker, SIGNAL(getParamSetRq(qint8,qint32)), this, SLOT(setParam(qint8,qint32)));
     QObject::connect(&worker, SIGNAL(getParamRmRq(qint8)), this, SLOT(deleteParam(qint8)));
     QObject::connect(&worker, SIGNAL(getProgSubmit(qint8)), this, SLOT(submit(qint8)));
-    QObject::connect(&worker, SIGNAL(waitingTimeOut()), this, SLOT(timeOut()));
+    QObject::connect(&worker, SIGNAL(waitingTimeOut()), this, SLOT(sessionTimeOut()));
 
     if(myTicket.blockSerialNumber != 0)
     {
@@ -71,7 +71,7 @@ void CanProg::connect(const DeviceTicket &requestedTicket)
         }
         else
         {
-            progModeExit();
+            exitProgMode();
         }
 }
 
@@ -212,56 +212,38 @@ void CanProg::deleteParam(qint8 key)
 
 void CanProg::submit(qint8 submitKey)
 {
-    if(submitKey == 0)
+    if (progMode)
     {
-        periodicalCheck();
-    }
-    else
-    {
-        int errorCode = 2;
-        takeFileList();
+        int status = 255;
 
-        if(!pStore->get(129, myTicket.blockId))
-            errorCode = 3;
-        if(!pStore->get(130, myTicket.module))
-            errorCode = 3;
-        if(!pStore->get(131, myTicket.blockSerialNumber))
-            errorCode = 3;
-        if(!pStore->get(133, myTicket.channel))
-            errorCode = 3;
-        if(!pStore->get(134, myTicket.modification))
-            errorCode = 3;
-        emit sendSubmitAck(errorCode);
-        periodicalCheck();
-    }
-}
-
-void CanProg::periodicalCheck()
-{
-    if(isSerialNumberSet)
-    {
-        int errorCode = 0;
-//        if(progMode)
+        if(submitKey == 0) // Применить
+        {
             //LOG_WRITER.write(tr("Проверка целостности прошивки"), QColor(0, 255, 0));
-
-        if (checkFirmware())
-        {
-            if(!pStore->sync() || !saveChanges())
-                errorCode = 1;
-
-            emit sendSubmitAck(errorCode);
-            progModeExit();
+            if ( checkFirmware() ) // Тестируем, что нам прислали
+            {
+                if( saveChanges() )
+                    status = 0;
+                else
+                    status = 1;
+            }
+            else
+            {
+                //LOG_WRITER.write(tr("Не сошлась контрольная сумма"), QColor(255, 0, 0));
+                emit sendFirmCorrupt();
+                emit sendState(tr("Прошивка повреждена"));
+                status = 1;
+            }
         }
-        else
+        else // Отменить
         {
-            //LOG_WRITER.write(tr("Не сошлась контрольная сумма"), QColor(255, 0, 0));
-            emit sendFirmCorrupt();
-            emit progModeChanged (true);
-            emit sendState(tr("Прошивка повреждена"));
+            discardChanges ();
+            status = 2;
         }
+
+        qDebug() << "Submit ack: " << status;
+        emit sendSubmitAck(status);
+        exitProgMode();
     }
-    else
-        emit noSerialNumber();
 }
 
 QStringList CanProg::parseDir(const QDir dir)
@@ -278,11 +260,13 @@ QStringList CanProg::parseDir(const QDir dir)
     return fileList;
 }
 
-void CanProg::progModeExit()
+void CanProg::exitProgMode()
 {
     if(progMode)
+    {
+        progMode = false;
         emit progModeChanged (false);
-    progMode = false;
+    }
     //LOG_WRITER.finishLog();
 }
 
@@ -316,9 +300,9 @@ void CanProg::inputBlockSerialNumber(qint32 blockSerialNumber)
 
 bool CanProg::saveChanges()
 {
-    bool success = true;
-    auto keys = fileList.keys();
+    bool success = pStore->sync();
 
+    auto keys = fileList.keys();
     QStringList deleteList = parseDir(rootDir);
     foreach(QString name, deleteList)
         QFile(name).remove();
@@ -340,7 +324,14 @@ bool CanProg::saveChanges()
         else
             success = false;
     }
+
     return success;
+}
+
+void CanProg::discardChanges()
+{
+    takeFileList();
+    pStore->discard ();
 }
 
 void CanProg::takeFileList()
@@ -357,6 +348,12 @@ void CanProg::takeFileList()
 
         file.close();
     }
+}
+
+void CanProg::sessionTimeOut()
+{
+    discardChanges ();
+    exitProgMode ();
 }
 
 }
