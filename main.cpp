@@ -22,6 +22,6 @@ int main(int argc, char *argv[])
     CanProgWorker canProgWorker ("C:/MonMSUL/prop.txt");
     Form w(&canProgWorker);
     w.show();
-//    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
+    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
     return a.exec();
 }
