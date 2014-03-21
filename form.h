@@ -25,6 +25,7 @@ private:
     Ui::Form *ui;
     void moveAboutCenter(QWidget *frame, int x, int y);
     void setSize(QWidget *frame);
+    void showKeyboard(bool show);
 
 signals:
     void setSerialNumber(qint32 serialNumber);
@@ -36,6 +37,28 @@ private slots:
     void onModeChanged (bool progMode) { if (progMode) initLables(); else hideElements(); }
     void inputSerialNumber();
     void on_blockSerialNumberOk_pressed();
+
+    void on_oneButton_clicked();
+
+    void on_twoButton_clicked();
+
+    void on_threeButton_clicked();
+
+    void on_fourButton_clicked();
+
+    void on_fiveButton_clicked();
+
+    void on_sixButton_clicked();
+
+    void on_sevenButton_clicked();
+
+    void on_eightButton_clicked();
+
+    void on_nineButton_clicked();
+
+    void on_backSpace_clicked();
+
+    void on_blockSerialNumberOk_clicked();
 
 private:
     void initLables();

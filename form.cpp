@@ -10,7 +10,7 @@ Form::Form(const CanProgWorker *canProgWorker, QWidget *parent) :
     ui->setupUi(this);
 
     ui->blockSerialNumberOk->setShortcut(Qt::Key_Return);
-    ui->blockSerialNumberOk->setStyleSheet(QString::fromUtf8("background-color: rgb(0, 0, 0);"));
+    ui->blockSerialNumberOk->setStyleSheet(QString::fromUtf8("background-color: rgb(240, 240, 240);"));
 
     hideElements();
 
@@ -47,15 +47,15 @@ void Form::initLables()
 
 void Form::inputSerialNumber()
 {
-    moveAboutCenter(ui->lableBlockSerialNumber, 0, -75);
+    moveAboutCenter(ui->lableBlockSerialNumber, 0, -50);
     ui->lableBlockSerialNumber->show();
 
     moveAboutCenter(ui->editblockSerialNumber, 0, 0);
     ui->editblockSerialNumber->show();
     ui->editblockSerialNumber->setFocus();
 
-    moveAboutCenter(ui->blockSerialNumberOk, 0, 50);
-    ui->blockSerialNumberOk->show();
+    moveAboutCenter(ui->keyboard, 0, 100);
+    showKeyboard(true);
 }
 
 void Form::moveAboutCenter(QWidget *frame, int x, int y)
@@ -73,13 +73,21 @@ void Form::setSize(QWidget *frame)
     frame->setGeometry(screen);
 }
 
+void Form::showKeyboard(bool show)
+{
+    if (show)
+        ui->keyboard->show();
+    else
+        ui->keyboard->hide();
+}
+
 void Form::on_blockSerialNumberOk_pressed()
 {
     if(ui->editblockSerialNumber->text()!="")
     {
-        ui->blockSerialNumberOk->hide();
         ui->editblockSerialNumber->hide();
         ui->lableBlockSerialNumber->hide();
+        showKeyboard(false);
 
         emit setSerialNumber((qint32)ui->editblockSerialNumber->text().toInt());
     }
@@ -89,7 +97,74 @@ void Form::hideElements()
 {
     ui->trainLable->hide();
     ui->stateLable->hide();
-    ui->blockSerialNumberOk->hide();
     ui->editblockSerialNumber->hide();
     ui->lableBlockSerialNumber->hide();
+    showKeyboard(false);
+}
+
+void Form::on_oneButton_clicked()
+{
+    ui->editblockSerialNumber->setText(ui->editblockSerialNumber->text() + "1");
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_twoButton_clicked()
+{
+    ui->editblockSerialNumber->setText(ui->editblockSerialNumber->text() + "2");
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_threeButton_clicked()
+{
+    ui->editblockSerialNumber->setText(ui->editblockSerialNumber->text() + "3");
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_fourButton_clicked()
+{
+    ui->editblockSerialNumber->setText(ui->editblockSerialNumber->text() + "4");
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_fiveButton_clicked()
+{
+    ui->editblockSerialNumber->setText(ui->editblockSerialNumber->text() + "5");
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_sixButton_clicked()
+{
+    ui->editblockSerialNumber->setText(ui->editblockSerialNumber->text() + "6");
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_sevenButton_clicked()
+{
+    ui->editblockSerialNumber->setText(ui->editblockSerialNumber->text() + "7");
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_eightButton_clicked()
+{
+    ui->editblockSerialNumber->setText(ui->editblockSerialNumber->text() + "8");
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_nineButton_clicked()
+{
+    ui->editblockSerialNumber->setText(ui->editblockSerialNumber->text() + "9");
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_backSpace_clicked()
+{
+    QString str = ui->editblockSerialNumber->text();
+    qint32 length = ui->editblockSerialNumber->text().length();
+    ui->editblockSerialNumber->setText(str.remove(length-1, 1));
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_blockSerialNumberOk_clicked()
+{
+    on_blockSerialNumberOk_pressed();
 }
