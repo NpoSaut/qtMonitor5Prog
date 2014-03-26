@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
     if (a.arguments ().size () >= 2)
     {
-        CanProgWorker canProgWorker (can, a.arguments ().at(1), a.arguments ().at (2));
+        CanProgWorker canProgWorker (can, a.arguments ().at(1), a.arguments ().at (2), a.arguments ().at (3));
         Form w(&canProgWorker);
         w.show();
         return a.exec();

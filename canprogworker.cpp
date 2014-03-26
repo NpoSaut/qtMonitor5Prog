@@ -12,12 +12,15 @@
 
 using namespace Fudp;
 
-CanProgWorker::CanProgWorker(Can *can, QString firmwareRootDirName, QString storeFileName, QObject *parent) :
+CanProgWorker::CanProgWorker(Can *can, QString firmwareRootDirName, QString hwStoreFileName, QString storeFileName, QObject *parent) :
     QThread (parent),
     can (can)
 {
     QFileInfo firmwareRootDirInfo (firmwareRootDirName);
     this->firmwareRootDirName = firmwareRootDirInfo.absoluteFilePath ();
+
+    QFileInfo hwStoreFileInfo (hwStoreFileName);
+    this->hwStoreFileName = hwStoreFileInfo.absoluteFilePath ();
 
     QFileInfo storeFileInfo (storeFileName);
     this->storeFileName = storeFileInfo.absoluteFilePath ();
@@ -27,9 +30,11 @@ CanProgWorker::CanProgWorker(Can *can, QString firmwareRootDirName, QString stor
 
 void CanProgWorker::run()
 {
+    QFile hwStoreFile (hwStoreFileName);
     QFile storeFile (storeFileName);
+    SimpleFilePropStore hwStore (hwStoreFile);
     SimpleFilePropStore pStore (storeFile);
-    CanProg prog (can, &pStore, QDir(firmwareRootDirName), this->parent ());
+    CanProg prog (can, &hwStore, &pStore, QDir(firmwareRootDirName), this->parent ());
 
     ProcessManager *processManager = new ProcessManager (firmwareRootDirName, this->parent ());
     UpdateManager *updateManager;

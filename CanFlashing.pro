@@ -68,7 +68,8 @@ SOURCES += \
     processmanager.cpp \
     UpdateManager.cpp \
     SharedCanUpdateManager.cpp \
-    ExclusiveCanUpdateManager.cpp
+    ExclusiveCanUpdateManager.cpp \
+    PropStore/constloaderstore.cpp
 
 HEADERS += \
     IsoTp/IsoTpFrame/singleframe.h \
@@ -132,7 +133,8 @@ HEADERS += \
     processmanager.h \
     UpdateManager.h \
     SharedCanUpdateManager.h \
-    ExclusiveCanUpdateManager.h
+    ExclusiveCanUpdateManager.h \
+    PropStore/constloaderstore.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

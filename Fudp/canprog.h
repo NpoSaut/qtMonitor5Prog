@@ -19,7 +19,7 @@ class CanProg : public QObject
 {
     Q_OBJECT
 public:
-    explicit CanProg(Can *can, PropStore *pStore, QDir rootDir, QObject *parent = 0);
+    explicit CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, QObject *parent = 0);
 
 signals:
     // Наверх
@@ -68,6 +68,8 @@ private:
     static const int FuDev =  0x66e8;
 
     WorkingWithFudpMessage worker;
+    PropStore *loaderPropStore;
+    PropStore *hwStore;
     PropStore *pStore;
     QMap<QString, DevFileInfo> fileList;
     DeviceTicket myTicket;
@@ -76,6 +78,8 @@ private:
     bool isSerialNumberSet;
 
     QStringList parseDir(const QDir dir);
+    bool isLoaderProperty (qint8 key);
+    bool isHwProperty (qint8 key);
 };
 }
 #endif // CANPROG_H

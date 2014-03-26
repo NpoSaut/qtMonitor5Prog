@@ -11,7 +11,7 @@ class CanProgWorker : public QThread
 {
     Q_OBJECT
 public:
-    explicit CanProgWorker(Can *can, QString firmwareRootDirName, QString storeFileName, QObject *parent = 0);
+    explicit CanProgWorker(Can *can, QString firmwareRootDirName, QString hwStoreFileName, QString storeFileName, QObject *parent = 0);
     void run();
 
 signals:
@@ -33,6 +33,7 @@ private slots:
     void processProgModeChange (bool inProgMode);
 private:
     Can *can;
+    QString hwStoreFileName;
     QString storeFileName;
     QString firmwareRootDirName;
 };
