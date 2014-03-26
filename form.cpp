@@ -9,9 +9,6 @@ Form::Form(const CanProgWorker *canProgWorker, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->blockSerialNumberOk->setShortcut(Qt::Key_Return);
-    ui->blockSerialNumberOk->setStyleSheet(QString::fromUtf8("background-color: rgb(240, 240, 240);"));
-
     hideElements();
 
     showFullScreen();
@@ -156,6 +153,12 @@ void Form::on_nineButton_clicked()
     ui->editblockSerialNumber->setFocus();
 }
 
+void Form::on_nullButton_clicked()
+{
+    ui->editblockSerialNumber->setText(ui->editblockSerialNumber->text() + "0");
+    ui->editblockSerialNumber->setFocus();
+}
+
 void Form::on_backSpace_clicked()
 {
     QString str = ui->editblockSerialNumber->text();
@@ -167,4 +170,26 @@ void Form::on_backSpace_clicked()
 void Form::on_blockSerialNumberOk_clicked()
 {
     on_blockSerialNumberOk_pressed();
+}
+
+void Form::on_clear_clicked()
+{
+    ui->editblockSerialNumber->setText("");
+    ui->editblockSerialNumber->setFocus();
+}
+
+void Form::on_yearOk_clicked()
+{
+    ui->yearOk->setShortcut(Qt::Key_Return);
+    ui->yearOk->hide();
+    ui->lableBlockSerialNumber->setText(tr("Введите месяц"));
+    on_clear_clicked();
+}
+
+void Form::on_monthOk_clicked()
+{
+    ui->monthOk->setShortcut(Qt::Key_Return);
+    ui->monthOk->hide();
+    ui->lableBlockSerialNumber->setText(tr("Введите серийный номер"));
+    on_clear_clicked();
 }

@@ -60,6 +60,14 @@ private slots:
 
     void on_blockSerialNumberOk_clicked();
 
+    void on_clear_clicked();
+
+    void on_yearOk_clicked();
+
+    void on_monthOk_clicked();
+
+    void on_nullButton_clicked();
+
 private:
     void initLables();
     void hideElements();
