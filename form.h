@@ -27,6 +27,11 @@ private:
     void moveAboutCenter(QWidget *frame, int x, int y);
     void setSize(QWidget *frame);
     void showKeyboard(bool show);
+    void showProps(bool show);
+    void getProps();
+    qint32 sn;
+    qint32 vers;
+    qint32 subvers;
 
 signals:
     void setSerialNumber(qint32 serialNumber);
@@ -62,6 +67,14 @@ private slots:
     void on_backSpace_clicked();
 
     void on_blockSerialNumberOk_clicked();
+
+    void on_clear_clicked();
+
+    void on_yearOk_clicked();
+
+    void on_monthOk_clicked();
+
+    void on_nullButton_clicked();
 
 private:
     void initLables();
