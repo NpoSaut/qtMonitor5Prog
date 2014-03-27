@@ -18,10 +18,10 @@ using namespace Fudp;
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
 
     CanProgWorker canProgWorker ("C:/MonMSUL/prop.txt");
     Form w(&canProgWorker);
     w.show();
-    QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
     return a.exec();
 }

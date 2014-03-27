@@ -5,13 +5,18 @@
 
 Form::Form(const CanProgWorker *canProgWorker, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Form)
+    ui(new Ui::Form),
+    sn(0)
 {
     ui->setupUi(this);
 
     hideElements();
 
     showFullScreen();
+
+    getProps();
+    if (sn!=0)
+        showProps(true);
 
     QObject::connect(canProgWorker, SIGNAL(stateChanged(QString)), this, SLOT(showState(QString)));
     QObject::connect(canProgWorker, SIGNAL(serialNumberMissed()), this, SLOT(inputSerialNumber()));
@@ -27,31 +32,33 @@ Form::~Form()
 void Form::showState(const QString state)
 {
     ui->stateLable->setText(state);
+    if (state == tr("Прошивка повреждена"))
+        showProps(true);
+    else
+        showProps(false);
 }
 
 void Form::initLables()
 {
     QString train("                   ooOOOO\n                oo          _____\n              _I__n_n__||_||_ _______\n          >(_________|_7_|-|______|\n            /o  ()()   ()()   o      oo  oo");
-
-    ui->trainLable->show();
-    ui->stateLable->show();
-//        ui->log->show();
-    moveAboutCenter(ui->trainLable, 0, 0);
-    moveAboutCenter(ui->stateLable, 0, 30);
     ui->trainLable->setAlignment(Qt::AlignLeft);
     ui->trainLable->setText(train);
+    moveAboutCenter(ui->trainLable, 0, 0);
+    ui->trainLable->show();
+
+    moveAboutCenter(ui->stateLable, 0, 30);
+    ui->stateLable->show();
+//        ui->log->show();    
 }
 
 void Form::inputSerialNumber()
 {
-    moveAboutCenter(ui->lableBlockSerialNumber, 0, -50);
     ui->lableBlockSerialNumber->show();
 
-    moveAboutCenter(ui->editblockSerialNumber, 0, 0);
     ui->editblockSerialNumber->show();
     ui->editblockSerialNumber->setFocus();
 
-    moveAboutCenter(ui->keyboard, 0, 100);
+    showProps(false);
     showKeyboard(true);
 }
 
@@ -72,10 +79,41 @@ void Form::setSize(QWidget *frame)
 
 void Form::showKeyboard(bool show)
 {
+    moveAboutCenter(ui->lableBlockSerialNumber, 0, -50);
+    moveAboutCenter(ui->editblockSerialNumber, 0, 0);
+    moveAboutCenter(ui->keyboard, 0, 100);
     if (show)
         ui->keyboard->show();
     else
         ui->keyboard->hide();
+}
+
+void Form::showProps(bool show)
+{
+    if (show)
+    {
+        moveAboutCenter(ui->serialNumberLable,QApplication::desktop()->geometry().width()/2 - ui->serialNumberLable->geometry().width()/2,QApplication::desktop()->geometry().height()/2);
+        moveAboutCenter(ui->versionLable,- QApplication::desktop()->geometry().width()/2 + ui->versionLable->geometry().width()/2,QApplication::desktop()->geometry().height()/2);
+
+        ui->serialNumberLable->setText(QString(tr("Сериный номер: %1")).arg(sn));
+        ui->versionLable->setText(QString(tr("Версия: %1.%2")).arg(vers).arg(subvers));
+        ui->serialNumberLable->show();
+        ui->versionLable->show();
+    }
+    else
+    {
+        ui->serialNumberLable->hide();
+        ui->versionLable->hide();
+    }
+}
+
+void Form::getProps()
+{
+    QFile file("C:/MonMSUL/prop.txt");
+    SimpleFilePropStore props(file);
+    props.get(1,vers);
+    props.get(2,subvers);
+    props.get(131, sn);
 }
 
 void Form::on_blockSerialNumberOk_pressed()
@@ -85,8 +123,8 @@ void Form::on_blockSerialNumberOk_pressed()
         ui->editblockSerialNumber->hide();
         ui->lableBlockSerialNumber->hide();
         showKeyboard(false);
-
-        emit setSerialNumber((qint32)ui->editblockSerialNumber->text().toInt());
+        sn = (qint32)ui->editblockSerialNumber->text().toInt();
+        emit setSerialNumber(sn);
     }
 }
 
@@ -97,6 +135,7 @@ void Form::hideElements()
     ui->editblockSerialNumber->hide();
     ui->lableBlockSerialNumber->hide();
     showKeyboard(false);
+    showProps(false);
 }
 
 void Form::on_oneButton_clicked()

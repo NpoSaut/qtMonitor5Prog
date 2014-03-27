@@ -402,11 +402,42 @@
     </property>
    </widget>
   </widget>
+  <widget class="QLabel" name="serialNumberLable">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>550</y>
+     <width>311</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="versionLable">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>550</y>
+     <width>301</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
   <zorder>keyboard</zorder>
   <zorder>trainLable</zorder>
   <zorder>stateLable</zorder>
   <zorder>editblockSerialNumber</zorder>
   <zorder>lableBlockSerialNumber</zorder>
+  <zorder>serialNumberLable</zorder>
+  <zorder>versionLable</zorder>
  </widget>
  <resources/>
  <connections/>
