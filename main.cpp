@@ -1,12 +1,10 @@
 #include <QCoreApplication>
-#include <QApplication>
 #include <QTimer>
 #include <QFile>
 #include <QByteArray>
 #include <QDataStream>
 #include <QProcess>
 
-#include "form.h"
 #include "canprogworker.h"
 
 // Драйвер CAN
@@ -23,9 +21,11 @@ using namespace IsoTpFrames;
 using namespace IsoTp;
 using namespace Fudp;
 
+CanProgWorker *canProgWorker;
+
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QCoreApplication a(argc, argv);
 
     #ifdef LIB_CAN_NICK
     can = new CanNick ();
@@ -37,18 +37,17 @@ int main(int argc, char *argv[])
 
         QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
 
-    if (a.arguments ().size () >= 2)
+    if (a.arguments ().size () >= 3)
     {
-        CanProgWorker canProgWorker (can, a.arguments ().at(1), a.arguments ().at (2), a.arguments ().at (3));
-        Form w(&canProgWorker);
-        w.show();
+        canProgWorker = new CanProgWorker (can, a.arguments ().at(1), a.arguments ().at (2), a.arguments ().at (3));
         return a.exec();
     }
     else
     {
-        qDebug() << "Two arguments needed: ";
+        qDebug() << "Thre arguments needed: ";
         qDebug() << "first - root directory";
-        qDebug() << "second - path to prop.txt";
+        qDebug() << "second - path to prop.txt for hardware";
+        qDebug() << "third - path to prop.txt for software module";
         qDebug() << "This is all.";
         return 1;
     }

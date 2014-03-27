@@ -4,12 +4,13 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core
+QT       -= gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+#greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = CanFlashing
-CONFIG   -= console
+CONFIG   += console
 #CONFIG   -= app_bundle
 
 TEMPLATE = app
@@ -53,7 +54,6 @@ SOURCES += \
     Fudp/FudpMessage/progsubmit.cpp \
     Fudp/FudpMessage/progbroadcastanswer.cpp \
     Fudp/FudpMessage/progfirmcorrupt.cpp \
-    form.cpp \
     Fudp/FudpMessage/progwriteack.cpp \
     Fudp/FudpMessage/progsubmitack.cpp \
     canprogworker.cpp \
@@ -109,7 +109,6 @@ HEADERS += \
     Fudp/FudpMessage/progsubmit.h \
     Fudp/FudpMessage/progbroadcastanswer.h \
     Fudp/FudpMessage/progfirmcorrupt.h \
-    form.h \
     Fudp/FudpMessage/progwriteack.h \
     Fudp/FudpMessage/progsubmitack.h \
     Log/singletone.h \
@@ -138,7 +137,7 @@ HEADERS += \
 
 QMAKE_CXXFLAGS += -std=c++0x
 
-FORMS += form.ui
+#FORMS += form.ui
 
 #For Monitor 5 use: MONITOR_5, LIB_CAN_NICK
 #For Linux use: ON_LINUX, LIB_SOCKET_CAN

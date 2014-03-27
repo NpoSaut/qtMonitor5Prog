@@ -36,7 +36,7 @@ void CanProgWorker::run()
     SimpleFilePropStore pStore (storeFile);
     CanProg prog (can, &hwStore, &pStore, QDir(firmwareRootDirName), this->parent ());
 
-    ProcessManager *processManager = new ProcessManager (firmwareRootDirName, this->parent ());
+    ProcessManager *processManager = new ProcessManager (firmwareRootDirName, false, this->parent ());
     UpdateManager *updateManager;
 #ifdef LIB_CAN_NICK
     updateManager = new ExclusiveCanUpdateManager (processManager, this->parent ());
@@ -55,6 +55,7 @@ void CanProgWorker::run()
     QObject::connect (&prog, SIGNAL(crcCheckChanged(bool)), updateManager, SLOT(setIsChecksumOk(bool)));
 
     updateManager->execute ();
+    prog.checkFirmware ();
 
     QThread::run();
 }

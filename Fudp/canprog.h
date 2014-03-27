@@ -21,6 +21,8 @@ class CanProg : public QObject
 public:
     explicit CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, QObject *parent = 0);
 
+    bool checkFirmware (); // ГОВНОКОД
+
 signals:
     // Наверх
     void sendState(QString state);
@@ -56,7 +58,6 @@ private slots:
     void submit(qint8 subimtKey);
     void inputBlockSerialNumber(qint32 blockSerialNumber);
     void exitProgMode ();
-    bool checkFirmware ();
     bool saveChanges();
     void discardChanges ();
     void takeFileList();
