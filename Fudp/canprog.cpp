@@ -351,6 +351,10 @@ bool CanProg::saveChanges()
             success = false;
     }
 
+#ifdef ON_LINUX
+    QProcess::execute ("chmod -R +x ./");
+#endif
+
     return success;
 }
 

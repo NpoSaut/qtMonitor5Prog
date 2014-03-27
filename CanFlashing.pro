@@ -141,4 +141,4 @@ QMAKE_CXXFLAGS += -std=c++0x
 FORMS += form.ui
 
 #For Monitor 5 use: MONITOR_5, LIB_CAN_NICK
-#For Linux use: LIB_SOCKET_CAN
+#For Linux use: ON_LINUX, LIB_SOCKET_CAN
