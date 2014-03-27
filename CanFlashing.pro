@@ -64,7 +64,23 @@ SOURCES += \
     qtCanLib/socketcan.cpp \
     qtCanLib/socketcan/sktcan.cpp \
     qtCanLib/socketcan/cansendqueue.cpp \
-    qtDoodahLib/queues.cpp
+    qtDoodahLib/queues.cpp \
+    qtBlokLib/parser.cpp \
+    qtBlokLib/parsers/vds_state.cpp \
+    qtBlokLib/parsers/uktol_dd1.cpp \
+    qtBlokLib/parsers/tskbm_state.cpp \
+    qtBlokLib/parsers/sys_key.cpp \
+    qtBlokLib/parsers/mvd_dd.cpp \
+    qtBlokLib/parsers/mp_state.cpp \
+    qtBlokLib/parsers/mm_coord.cpp \
+    qtBlokLib/parsers/mm_alt_long.cpp \
+    qtBlokLib/parsers/mco_state.cpp \
+    qtBlokLib/parsers/mco_mode.cpp \
+    qtBlokLib/parsers/mco_limits.cpp \
+    qtBlokLib/parsers/ipd_state.cpp \
+    qtBlokLib/parsers/display_state.cpp \
+    qtBlokLib/parsers/canblokmessage.cpp \
+    qtBlokLib/parsers/console_key.cpp
 
 HEADERS += \
     IsoTp/IsoTpFrame/singleframe.h \
@@ -124,7 +140,27 @@ HEADERS += \
     qtDoodahLib/queues.h \
     cDoodahLib/packing.h \
     cDoodahLib/masqarade.h \
-    cDoodahLib/lowlevel.h
+    cDoodahLib/lowlevel.h \
+    qtBlokLib/parser.h \
+    qtBlokLib/parsers/vds_state.h \
+    qtBlokLib/parsers/uktol_dd1.h \
+    qtBlokLib/parsers/tskbm_state.h \
+    qtBlokLib/parsers/trafficlight.h \
+    qtBlokLib/parsers/sys_key.h \
+    qtBlokLib/parsers/pressure.h \
+    qtBlokLib/parsers/mvd_dd.h \
+    qtBlokLib/parsers/mp_state.h \
+    qtBlokLib/parsers/mm_coord.h \
+    qtBlokLib/parsers/mm_alt_long.h \
+    qtBlokLib/parsers/mco_state.h \
+    qtBlokLib/parsers/mco_mode.h \
+    qtBlokLib/parsers/mco_limits.h \
+    qtBlokLib/parsers/ipd_state.h \
+    qtBlokLib/parsers/drivemode.h \
+    qtBlokLib/parsers/display_state.h \
+    qtBlokLib/parsers/canblokmessage.h \
+    qtBlokLib/parsers/autolockmode.h \
+    qtBlokLib/parsers/console_key.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

@@ -6,6 +6,7 @@
 #include <QTextEdit>
 
 #include "canprogworker.h"
+#include "qtBlokLib/parser.h"
 
 using namespace Fudp;
 
@@ -18,7 +19,7 @@ class Form : public QWidget
     Q_OBJECT
     
 public:
-    explicit Form(const CanProgWorker *canProgWorker, QWidget *parent = 0);
+    explicit Form(const CanProgWorker *canProgWorker, Parser *parser, QWidget *parent = 0);
     ~Form();
     
 private:
@@ -37,6 +38,8 @@ private slots:
     void onModeChanged (bool progMode) { if (progMode) initLables(); else hideElements(); }
     void inputSerialNumber();
     void on_blockSerialNumberOk_pressed();
+
+    void on_CanKeyboard_KeyPressed(ConsoleKey::ConsKey key);
 
     void on_oneButton_clicked();
 

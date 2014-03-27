@@ -2,7 +2,7 @@
 #include "ui_form.h"
 #include <QDesktopWidget>
 
-Form::Form(const CanProgWorker *canProgWorker, QWidget *parent) :
+Form::Form(const CanProgWorker *canProgWorker, Parser *parser, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Form)
 {
@@ -14,6 +14,10 @@ Form::Form(const CanProgWorker *canProgWorker, QWidget *parent) :
     hideElements();
 
     showFullScreen();
+
+    // Подключение кнопок CAN-клавиатуры
+    QObject::connect (&parser->consoleKey1, SIGNAL(keyPressed (ConsoleKey::ConsKey key)), this, SLOT(on_CanKeyboard_KeyPressed(ConsoleKey::ConsKey key)));
+    QObject::connect (&parser->consoleKey2, SIGNAL(keyPressed (ConsoleKey::ConsKey key)), this, SLOT(on_CanKeyboard_KeyPressed(ConsoleKey::ConsKey key)));
 
     QObject::connect(canProgWorker, SIGNAL(stateChanged(QString)), this, SLOT(showState(QString)));
     QObject::connect(canProgWorker, SIGNAL(serialNumberMissed()), this, SLOT(inputSerialNumber()));
@@ -89,6 +93,26 @@ void Form::on_blockSerialNumberOk_pressed()
         showKeyboard(false);
 
         emit setSerialNumber((qint32)ui->editblockSerialNumber->text().toInt());
+    }
+}
+
+void Form::on_CanKeyboard_KeyPressed(ConsoleKey::ConsKey key)
+{
+    switch (key) {
+    case ConsoleKey::F1: on_oneButton_clicked (); break;
+    case ConsoleKey::F2: on_twoButton_clicked (); break;
+    case ConsoleKey::F3: on_threeButton_clicked (); break;
+    case ConsoleKey::F4: on_fourButton_clicked (); break;
+    case ConsoleKey::F5: on_fiveButton_clicked (); break;
+    case ConsoleKey::F6: on_sixButton_clicked (); break;
+    case ConsoleKey::F7: on_sevenButton_clicked (); break;
+    case ConsoleKey::F8: on_eightButton_clicked (); break;
+    case ConsoleKey::F9: on_nineButton_clicked (); break;
+    case ConsoleKey::F0: break;
+    case ConsoleKey::BKSP: on_backSpace_clicked (); break;
+    case ConsoleKey::ENTER: on_blockSerialNumberOk_pressed (); break;
+    default:
+        break;
     }
 }
 

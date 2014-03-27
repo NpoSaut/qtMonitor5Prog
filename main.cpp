@@ -8,7 +8,7 @@
 
 #include "form.h"
 #include "canprogworker.h"
-#include "qtCanLib/cannick.h"
+#include "qtBlokLib/parser.h"
 
 // Драйвер CAN
 Can *can;
@@ -19,6 +19,8 @@ Can *can;
 #else
 #include "qtCanLib/dummycan.h"
 #endif
+
+Parser *blokMessages;
 
 using namespace IsoTpFrames;
 using namespace IsoTp;
@@ -36,8 +38,10 @@ int main(int argc, char *argv[])
     can = new DummyCan ();
     #endif
 
+    blokMessages = new Parser (can);
+
     CanProgWorker canProgWorker (can, "C:/MonMSUL/prop.txt");
-    Form w(&canProgWorker);
+    Form w(&canProgWorker, blokMessages);
     w.show();
     QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
     return a.exec();
