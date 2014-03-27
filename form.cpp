@@ -82,6 +82,7 @@ void Form::showKeyboard(bool show)
     moveAboutCenter(ui->lableBlockSerialNumber, 0, -50);
     moveAboutCenter(ui->editblockSerialNumber, 0, 0);
     moveAboutCenter(ui->keyboard, 0, 100);
+    ui->editblockSerialNumber->setMaxLength(6);
     if (show)
         ui->keyboard->show();
     else
@@ -200,9 +201,7 @@ void Form::on_nullButton_clicked()
 
 void Form::on_backSpace_clicked()
 {
-    QString str = ui->editblockSerialNumber->text();
-    qint32 length = ui->editblockSerialNumber->text().length();
-    ui->editblockSerialNumber->setText(str.remove(length-1, 1));
+    ui->editblockSerialNumber->backspace();;
     ui->editblockSerialNumber->setFocus();
 }
 
@@ -213,7 +212,7 @@ void Form::on_blockSerialNumberOk_clicked()
 
 void Form::on_clear_clicked()
 {
-    ui->editblockSerialNumber->setText("");
+    ui->editblockSerialNumber->clear();
     ui->editblockSerialNumber->setFocus();
 }
 
