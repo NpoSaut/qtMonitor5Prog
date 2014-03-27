@@ -2,6 +2,7 @@
 #include <QColor>
 
 #ifdef MONITOR_5
+#include <io.h>
 // HACK
 // Кастыль!!
 #include "qtCanLib/CanNick/workingwithmessage.h"
