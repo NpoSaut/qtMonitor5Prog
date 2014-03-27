@@ -7,7 +7,6 @@
 #include "Fudp/FudpMessage/message.h"
 #include "IsoTp/isotpcommunicator.h"
 
-using namespace CanInternals;
 using namespace IsoTpFrames;
 using namespace IsoTp;
 using namespace FudpMessage;
@@ -16,7 +15,7 @@ class Debugging : public QObject
 {
     Q_OBJECT
 public:
-    explicit Debugging(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
+    explicit Debugging(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
     void send(const QByteArray &arr);
 private:    
     IsoTpCommunicator it;
@@ -32,7 +31,7 @@ class CanLogger : public QObject
 {
     Q_OBJECT
 public:
-    explicit CanLogger(QObject *parent = 0);
+    explicit CanLogger(Can *can, QObject *parent = 0);
 
 public slots:
     void logMessage (CanFrame frame);

@@ -11,7 +11,7 @@ class IsoTpCommunicator : public QObject
 {
     Q_OBJECT
 public:
-    explicit IsoTpCommunicator(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
+    explicit IsoTpCommunicator(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
     void send(const std::vector<byte> &buffer);
     void setAcknowlegmentDescriptor(int acknowlegmentDescriptor);
 

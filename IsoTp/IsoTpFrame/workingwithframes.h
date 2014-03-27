@@ -2,7 +2,7 @@
 #define WORKINGWITHFRAMES_H
 
 #include <QObject>
-#include "Can/can.h"
+#include "qtCanLib/can.h"
 #include "singleframe.h"
 #include "firstframe.h"
 #include "consecutiveframe.h"
@@ -15,7 +15,7 @@ namespace IsoTpFrames
   {
     Q_OBJECT
   public:
-    explicit WorkingWithFrames(QObject *parent = 0);
+    explicit WorkingWithFrames(Can *can, QObject *parent = 0);
 
     void setTransmitDescriptor(int td);
     int getTransmitDescriptor();
@@ -28,7 +28,7 @@ namespace IsoTpFrames
 //    CanFrame convertToCanFrame(FirstFrame &frame);
 //    CanFrame convertToCanFrame(ConsecutiveFrame &frame);
 //    CanFrame convertToCanFrame(FlowControlFrame &frame);
-
+    const Can *can;
     int transmitDescriptor;
     int acknowlegmentDescriptor;
 

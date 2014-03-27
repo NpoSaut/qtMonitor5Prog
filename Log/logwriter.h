@@ -1,6 +1,8 @@
 #ifndef LOGWRITER_H
 #define LOGWRITER_H
 
+#ifdef LIB_CAN_NICK // не должно это тут быть
+
 #include <QObject>
 #include <QDateTime>
 #include <vector>
@@ -9,7 +11,7 @@
 #include <QFile>
 #include <QTextStream>
 #include "singletone.h"
-#include "Can/CanNik/candriver.h"
+#include "qtCanLib/CanNick/candriver.h"
 
 #define LOG_WRITER LogWriter::instance()
 
@@ -45,5 +47,7 @@ signals:
 public slots:
     
 };
+
+#endif // LIB_CAN_NICK
 
 #endif // LOGWRITER_H

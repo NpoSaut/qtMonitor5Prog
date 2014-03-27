@@ -34,7 +34,7 @@ class WorkingWithFudpMessage : public QObject
 {
     Q_OBJECT
 public:
-    explicit WorkingWithFudpMessage(int initDescriptor, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
+    explicit WorkingWithFudpMessage(Can *can, int initDescriptor, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
 
 private:
     IsoTpCommunicator communicator1;

@@ -2,10 +2,11 @@
 #include "Log/logwriter.h"
 namespace IsoTp
 {
-//TpReceiveTransaction IsoTpCommunicator::receiver;
 
-IsoTpCommunicator::IsoTpCommunicator(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
-    sender(transmitDescriptor, acknowlegmentDescriptor), QObject(parent)
+IsoTpCommunicator::IsoTpCommunicator(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
+    QObject(parent),
+    sender(can, transmitDescriptor, acknowlegmentDescriptor, parent),
+    receiver(can, parent)
 {
 
     receiver.setTransmitDescriptor(transmitDescriptor);

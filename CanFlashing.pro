@@ -16,11 +16,7 @@ TEMPLATE = app
 
 
 SOURCES += \
-    Can/canframe.cpp \
-    Can/CanNik/candriver.cpp \
     main.cpp \
-    Can/cannik.cpp \
-    Can/CanNik/workingwithmessage.cpp \
     IsoTp/IsoTpFrame/singleframe.cpp \
     IsoTp/IsoTpFrame/firstframe.cpp \
     IsoTp/IsoTpFrame/consecutiveframe.cpp \
@@ -60,13 +56,17 @@ SOURCES += \
     form.cpp \
     Fudp/FudpMessage/progwriteack.cpp \
     Fudp/FudpMessage/progsubmitack.cpp \
-    canprogworker.cpp
+    canprogworker.cpp \
+    qtCanLib/canframe.cpp \
+    qtCanLib/CanNick/workingwithmessage.cpp \
+    qtCanLib/CanNick/candriver.cpp \
+    qtCanLib/cannick.cpp \
+    qtCanLib/socketcan.cpp \
+    qtCanLib/socketcan/sktcan.cpp \
+    qtCanLib/socketcan/cansendqueue.cpp \
+    qtDoodahLib/queues.cpp
 
 HEADERS += \
-    Can/canframe.h \
-    Can/CanNik/candriver.h \
-    Can/can.h \
-    Can/CanNik/workingwithmessage.h \
     IsoTp/IsoTpFrame/singleframe.h \
     IsoTp/IsoTpFrame/firstframe.h \
     IsoTp/IsoTpFrame/consecutiveframe.h \
@@ -111,9 +111,24 @@ HEADERS += \
     Log/logwriter.h \
     Log/singletone.h \
     Log/logwriter.h \
-    canprogworker.h
+    canprogworker.h \
+    qtCanLib/canframe.h \
+    qtCanLib/can.h \
+    qtCanLib/CanNick/workingwithmessage.h \
+    qtCanLib/CanNick/candriver.h \
+    qtCanLib/cannick.h \
+    qtCanLib/dummycan.h \
+    qtCanLib/socketcan/sktcan.h \
+    qtCanLib/socketcan/cansendqueue.h \
+    qtCanLib/socketcan.h \
+    qtDoodahLib/queues.h \
+    cDoodahLib/packing.h \
+    cDoodahLib/masqarade.h \
+    cDoodahLib/lowlevel.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 
 FORMS += form.ui
 
+#For Monitor 5 use: MONITOR_5, LIB_CAN_NICK
+#For Linux use: LIB_SOCKET_CAN

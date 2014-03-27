@@ -1,6 +1,8 @@
 #include "simplefilepropstore.h"
 
+#ifdef MONITOR_5
 #include <io.h>
+#endif
 
 #include <QTextStream>
 #include <QStringList>
@@ -69,7 +71,9 @@ bool SimpleFilePropStore::sync()
             foreach (quint8 k, map.keys())
                 out << k << " " << map[k] << endl;
             file.flush();
+#ifdef MONITOR_5
             _commit(file.handle());
+#endif
             file.close();
             return true;
         }

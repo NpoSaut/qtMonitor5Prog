@@ -1,15 +1,22 @@
 ﻿#include "canprog.h"
 #include <QColor>
-#include <io.h>
 
+#ifdef MONITOR_5
 // HACK
 // Кастыль!!
-#include "Can/CanNik/workingwithmessage.h"
+#include "qtCanLib/CanNick/workingwithmessage.h"
+using namespace CanInternals;
+#endif
 
 namespace Fudp
 {
-CanProg::CanProg(PropStore *pStore, QObject *parent) :
-    pStore(pStore), QObject(parent), worker(FuInit, FuDev, FuProg), myTicket(), initWaitTimer(), monitor()
+CanProg::CanProg(Can *can, PropStore *pStore, QObject *parent) :
+    QObject(parent),
+    pStore(pStore),
+    worker(can, FuInit, FuDev, FuProg, parent),
+    myTicket(),
+    initWaitTimer(),
+    monitor()
 {
     progMode = false;
     isSerialNumber = false;
@@ -299,7 +306,9 @@ void CanProg::progModeExit()
     progMode = false;
     initWaitTimer.stop();
     //LOG_WRITER.finishLog();
+#ifdef LIB_CAN_NICK
     CanInternals::canDrv.stop();
+#endif
     QDir::setCurrent("C:/");
     monitor.start("MonMSUL/root/Monitor.exe");
 }
@@ -339,7 +348,9 @@ void CanProg::inputBlockSerialNumber(qint32 blockSerialNumber)
 void CanProg::start(int exitCode)
 {
     QDir::setCurrent("C:/MonMSUL/root");
+#ifdef LIB_CAN_NICK
     CanInternals::canDrv.start();
+#endif
     initWaitTimer.start();
 }
 
@@ -347,7 +358,12 @@ bool CanProg::saveChanges()
 {
     bool success = true;
     auto keys = fileList.keys();
+#ifdef MONITOR_5
     QDir rootDir ("C:/MonMSUL/root"); // TODO: Внимание! Захардкоженый путь!!!
+#else
+    QDir rootDir ("./"); // TODO: Внимание! Захардкоженый путь!!!
+#endif
+
     QStringList deleteList = parseDir(rootDir);
     foreach(QString name, deleteList)
         QFile(name).remove();
@@ -361,7 +377,9 @@ bool CanProg::saveChanges()
             if(file.write(fileList[key].getData()) == -1)
                 success = false;
             file.flush();
+#ifdef MONITOR_5
             _commit(file.handle());
+#endif
             file.close();
         }
         else
@@ -395,7 +413,9 @@ void CanProg::timeOut()
 
 void CanProg::drvStart()
 {
+#ifdef MONITOR_5
     canDrv.start();
+#endif
     initWaitTimer.start();
 }
 

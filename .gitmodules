@@ -1,0 +1,9 @@
+[submodule "qtCanLib"]
+	path = qtCanLib
+	url = ../qtCanLib/
+[submodule "qtDoodahLib"]
+	path = qtDoodahLib
+	url = ../qtDoodahLib
+[submodule "cDoodahLib"]
+	path = cDoodahLib
+	url = ../cDoodahLib

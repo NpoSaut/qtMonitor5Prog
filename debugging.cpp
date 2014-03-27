@@ -1,7 +1,8 @@
 #include "debugging.h"
 
-Debugging::Debugging(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
-  it(transmitDescriptor, acknowlegmentDescriptor), QObject(parent)
+Debugging::Debugging(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
+    QObject(parent),
+    it(can, transmitDescriptor, acknowlegmentDescriptor, parent)
 {
 
     QObject::connect(&it, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(createFile(std::vector<byte>)));
@@ -27,10 +28,10 @@ void Debugging::send(const QByteArray &arr)
 }
 
 
-CanLogger::CanLogger(QObject *parent)
+CanLogger::CanLogger(Can *can, QObject *parent)
     : prev (0)
 {
-    this->connect(&canDev, SIGNAL(messageReceived(CanFrame)), SLOT(logMessage(CanFrame)));
+    this->connect(can, SIGNAL(messageReceived(CanFrame)), SLOT(logMessage(CanFrame)));
 }
 
 void CanLogger::logMessage(CanFrame frame)

@@ -22,13 +22,13 @@ class CanProg : public QObject
 {
     Q_OBJECT
 public:
-    explicit CanProg(PropStore *pStore, QObject *parent = 0);
+    explicit CanProg(Can *can, PropStore *pStore, QObject *parent = 0);
     QStringList parseDir(const QDir dir);
 
 private:
-    const int FuInit = 0x66a8;
-    const int FuProg = 0x66c8;
-    const int FuDev =  0x66e8;
+    static const int FuInit = 0x66a8;
+    static const int FuProg = 0x66c8;
+    static const int FuDev =  0x66e8;
     WorkingWithFudpMessage worker;
     PropStore *pStore;
     QMap<QString, DevFileInfo> fileList;

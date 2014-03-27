@@ -11,7 +11,7 @@ class CanProgWorker : public QThread
 {
     Q_OBJECT
 public:
-    explicit CanProgWorker(QString storeFileName, QObject *parent = 0);
+    explicit CanProgWorker(Can *can, QString storeFileName, QObject *parent = 0);
     void run();
 
 signals:
@@ -31,6 +31,7 @@ private slots:
     void processProgConnect ();
 
 private:
+    Can *can;
     QString storeFileName;
 };
 

@@ -1,17 +1,22 @@
+#include <QMetaType>
+
 #include "workingwithframes.h"
 #include "Log/logwriter.h"
 
 namespace IsoTpFrames
 {
-WorkingWithFrames::WorkingWithFrames(QObject *parent) :
-    QObject(parent)
+
+WorkingWithFrames::WorkingWithFrames(Can *can, QObject *parent) :
+    QObject(parent),
+    can (can)
 {
     qRegisterMetaType<CanFrame>("SingleFrame");
     qRegisterMetaType<CanFrame>("FistFrame");
     qRegisterMetaType<CanFrame>("ConsecutiveFrame");
     qRegisterMetaType<CanFrame>("FlowControlFrame");
-    QObject::connect(this, SIGNAL(transmitCanFrame(CanFrame)), &CanInternals::canDev, SLOT(transmitMessage(CanFrame)));
-    QObject::connect(&CanInternals::canDev, SIGNAL(messageReceived(CanFrame)), this, SLOT(receiveCanFrame(CanFrame)));
+
+    QObject::connect(this, SIGNAL(transmitCanFrame(CanFrame)), can, SLOT(transmitMessage(CanFrame)));
+    QObject::connect(can, SIGNAL(messageReceived(CanFrame)), this, SLOT(receiveCanFrame(CanFrame)));
 }
 
 void WorkingWithFrames::receiveCanFrame(const CanFrame &frame)

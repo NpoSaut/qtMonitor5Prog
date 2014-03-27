@@ -1,9 +1,14 @@
+#include <QDebug>
+
 #include "tpsendtransaction.h"
+
+#include <QDebug>
 
 namespace IsoTp
 {
-TpSendTransaction::TpSendTransaction(int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
-    QObject(parent)
+TpSendTransaction::TpSendTransaction(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
+    QObject(parent),
+    movingFrames (can, parent)
 {
 
     separationTime = 0;
