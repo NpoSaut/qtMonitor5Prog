@@ -8,8 +8,7 @@
 class DevFileInfo
 {
 public:
-    DevFileInfo();
-    DevFileInfo(qint32 fSize);
+    DevFileInfo(qint32 fSize = 0);
     DevFileInfo(qint32 fSize, qint32 cSum);
     DevFileInfo(QByteArray data);
 
