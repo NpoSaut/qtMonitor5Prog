@@ -80,7 +80,8 @@ SOURCES += \
     qtBlokLib/parsers/ipd_state.cpp \
     qtBlokLib/parsers/display_state.cpp \
     qtBlokLib/parsers/canblokmessage.cpp \
-    qtBlokLib/parsers/console_key.cpp
+    qtBlokLib/parsers/console_key.cpp \
+    Log/logwriter.cpp
 
 HEADERS += \
     IsoTp/IsoTpFrame/singleframe.h \
@@ -123,8 +124,6 @@ HEADERS += \
     form.h \
     Fudp/FudpMessage/progwriteack.h \
     Fudp/FudpMessage/progsubmitack.h \
-    Log/singletone.h \
-    Log/logwriter.h \
     Log/singletone.h \
     Log/logwriter.h \
     canprogworker.h \

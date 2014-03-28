@@ -76,6 +76,10 @@ private slots:
 
     void on_nullButton_clicked();
 
+    void on_yearOk_pressed();
+
+    void on_monthOk_pressed();
+
 private:
     void initLables();
     void hideElements();

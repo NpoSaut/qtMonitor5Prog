@@ -5,9 +5,13 @@
 Form::Form(const CanProgWorker *canProgWorker, Parser *parser, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Form),
-    sn(0)
+    sn(0),
+    vers(0),
+    subvers(0)
 {
     ui->setupUi(this);
+
+    ui->yearOk->setShortcut(Qt::Key_Return);
 
     hideElements();
 
@@ -18,8 +22,8 @@ Form::Form(const CanProgWorker *canProgWorker, Parser *parser, QWidget *parent) 
         showProps(true);
 
     // Подключение кнопок CAN-клавиатуры
-    QObject::connect (&parser->consoleKey1, SIGNAL(keyPressed (ConsoleKey::ConsKey key)), this, SLOT(on_CanKeyboard_KeyPressed(ConsoleKey::ConsKey key)));
-    QObject::connect (&parser->consoleKey2, SIGNAL(keyPressed (ConsoleKey::ConsKey key)), this, SLOT(on_CanKeyboard_KeyPressed(ConsoleKey::ConsKey key)));
+    QObject::connect (&parser->consoleKey1, SIGNAL(keyPressed(ConsoleKey::ConsKey)), this, SLOT(on_CanKeyboard_KeyPressed(ConsoleKey::ConsKey)));
+    QObject::connect (&parser->consoleKey2, SIGNAL(keyPressed(ConsoleKey::ConsKey)), this, SLOT(on_CanKeyboard_KeyPressed(ConsoleKey::ConsKey)));
 
     QObject::connect(canProgWorker, SIGNAL(stateChanged(QString)), this, SLOT(showState(QString)));
     QObject::connect(canProgWorker, SIGNAL(serialNumberMissed()), this, SLOT(inputSerialNumber()));
@@ -96,8 +100,8 @@ void Form::showProps(bool show)
 {
     if (show)
     {
-        moveAboutCenter(ui->serialNumberLable,QApplication::desktop()->geometry().width()/2 - ui->serialNumberLable->geometry().width()/2,QApplication::desktop()->geometry().height()/2);
-        moveAboutCenter(ui->versionLable,- QApplication::desktop()->geometry().width()/2 + ui->versionLable->geometry().width()/2,QApplication::desktop()->geometry().height()/2);
+        moveAboutCenter(ui->serialNumberLable,QApplication::desktop()->geometry().width()/2 - ui->serialNumberLable->geometry().width()/2,QApplication::desktop()->geometry().height()/2 - ui->serialNumberLable->geometry().height()/2);
+        moveAboutCenter(ui->versionLable,- QApplication::desktop()->geometry().width()/2 + ui->versionLable->geometry().width()/2,QApplication::desktop()->geometry().height()/2 - ui->versionLable->geometry().height()/2);
 
         ui->serialNumberLable->setText(QString(tr("Сериный номер: %1")).arg(sn));
         ui->versionLable->setText(QString(tr("Версия: %1.%2")).arg(vers).arg(subvers));
@@ -144,9 +148,17 @@ void Form::on_CanKeyboard_KeyPressed(ConsoleKey::ConsKey key)
     case ConsoleKey::F7: on_sevenButton_clicked (); break;
     case ConsoleKey::F8: on_eightButton_clicked (); break;
     case ConsoleKey::F9: on_nineButton_clicked (); break;
-    case ConsoleKey::F0: break;
+    case ConsoleKey::F0: on_nullButton_clicked(); break;
     case ConsoleKey::BKSP: on_backSpace_clicked (); break;
-    case ConsoleKey::ENTER: on_blockSerialNumberOk_pressed (); break;
+    case ConsoleKey::ENTER:
+    {
+        if(!ui->yearOk->isHidden())
+            on_yearOk_clicked();
+        else if(!ui->monthOk->isHidden())
+            on_monthOk_clicked();
+        else
+            on_blockSerialNumberOk_pressed (); break;
+    }
     default:
         break;
     }
@@ -224,7 +236,7 @@ void Form::on_nullButton_clicked()
 
 void Form::on_backSpace_clicked()
 {
-    ui->editblockSerialNumber->backspace();;
+    ui->editblockSerialNumber->backspace();
     ui->editblockSerialNumber->setFocus();
 }
 
@@ -241,16 +253,26 @@ void Form::on_clear_clicked()
 
 void Form::on_yearOk_clicked()
 {
-    ui->yearOk->setShortcut(Qt::Key_Return);
+    ui->monthOk->setShortcut(Qt::Key_Return);
     ui->yearOk->hide();
-    ui->lableBlockSerialNumber->setText(tr("Введите месяц"));
+    ui->lableBlockSerialNumber->setText(tr("Введите месяц выпуска"));
     on_clear_clicked();
 }
 
 void Form::on_monthOk_clicked()
 {
-    ui->monthOk->setShortcut(Qt::Key_Return);
+    ui->blockSerialNumberOk->setShortcut(Qt::Key_Return);
     ui->monthOk->hide();
     ui->lableBlockSerialNumber->setText(tr("Введите серийный номер"));
     on_clear_clicked();
+}
+
+void Form::on_yearOk_pressed()
+{
+    on_yearOk_clicked();
+}
+
+void Form::on_monthOk_pressed()
+{
+    on_monthOk_clicked();
 }

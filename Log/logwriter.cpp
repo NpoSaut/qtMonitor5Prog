@@ -4,29 +4,29 @@
 #include "QDir"
 
 LogWriter::LogWriter(QObject *parent) :
-    logFile(QString("C:/MonMSUL/log%1.log").arg(QDateTime::currentDateTime().toString("hhmm"))),
+    //logFile(QString("C:/MonMSUL/log%1.log").arg(QDateTime::currentDateTime().toString("hhmm"))),
     buffer(),
-    logStream(&logFile),
+    //logStream(&logFile),
     Singletone<LogWriter>(*this),
     QObject(parent)
 {
-    QDir dir("C:/MonMSUL");
+//    QDir dir("C:/MonMSUL");
 
-    QStringList loggers = dir.entryList(QStringList("*.log"), QDir::Files, QDir::Time);
-    if(loggers.size() >= 7)
-    {
-        QFile("C:/MonMSUL/" + loggers.at(loggers.size()-1)).remove();
-    }
+//    QStringList loggers = dir.entryList(QStringList("*.log"), QDir::Files, QDir::Time);
+//    if(loggers.size() >= 7)
+//    {
+//        QFile("C:/MonMSUL/" + loggers.at(loggers.size()-1)).remove();
+//    }
 }
 
 void LogWriter::installLog()
 {
-    if(logFile.open(QFile::WriteOnly | QIODevice::Unbuffered | QIODevice::Append))
-    {
-        logStream << "|----------------------------------------------------------------|\r\n";
-        logStream << QString(tr("Начало записи %1\r\n")).arg(QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss"));
-        logStream << tr("Маркеры: '>>' входящее сообщение, '<<' исходящее сообщение\r\n\r\n");
-    }
+//    if(logFile.open(QFile::WriteOnly | QIODevice::Unbuffered | QIODevice::Append))
+//    {
+//        logStream << "|----------------------------------------------------------------|\r\n";
+//        logStream << QString(tr("Начало записи %1\r\n")).arg(QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss"));
+//        logStream << tr("Маркеры: '>>' входящее сообщение, '<<' исходящее сообщение\r\n\r\n");
+//    }
 
     buffer.clear();
 }
@@ -42,11 +42,11 @@ void LogWriter::write(const QString &data, QColor color, int error)
     text.append(QDateTime::currentDateTime().toString("hh:mm:ss.zzz"));
     text.append(" " + data);
 
-    if (error)
-        for(int i = 0; i < buffer.length(); i++)
-            logStream << buffer.at(i);
+//    if (error)
+//        for(int i = 0; i < buffer.length(); i++)
+//            logStream << buffer.at(i);
 
-    logStream << text + "\r\n";
+//    logStream << text + "\r\n";
 
     emit setColor(color);
     emit setText(data);
