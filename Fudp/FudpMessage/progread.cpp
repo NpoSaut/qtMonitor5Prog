@@ -17,9 +17,9 @@ std::vector<byte> ProgRead::encode()
     QDataStream in(&buffer, QIODevice::WriteOnly);
     in.setByteOrder(QDataStream::LittleEndian);
     if (errorCode != 0)
-        in << (byte)MessageId(progRead) << errorCode;
+        in << (byte)MessageId(progRead) << (byte)errorCode;
     else
-        in << (byte)MessageId(progRead) << errorCode << data;
+        in << (byte)MessageId(progRead) << (byte)errorCode << data;
     return Message::fromQByteArrayToVector(buffer);
 }
 
