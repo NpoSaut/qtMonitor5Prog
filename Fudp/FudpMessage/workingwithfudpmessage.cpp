@@ -11,6 +11,9 @@ WorkingWithFudpMessage::WorkingWithFudpMessage(Can *can, int initDescriptor, int
     QObject::connect(&communicator1, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
     QObject::connect(&communicator2, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
     QObject::connect(&communicator2, SIGNAL(waitingTimeOut()), this, SLOT(timeOut()));
+
+    QObject::connect(this, SIGNAL(isoTpStartReceive(bool)), &communicator1, SLOT(startReceiver(bool)));
+    QObject::connect(this, SIGNAL(isoTpStartReceive(bool)), &communicator2, SLOT(startReceiver(bool)));
 }
 
 void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
@@ -162,6 +165,11 @@ void WorkingWithFudpMessage::sendSubmitAck(qint8 finalCode)
 void WorkingWithFudpMessage::timeOut()
 {
     emit waitingTimeOut();
+}
+
+void WorkingWithFudpMessage::startReceive(bool start)
+{
+    emit isoTpStartReceive(start);
 }
 
 }

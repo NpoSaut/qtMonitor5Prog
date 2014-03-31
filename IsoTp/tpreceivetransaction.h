@@ -33,6 +33,8 @@ private:
         BROKEN = 2
     } state;
 
+    bool isFlowControl;
+
     void readyFlowControl();
     void sendAbort();
 
@@ -47,6 +49,8 @@ public slots:
     void getFirstFrame(FirstFrame frame);
     void getConsecutiveFrame(ConsecutiveFrame frame);
     void timeout();
+
+    void onActionMode(bool start);
 };
 
 }

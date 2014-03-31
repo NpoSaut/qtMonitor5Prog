@@ -23,10 +23,14 @@ signals:
     void bufferReceived(const std::vector<byte> &buffer);
     void waitingTimeOut();
 
+    void startFlowControl(bool start);
+
 public slots:
     void transactionReceived(const std::vector<byte> &buffer);
 
     void timeOut();
+
+    void startReceiver(bool start);
 };
 }
 #endif // ISOTPCOMMUNICATOR_H

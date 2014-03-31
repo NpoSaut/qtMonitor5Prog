@@ -57,6 +57,8 @@ signals:
 
     void waitingTimeOut();
 
+    void isoTpStartReceive(bool start);
+
 public slots:
     void receiveData(const std::vector<byte> &data);
 
@@ -74,6 +76,8 @@ public slots:
     void sendSubmitAck(qint8 finalCode);
 
     void timeOut();
+
+    void startReceive(bool start);
 };
 }
 

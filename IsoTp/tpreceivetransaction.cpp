@@ -6,7 +6,8 @@ TpReceiveTransaction::TpReceiveTransaction(Can *can,/*int transmitDescriptor, in
     QObject(parent),
     movingFrames (can, parent),
     state (INIT),
-    timer()
+    timer(),
+    isFlowControl(false)
 {
     blockSize = 0;
     consIndex = blockSize;    
@@ -28,25 +29,26 @@ void TpReceiveTransaction::getSingleFrame(SingleFrame frame)
 
 void TpReceiveTransaction::getFirstFrame(FirstFrame frame)
 {
-    if (state == INIT || state == BROKEN)
-    {
-        timer.stop();
-        state = PROGRESS;
-        buffer.clear();
-        buffLength = frame.getPacketSize();
-        consecutiveFrameCounter = 0;
-        std::vector<byte> v = frame.getData();
-        pointer = buffer.begin();
-        buffer.insert(pointer, v.begin(), v.end());
-        pointer = buffer.end();
-        readyFlowControl();
-    }
-    else if (state == PROGRESS)
-    {
-        //LOG_WRITER.write(tr("Неожиданный FirstFrame"), QColor(255, 0, 255), 1);
-        state = BROKEN;
-        sendAbort();
-    }
+    if (isFlowControl)
+        if (state == INIT || state == BROKEN)
+        {
+            timer.stop();
+            state = PROGRESS;
+            buffer.clear();
+            buffLength = frame.getPacketSize();
+            consecutiveFrameCounter = 0;
+            std::vector<byte> v = frame.getData();
+            pointer = buffer.begin();
+            buffer.insert(pointer, v.begin(), v.end());
+            pointer = buffer.end();
+            readyFlowControl();
+        }
+        else if (state == PROGRESS)
+        {
+            //LOG_WRITER.write(tr("Неожиданный FirstFrame"), QColor(255, 0, 255), 1);
+            state = BROKEN;
+            sendAbort();
+        }
 }
 
 void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
@@ -112,6 +114,11 @@ void TpReceiveTransaction::timeout()
     timer.stop();
     sendAbort();
     emit watingTimeOut();
+}
+
+void TpReceiveTransaction::onActionMode(bool start)
+{
+    isFlowControl = start;
 }
 
 void TpReceiveTransaction::setTransmitDescriptor(int transmitDescriptor)

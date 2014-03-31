@@ -64,6 +64,8 @@ signals:
 
     void noSerialNumber();
 
+    void starReceive(bool start);
+
 public slots:
     void connect(const DeviceTickets &tickets);
     void getFileList();

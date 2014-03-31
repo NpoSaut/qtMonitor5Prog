@@ -58,6 +58,8 @@ CanProg::CanProg(Can *can, PropStore *pStore, QObject *parent) :
 
     QObject::connect(&monitor, SIGNAL(finished(int)), this, SLOT(start(int)));
 
+    QObject::connect(this, SIGNAL(starReceive(bool)), &worker, SLOT(startReceive(bool)));
+
     initWaitTimer.setInterval(1000);
     initWaitTimer.setSingleShot(true);
 //    initWaitTimer.start();
@@ -78,6 +80,8 @@ void CanProg::connect(const DeviceTickets &tickets)
             initWaitTimer.stop();
 
             progMode = true;
+
+            emit starReceive(true);
 
             emit sendProgStatus(pStore->data());
 
@@ -303,7 +307,10 @@ QStringList CanProg::parseDir(const QDir dir)
 void CanProg::progModeExit()
 {
     if(progMode)
+    {
         emit exit();
+        emit starReceive(false);
+    }
     progMode = false;
     initWaitTimer.stop();
     //LOG_WRITER.finishLog();
