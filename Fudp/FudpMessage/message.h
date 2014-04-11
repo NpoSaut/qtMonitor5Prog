@@ -31,6 +31,8 @@ enum MessageId
     paramRmAck = 0x12,
     progSubmit = 0x13,
     progSubmitAck = 0x14,
+    progPing = 0x15,
+    progPong = 0x16,
     progBroadcastAnswer = 0x00,
     progFirmCorrupt = 0xFF
 };

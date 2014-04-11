@@ -44,6 +44,7 @@ signals:
     void sendDeleteParamAck(qint8 errorCode);
     void sendFirmCorrupt();
     void sendSubmitAck(qint8 errorCode);
+    void sendPong(quint8 counter, ProgPong::Status status);
 
 private slots:
     void connect(const DeviceTicket &tickets);
@@ -62,6 +63,8 @@ private slots:
     void discardChanges ();
     void takeFileList();
     void sessionTimeOut ();
+    void controlSession (quint8 counter);
+    void prolongSession ();
 
 private:
     static const int FuInit = 0x66a8;
@@ -75,6 +78,7 @@ private:
     QMap<QString, DevFileInfo> fileList;
     DeviceTicket myTicket;
     QDir rootDir;
+    QTimer sessionActiveTimer;
     bool progMode;
     bool isSerialNumberSet;
 

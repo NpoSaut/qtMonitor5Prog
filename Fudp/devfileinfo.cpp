@@ -36,7 +36,7 @@ QByteArray DevFileInfo::getData()
 
 QByteArray DevFileInfo::getData(qint32 offset, qint32 readSize)
 {
-    return fileData.mid(offset, offset+readSize);
+    return fileData.mid(offset, readSize);
 }
 
 qint32 DevFileInfo::getFileSize()

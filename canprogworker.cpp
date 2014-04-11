@@ -56,8 +56,6 @@ void CanProgWorker::run()
 
     updateManager->execute ();
     prog.checkFirmware ();
-
-    QThread::run();
 }
 
 void CanProgWorker::storeSerialNumber (qint32 sn)

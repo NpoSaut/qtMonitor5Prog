@@ -25,6 +25,8 @@
 #include "progfirmcorrupt.h"
 #include "progsubmit.h"
 #include "progsubmitack.h"
+#include "progping.h"
+#include "progpong.h"
 
 using namespace IsoTp;
 
@@ -54,6 +56,7 @@ signals:
     void getParamSetRq(qint8 key, qint32 value);
     void getParamRmRq(qint8 key);
     void getProgSubmit(qint8 key);
+    void getProgPing(quint8 counter);
 
     void waitingTimeOut();
 
@@ -72,6 +75,7 @@ public slots:
     void sendParamRmAck(qint8 errorCode);
     void sendProgFirmCorrupt();
     void sendSubmitAck(qint8 finalCode);
+    void sendProgPong(quint8 counter, ProgPong::Status state);
 
     void timeOut();
 };

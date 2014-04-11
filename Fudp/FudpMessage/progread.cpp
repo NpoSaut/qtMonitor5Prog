@@ -13,14 +13,16 @@ ProgRead::ProgRead(const QByteArray &fData, qint8 eCode) :
 
 std::vector<byte> ProgRead::encode()
 {
-    QByteArray buffer;
-    QDataStream in(&buffer, QIODevice::WriteOnly);
-    in.setByteOrder(QDataStream::LittleEndian);
-    if (errorCode != 0)
-        in << (byte)MessageId(progRead) << (byte)errorCode;
-    else
-        in << (byte)MessageId(progRead) << (byte)errorCode << data;
-    return Message::fromQByteArrayToVector(buffer);
+    std::vector<byte> out (2, 0);
+    out[0] = progRead;
+    out[1] = errorCode;
+    if (errorCode == 0)
+    {
+        std::vector<byte> dat = Message::fromQByteArrayToVector (data);
+        out.insert (out.end(), dat.begin(), dat.end());
+    }
+
+    return out;
 }
 
 void ProgRead::decode(const std::vector<byte> &data)

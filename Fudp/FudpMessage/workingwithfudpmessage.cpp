@@ -84,6 +84,13 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
         emit getProgSubmit(sb.applyCanges());
         break;
     }
+    case MessageId(progPing):
+    {
+        ProgPing pb;
+        pb.decode (data);
+        emit getProgPing (pb.getCounter ());
+        break;
+    }
     }
 }
 
@@ -157,6 +164,12 @@ void WorkingWithFudpMessage::sendSubmitAck(qint8 finalCode)
 {
     ProgSubmitAck submitAck(finalCode);
     communicator2.send(submitAck.encode());
+}
+
+void WorkingWithFudpMessage::sendProgPong(quint8 counter, ProgPong::Status state)
+{
+    ProgPong progPong(counter, state);
+    communicator2.send (progPong.encode ());
 }
 
 void WorkingWithFudpMessage::timeOut()

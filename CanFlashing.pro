@@ -69,7 +69,9 @@ SOURCES += \
     UpdateManager.cpp \
     SharedCanUpdateManager.cpp \
     ExclusiveCanUpdateManager.cpp \
-    PropStore/constloaderstore.cpp
+    PropStore/constloaderstore.cpp \
+    Fudp/FudpMessage/progping.cpp \
+    Fudp/FudpMessage/progpong.cpp
 
 HEADERS += \
     IsoTp/IsoTpFrame/singleframe.h \
@@ -133,7 +135,9 @@ HEADERS += \
     UpdateManager.h \
     SharedCanUpdateManager.h \
     ExclusiveCanUpdateManager.h \
-    PropStore/constloaderstore.h
+    PropStore/constloaderstore.h \
+    Fudp/FudpMessage/progping.h \
+    Fudp/FudpMessage/progpong.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

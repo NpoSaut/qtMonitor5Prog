@@ -11,10 +11,13 @@ CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, 
     worker(can, FuInit, FuDev, FuProg, parent),
     myTicket(),
     rootDir(rootDir),
+    sessionActiveTimer(),
     progMode (false),
     isSerialNumberSet (false)
 {
-    loaderPropStore = new ConstLoaderStore (3, 4, 4);
+    loaderPropStore = new ConstLoaderStore (3, 6, 4);
+
+    sessionActiveTimer.setInterval (10000);
 
     hwStore->get(129, myTicket.blockId);
     hwStore->get(131, myTicket.blockSerialNumber);
@@ -37,6 +40,7 @@ CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, 
     QObject::connect(this, SIGNAL(sendDeleteParamAck(qint8)), &worker, SLOT(sendParamRmAck(qint8)));
     QObject::connect(this, SIGNAL(sendFirmCorrupt()), &worker, SLOT(sendProgFirmCorrupt()));
     QObject::connect(this, SIGNAL(sendSubmitAck(qint8)), &worker, SLOT(sendSubmitAck(qint8)));
+    QObject::connect(this, SIGNAL(sendPong(quint8,ProgPong::Status)), &worker, SLOT(sendProgPong(quint8,ProgPong::Status)));
 
     QObject::connect(&worker, SIGNAL(getProgInit(DeviceTicket)), this, SLOT(connect(DeviceTicket)));
     QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(getFileList()));
@@ -48,7 +52,21 @@ CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, 
     QObject::connect(&worker, SIGNAL(getParamSetRq(qint8,qint32)), this, SLOT(setParam(qint8,qint32)));
     QObject::connect(&worker, SIGNAL(getParamRmRq(qint8)), this, SLOT(deleteParam(qint8)));
     QObject::connect(&worker, SIGNAL(getProgSubmit(qint8)), this, SLOT(submit(qint8)));
-    QObject::connect(&worker, SIGNAL(waitingTimeOut()), this, SLOT(sessionTimeOut()));
+    QObject::connect(&this->sessionActiveTimer, SIGNAL(timeout()), this, SLOT(sessionTimeOut()));
+    QObject::connect(&worker, SIGNAL(getProgPing(quint8)), this, SLOT(controlSession(quint8)));
+
+    QObject::connect(&worker, SIGNAL(getProgInit(DeviceTicket)), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getProgReadRq(QString,qint32,qint32)), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getProgRm(QString)), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getProgMrPropper(qint32)), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getProgCreate(QString,qint32)), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getProgWrite(QString,qint32,QByteArray)), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getParamSetRq(qint8,qint32)), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getParamRmRq(qint8)), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getProgSubmit(qint8)), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(waitingTimeOut()), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getProgPing(quint8)), this, SLOT(prolongSession()));
 
     if(myTicket.blockSerialNumber != 0)
     {
@@ -69,6 +87,8 @@ void CanProg::connect(const DeviceTicket &requestedTicket)
 
             emit progModeChanged (true);
             emit sendState(tr("Идет прошивка"));
+
+            sessionActiveTimer.start ();
         }
         else if (myTicket <= requestedTicket) // Броадкаст
         {
@@ -292,6 +312,7 @@ void CanProg::exitProgMode()
     {
         progMode = false;
         emit progModeChanged (false);
+        sessionActiveTimer.stop ();
     }
     //LOG_WRITER.finishLog();
 }
@@ -386,7 +407,20 @@ void CanProg::takeFileList()
 void CanProg::sessionTimeOut()
 {
     discardChanges ();
+    emit sendSubmitAck(2);
     exitProgMode ();
+}
+
+void CanProg::controlSession(quint8 counter)
+{
+    if (progMode)
+        emit sendPong (counter, ProgPong::ALIVE);
+}
+
+void CanProg::prolongSession()
+{
+    if (progMode)
+        sessionActiveTimer.start ();
 }
 
 }
