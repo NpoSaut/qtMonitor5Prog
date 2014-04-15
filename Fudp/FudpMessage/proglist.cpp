@@ -6,7 +6,7 @@ ProgList::ProgList()
 {
 }
 
-ProgList::ProgList(QMap<QString, DevFileInfo> &listDevFileInfo) :
+ProgList::ProgList(QList<DevFileInfo> &listDevFileInfo) :
     listDevFileInfo(listDevFileInfo)
 {
 }
@@ -14,49 +14,73 @@ ProgList::ProgList(QMap<QString, DevFileInfo> &listDevFileInfo) :
 std::vector<byte> ProgList::encode()
 {
     QByteArray buffer;
-    QDataStream in(&buffer, QIODevice::WriteOnly);
-    in.setByteOrder(QDataStream::LittleEndian);
+    QDataStream out(&buffer, QIODevice::WriteOnly);
+    out.setByteOrder(QDataStream::LittleEndian);
 
-    auto keys = listDevFileInfo.keys();
-
-    in << (byte)MessageId(progList);
-    foreach(QString key, keys)
+    out << (byte)MessageId(progList);
+    int i = 0;
+    foreach (DevFileInfo file, listDevFileInfo)
     {
-        in << (byte)key.length();
+        if ( buffer.size ()
+             + (1 + file.getFileNameSize () + 4 + 4)                // Размер записи о добавляемом файле
+             + (i == listDevFileInfo.size()-1) ? 0 : (1 + 4 + 4)    // Если файл не последний, то размер флага остатка
+             <= maxSublevelDatagramLength )
+       {
+            i ++;
+            out << file.getFileNameSize ();
+            QByteArray t = Message::changeCodec(file.getFileName (), "Windows-1251");
+            for (int i =0; i < t.size(); i ++)
+                out << (quint8)t.at(i);
 
-        QByteArray t = Message::changeCodec(key, "Windows-1251");
-        for (int i =0; i < t.size(); i ++)
-            in << (quint8)t.at(i);
-
-        in << listDevFileInfo[key].getFileSize() << (quint32) listDevFileInfo[key].getControlSum();
+            out << file.getFileSize() << (quint32) file.getControlSum();
+        }
+        else
+        {
+            out << (byte) 0 << (quint32) (listDevFileInfo.size () - i) << (quint32) 0;
+        }
     }
+
     return Message::fromQByteArrayToVector(buffer);
 }
 
 void ProgList::decode(const std::vector<byte> &data)
 {
+    listDevFileInfo.clear ();
+    remainder = false;
+
     QByteArray buffer = Message::fromVectorToQByteArray(data);
-    QDataStream out(&buffer, QIODevice::ReadOnly);
-    out.setByteOrder(QDataStream::LittleEndian);
-    qint8 fNameSize = 0;
-    for(int i = 1; i < buffer.size(); i + 10 + fNameSize)
+    QDataStream in(&buffer, QIODevice::ReadOnly);
+    in.setByteOrder(QDataStream::LittleEndian);
+
+    if (buffer.size () >= 2)
     {
+        qint8 fNameSize = buffer[1];
+        for(int i = 1; i < buffer.size(); i + (1 + fNameSize + 4 + 4))
+        {
+            in >> fNameSize;
+            if ( fNameSize != 0 )
+            {
+                char *temp = new char[fNameSize];
+                in.readRawData(temp, fNameSize);
+                QString fName(temp);
+                delete [] temp;
 
-        out >> fNameSize;
-        char *temp = new char[fNameSize];
-        out.readRawData(temp, fNameSize);
-        QString fName(temp);
-        delete [] temp;
+                qint32 fSize;
+                in >> fSize;
 
-        qint32 fSize;
-        out >> fSize;
+                qint32 controlSum;
+                in >> controlSum;
 
-        qint32 controlSum;
-        out >> controlSum;
-
-        DevFileInfo dfi(fSize, controlSum);
-        listDevFileInfo.insert(fName, dfi);
+                DevFileInfo dfi(fSize, controlSum);
+                dfi.setFileName (fName);
+                listDevFileInfo.append (dfi);
+            }
+            else // Признак наличия файлов, не вошедших в сообщение
+            {
+                remainder = true;
+                break;
+            }
+        }
     }
-
 }
 }

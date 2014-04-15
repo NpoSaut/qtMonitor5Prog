@@ -34,7 +34,7 @@ signals:
     // private
     void sendAnswerToBroadcast(DeviceTicket myTicket);
     void sendProgStatus(QVector< QPair<quint8, qint32> > dictionary);
-    void sendFileList(QMap<QString, DevFileInfo> list);
+    void sendFileList(QList<DevFileInfo> list);
     void sendFile(qint8 errorCode, QByteArray data);
     void sendDeleteFileAck(qint8 errorCode);
     void sendDeleteAllFilesAck();
@@ -48,7 +48,7 @@ signals:
 
 private slots:
     void connect(const DeviceTicket &tickets);
-    void getFileList();
+    void getFileList(quint16 offset, quint16 count);
     void readFile(const QString &fileName, qint32 offset, qint32 readSize);
     void deleteFile(const QString &fileName);
     void deleteAllFiles(qint32 securityKey);

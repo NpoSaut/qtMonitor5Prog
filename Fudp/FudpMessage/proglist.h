@@ -12,14 +12,18 @@ class ProgList : public Message
 {
 public:
     ProgList();
-    ProgList(QMap<QString, DevFileInfo> &listDevFileInfo);
+    ProgList(QList<DevFileInfo> &listDevFileInfo);
+
+    // Если весь список не помещается в максимальную длину сообщения,
+    // то высылает максимально возможное кол-во записей и флаг наличия оставшихся файлов
     std::vector<byte> encode();
     void decode(const std::vector<byte> &data);
 
+    bool isRemainder () const {return remainder;}
+
 private:
-    QMap<QString, DevFileInfo> listDevFileInfo;
-
-
+    QList<DevFileInfo> listDevFileInfo;
+    bool remainder;
 };
 }
 

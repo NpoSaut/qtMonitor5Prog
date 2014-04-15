@@ -47,7 +47,7 @@ signals:
     void transmitData(std::vector<byte> data);
 
     void getProgInit(DeviceTicket tickets);
-    void getProgListRq();
+    void getProgListRq(quint16 offset, quint16 count);
     void getProgReadRq(QString fileName, qint32 offset, qint32 readSize);
     void getProgRm(QString fileName);
     void getProgMrPropper(qint32 securityKey);
@@ -65,7 +65,7 @@ public slots:
 
     void sendAnswerToBroadcast(DeviceTicket ticket);
     void sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary);
-    void sendProgList(QMap<QString, DevFileInfo> list);
+    void sendProgList(QList<DevFileInfo> list);
     void sendProgRead(qint8 errorCode, const QByteArray &data);
     void sendProgRmAck(qint8 errorCode);
     void sendProgMrPropperAck();

@@ -39,21 +39,6 @@ QByteArray DevFileInfo::getData(qint32 offset, qint32 readSize)
     return fileData.mid(offset, readSize);
 }
 
-qint32 DevFileInfo::getFileSize()
-{
-    return fileSize;
-}
-
-quint16 DevFileInfo::getControlSum()
-{
-    return controlSum;
-}
-
-qint8 DevFileInfo::getFileNameSize()
-{
-    return fileName.length();
-}
-
 quint16 DevFileInfo::calcControlSumm()
 {
     unsigned short crc = 0xffff;

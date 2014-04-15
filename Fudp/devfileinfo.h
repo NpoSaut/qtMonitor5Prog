@@ -13,12 +13,14 @@ public:
     DevFileInfo(QByteArray data);
 
     bool setData(const QByteArray &data, int offset);
-    QByteArray getData();
+    void setFileName (QString &fileName) { this->fileName = fileName; }
 
+    QByteArray getData();
     QByteArray getData(qint32 offset, qint32 readSize);
-    qint32 getFileSize();
-    quint16 getControlSum();
-    qint8 getFileNameSize();
+    qint32 getFileSize() const { return fileSize; }
+    quint16 getControlSum() const { return controlSum; }
+    qint8 getFileNameSize() const { return fileName.size (); }
+    QString getFileName () const { return fileName; }
 
 private:
     unsigned short crc_ccitt_update(unsigned short crc, unsigned char data);

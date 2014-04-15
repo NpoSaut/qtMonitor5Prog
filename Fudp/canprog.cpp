@@ -30,7 +30,7 @@ CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, 
 
     QObject::connect(this, SIGNAL(sendAnswerToBroadcast(DeviceTicket)), &worker, SLOT(sendAnswerToBroadcast(DeviceTicket)));
     QObject::connect(this, SIGNAL(sendProgStatus(QVector<QPair<quint8,qint32> >)), &worker, SLOT(sendProgStatus(QVector<QPair<quint8,qint32> >)));
-    QObject::connect(this, SIGNAL(sendFileList(QMap<QString, DevFileInfo>)), &worker, SLOT(sendProgList(QMap<QString, DevFileInfo>)));
+    QObject::connect(this, SIGNAL(sendFileList(QList<DevFileInfo>)), &worker, SLOT(sendProgList(QList<DevFileInfo>)));
     QObject::connect(this, SIGNAL(sendFile(qint8,QByteArray)), &worker, SLOT(sendProgRead(qint8,QByteArray)));
     QObject::connect(this, SIGNAL(sendDeleteFileAck(qint8)), &worker, SLOT(sendProgRmAck(qint8)));
     QObject::connect(this, SIGNAL(sendDeleteAllFilesAck()), &worker, SLOT(sendProgMrPropperAck()));
@@ -43,7 +43,7 @@ CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, 
     QObject::connect(this, SIGNAL(sendPong(quint8,ProgPong::Status)), &worker, SLOT(sendProgPong(quint8,ProgPong::Status)));
 
     QObject::connect(&worker, SIGNAL(getProgInit(DeviceTicket)), this, SLOT(connect(DeviceTicket)));
-    QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(getFileList()));
+    QObject::connect(&worker, SIGNAL(getProgListRq(quint16,quint16)), this, SLOT(getFileList()));
     QObject::connect(&worker, SIGNAL(getProgReadRq(QString,qint32,qint32)), this, SLOT(readFile(QString,qint32,qint32)));
     QObject::connect(&worker, SIGNAL(getProgRm(QString)), this, SLOT(deleteFile(QString)));
     QObject::connect(&worker, SIGNAL(getProgMrPropper(qint32)), this, SLOT(deleteAllFiles(qint32)));
@@ -56,7 +56,7 @@ CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, 
     QObject::connect(&worker, SIGNAL(getProgPing(quint8)), this, SLOT(controlSession(quint8)));
 
     QObject::connect(&worker, SIGNAL(getProgInit(DeviceTicket)), this, SLOT(prolongSession()));
-    QObject::connect(&worker, SIGNAL(getProgListRq()), this, SLOT(prolongSession()));
+    QObject::connect(&worker, SIGNAL(getProgListRq(quint16,quint16)), this, SLOT(prolongSession()));
     QObject::connect(&worker, SIGNAL(getProgReadRq(QString,qint32,qint32)), this, SLOT(prolongSession()));
     QObject::connect(&worker, SIGNAL(getProgRm(QString)), this, SLOT(prolongSession()));
     QObject::connect(&worker, SIGNAL(getProgMrPropper(qint32)), this, SLOT(prolongSession()));
@@ -101,13 +101,24 @@ void CanProg::connect(const DeviceTicket &requestedTicket)
         }
 }
 
-void CanProg::getFileList()
+void CanProg::getFileList(quint16 offset, quint16 count)
 {
     if(progMode)
     {
         //LOG_WRITER.write(tr("Запрос списка файлов"), QColor(0, 255, 0));
         takeFileList();
-        emit sendFileList(fileList);
+
+        QList<DevFileInfo> requestedFiles;
+
+        int i = 0;
+        auto fileNames = fileList.keys ();
+        foreach (QString fileName, fileNames)
+            if (i++ >= offset)
+                if (requestedFiles.size () < count)
+                    requestedFiles.append (fileList[fileName]);
+
+
+        emit sendFileList(requestedFiles);
     }
 }
 
