@@ -37,7 +37,7 @@ private:
     void sendAbort();
 
 signals:
-    void transactionReaceived(std::vector<byte> data);
+    void transactionReceived(std::vector<byte> data);
     void sendFlowControl(FlowControlFrame frame);
 
     void watingTimeOut();

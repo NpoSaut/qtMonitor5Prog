@@ -83,6 +83,8 @@ void CanProg::connect(const DeviceTicket &requestedTicket)
         {
             progMode = true;
 
+            worker.activate ();
+
             emit sendProgStatus(hwStore->data () + pStore->data() + loaderPropStore->data ());
 
             emit progModeChanged (true);
@@ -311,6 +313,7 @@ void CanProg::exitProgMode()
     if(progMode)
     {
         progMode = false;
+        worker.disactivate ();
         emit progModeChanged (false);
         sessionActiveTimer.stop ();
     }

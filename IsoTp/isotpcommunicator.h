@@ -12,20 +12,20 @@ class IsoTpCommunicator : public QObject
     Q_OBJECT
 public:
     explicit IsoTpCommunicator(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
-    void send(const std::vector<byte> &buffer);
     void setAcknowlegmentDescriptor(int acknowlegmentDescriptor);
 
-private:
-    /*static*/ TpReceiveTransaction receiver;
-    TpSendTransaction sender;
+    void send(const std::vector<byte> &buffer);
 
 signals:
     void bufferReceived(const std::vector<byte> &buffer);
     void waitingTimeOut();
 
-public slots:
-    void transactionReceived(const std::vector<byte> &buffer);
+private:
+    TpReceiveTransaction receiver;
+    TpSendTransaction sender;
 
+private slots:
+    void onTransactionReceived(const std::vector<byte> &buffer);
     void timeOut();
 };
 }

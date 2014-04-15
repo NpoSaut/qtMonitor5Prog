@@ -22,7 +22,7 @@ TpReceiveTransaction::TpReceiveTransaction(Can *can,/*int transmitDescriptor, in
 void TpReceiveTransaction::getSingleFrame(SingleFrame frame)
 {
     timer.stop();
-    emit transactionReaceived(frame.getData());
+    emit transactionReceived(frame.getData());
     timer.start(5000);
 }
 
@@ -69,7 +69,7 @@ void TpReceiveTransaction::getConsecutiveFrame(ConsecutiveFrame frame)
             {
                 timer.stop();
                 state = INIT;
-                emit transactionReaceived(buffer);
+                emit transactionReceived(buffer);
             }
         }
         else
