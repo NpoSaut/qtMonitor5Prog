@@ -1,12 +1,13 @@
 #include "constloaderstore.h"
 
-ConstLoaderStore::ConstLoaderStore(qint32 loaderVersion, qint32 protocolVersion, qint32 compatibleProtocolVersion)
+ConstLoaderStore::ConstLoaderStore(qint32 loaderVersion, qint32 loaderSubversion, qint32 protocolVersion, qint32 compatibleProtocolVersion)
 {
     map[192] = 1;
     map[193] = loaderVersion;
     map[194] = 1;
     map[195] = protocolVersion;
     map[196] = compatibleProtocolVersion;
+    map[197] = loaderSubversion;
 }
 
 QList<quint8> ConstLoaderStore::keys() const
