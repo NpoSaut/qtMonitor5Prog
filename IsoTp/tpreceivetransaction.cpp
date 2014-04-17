@@ -4,9 +4,9 @@ namespace IsoTp
 {
 TpReceiveTransaction::TpReceiveTransaction(Can *can,/*int transmitDescriptor, int acknowlegmentDescriptor, */QObject *parent) :
     QObject(parent),
-    movingFrames (can, parent),
+    movingFrames (can, this),
     state (INIT),
-    timer()
+    timer(this)
 {
     blockSize = 0;
     consIndex = blockSize;    

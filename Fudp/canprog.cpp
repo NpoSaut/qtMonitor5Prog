@@ -15,7 +15,7 @@ CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, 
     progMode (false),
     isSerialNumberSet (false)
 {
-    loaderPropStore = new ConstLoaderStore (5, 1, 8, 4);
+    loaderPropStore = new ConstLoaderStore (5, 2, 8, 4);
 
     sessionActiveTimer.setInterval (10000);
 
@@ -278,7 +278,6 @@ void CanProg::submit(qint8 submitKey)
             status = 2;
         }
 
-        qDebug() << "Submit ack: " << status;
         emit sendSubmitAck(status);
         exitProgMode();
     }

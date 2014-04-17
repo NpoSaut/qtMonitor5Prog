@@ -8,7 +8,7 @@ namespace IsoTp
 {
 TpSendTransaction::TpSendTransaction(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
     QObject(parent),
-    movingFrames (can, parent)
+    movingFrames (can, this)
 {
 
     separationTime = 0;

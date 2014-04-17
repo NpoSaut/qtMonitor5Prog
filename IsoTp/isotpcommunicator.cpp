@@ -5,10 +5,9 @@ namespace IsoTp
 
 IsoTpCommunicator::IsoTpCommunicator(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
     QObject(parent),
-    sender(can, transmitDescriptor, acknowlegmentDescriptor, parent),
-    receiver(can, parent)
+    sender(can, transmitDescriptor, acknowlegmentDescriptor, this),
+    receiver(can, this)
 {
-
     receiver.setTransmitDescriptor(transmitDescriptor);
     receiver.setAcknowlegmentDescriptor(acknowlegmentDescriptor);
 

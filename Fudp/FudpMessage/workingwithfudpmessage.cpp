@@ -9,12 +9,10 @@ WorkingWithFudpMessage::WorkingWithFudpMessage(Can *can, int initDescriptor, int
     transmitDescriptor (transmitDescriptor),
     acknowlegmentDescriptor (acknowlegmentDescriptor)
 {
-    communicator1 = new IsoTpCommunicator(can, transmitDescriptor, initDescriptor, parent);
+    communicator1 = new IsoTpCommunicator(can, transmitDescriptor, initDescriptor, this);
     communicator2 = nullptr;
 
     QObject::connect(communicator1, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
-    QObject::connect(communicator2, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
-    QObject::connect(communicator2, SIGNAL(waitingTimeOut()), this, SLOT(timeOut()));
 }
 
 void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
@@ -22,7 +20,7 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     switch(data.at(0))
     {
     case MessageId(progInit):
-    {
+    {        
         ProgInit init;
         init.decode(data);
         DeviceTicket tickets = init.getTicket();
@@ -101,8 +99,7 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
 void WorkingWithFudpMessage::sendAnswerToBroadcast(DeviceTicket ticket)
 {
     ProgBroadcastAnswer progBcAnsw(ticket);
-    if (communicator2)
-        communicator2->send(progBcAnsw.encode());
+    communicator1->send(progBcAnsw.encode());
 }
 
 void WorkingWithFudpMessage::sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary)
@@ -178,8 +175,7 @@ void WorkingWithFudpMessage::sendParamSetAck(qint8 errorCode)
 void WorkingWithFudpMessage::sendSubmitAck(qint8 finalCode)
 {
     ProgSubmitAck submitAck(finalCode);
-    if (communicator2)
-        communicator2->send(submitAck.encode());
+    communicator1->send(submitAck.encode());
 }
 
 void WorkingWithFudpMessage::sendProgPong(quint8 counter, ProgPong::Status state)
@@ -197,14 +193,18 @@ void WorkingWithFudpMessage::timeOut()
 void WorkingWithFudpMessage::activate()
 {
     if (!communicator2)
-        communicator2 = new IsoTpCommunicator (can, transmitDescriptor, acknowlegmentDescriptor);
+    {
+        communicator2 = new IsoTpCommunicator (can, transmitDescriptor, acknowlegmentDescriptor, this);
+        QObject::connect(communicator2, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
+        QObject::connect(communicator2, SIGNAL(waitingTimeOut()), this, SLOT(timeOut()));
+    }
 }
 
 void WorkingWithFudpMessage::disactivate()
 {
     if (communicator2)
     {
-        delete communicator2;
+        communicator2->deleteLater ();
         communicator2 = nullptr;
     }
 }
