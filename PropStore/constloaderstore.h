@@ -11,7 +11,7 @@
 class ConstLoaderStore : public PropStore
 {
 public:
-    ConstLoaderStore(qint32 loaderVersion, qint32 protocolVersion, qint32 compatibleProtocolVersion);
+    ConstLoaderStore(qint32 loaderVersion, qint32 loaderSubversion, qint32 protocolVersion, qint32 compatibleProtocolVersion);
 
     // Выводит список всех хранимых ключей
     virtual QList<quint8> keys() const;

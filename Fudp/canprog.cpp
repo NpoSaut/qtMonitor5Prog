@@ -15,7 +15,7 @@ CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, 
     progMode (false),
     isSerialNumberSet (false)
 {
-    loaderPropStore = new ConstLoaderStore (3, 6, 4);
+    loaderPropStore = new ConstLoaderStore (5, 1, 8, 4);
 
     sessionActiveTimer.setInterval (10000);
 
