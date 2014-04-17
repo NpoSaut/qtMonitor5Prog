@@ -15,7 +15,7 @@ CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, 
     progMode (false),
     isSerialNumberSet (false)
 {
-    loaderPropStore = new ConstLoaderStore (3, 6, 4);
+    loaderPropStore = new ConstLoaderStore (5, 2, 8, 4);
 
     sessionActiveTimer.setInterval (10000);
 
@@ -82,6 +82,8 @@ void CanProg::connect(const DeviceTicket &requestedTicket)
         if (myTicket == requestedTicket)
         {
             progMode = true;
+
+            worker.activate ();
 
             emit sendProgStatus(hwStore->data () + pStore->data() + loaderPropStore->data ());
 
@@ -287,7 +289,6 @@ void CanProg::submit(qint8 submitKey)
             status = 2;
         }
 
-        qDebug() << "Submit ack: " << status;
         emit sendSubmitAck(status);
         exitProgMode();
     }
@@ -322,6 +323,7 @@ void CanProg::exitProgMode()
     if(progMode)
     {
         progMode = false;
+        worker.disactivate ();
         emit progModeChanged (false);
         sessionActiveTimer.stop ();
     }

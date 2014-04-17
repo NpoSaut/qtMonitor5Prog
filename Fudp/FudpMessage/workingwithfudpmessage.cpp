@@ -4,13 +4,15 @@ namespace FudpMessage
 {
 WorkingWithFudpMessage::WorkingWithFudpMessage(Can *can, int initDescriptor, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
     QObject(parent),
-    communicator1(can, transmitDescriptor, initDescriptor, parent),
-    communicator2(can, transmitDescriptor, acknowlegmentDescriptor, parent),
-    count(0)
+    count(0),
+    can (can),
+    transmitDescriptor (transmitDescriptor),
+    acknowlegmentDescriptor (acknowlegmentDescriptor)
 {
-    QObject::connect(&communicator1, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
-    QObject::connect(&communicator2, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
-    QObject::connect(&communicator2, SIGNAL(waitingTimeOut()), this, SLOT(timeOut()));
+    communicator1 = new IsoTpCommunicator(can, transmitDescriptor, initDescriptor, this);
+    communicator2 = nullptr;
+
+    QObject::connect(communicator1, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
 }
 
 void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
@@ -18,7 +20,7 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
     switch(data.at(0))
     {
     case MessageId(progInit):
-    {
+    {        
         ProgInit init;
         init.decode(data);
         DeviceTicket tickets = init.getTicket();
@@ -99,84 +101,114 @@ void WorkingWithFudpMessage::receiveData(const std::vector<byte> &data)
 void WorkingWithFudpMessage::sendAnswerToBroadcast(DeviceTicket ticket)
 {
     ProgBroadcastAnswer progBcAnsw(ticket);
-    communicator2.send(progBcAnsw.encode());
+    communicator1->send(progBcAnsw.encode());
 }
 
 void WorkingWithFudpMessage::sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary)
 {
     ProgStatus status(dictionary);
-    communicator2.send(status.encode());
+    if (communicator2)
+        communicator2->send(status.encode());
 }
 
 void WorkingWithFudpMessage::sendProgList(QList<DevFileInfo> list)
 {
     ProgList pList(list);
-    communicator2.send(pList.encode());
+    if (communicator2)
+        communicator2->send(pList.encode());
 }
 
 void WorkingWithFudpMessage::sendProgRead(qint8 errorCode, const QByteArray &data)
 {
     ProgRead read(data, errorCode);
-    communicator2.send(read.encode());
+    if (communicator2)
+        communicator2->send(read.encode());
 }
 
 void WorkingWithFudpMessage::sendProgRmAck(qint8 errorCode)
 {
     ProgRmAck rmAck(errorCode);
-    communicator2.send(rmAck.encode());
+    if (communicator2)
+        communicator2->send(rmAck.encode());
 }
 
 void WorkingWithFudpMessage::sendProgMrPropperAck()
 {
     ProgMrProper mrPropper;
-    communicator2.send(mrPropper.encode());
+    if (communicator2)
+        communicator2->send(mrPropper.encode());
 }
 
 void WorkingWithFudpMessage::sendProgCreateAck(qint8 errorCode)
 {
     ProgCreateAck createAck(errorCode);
-    communicator2.send(createAck.encode());
+    if (communicator2)
+        communicator2->send(createAck.encode());
 }
 
 void WorkingWithFudpMessage::sendProgWriteAck(qint8 errorCode)
 {
     ProgWriteAck writeAck(errorCode);
-    communicator2.send(writeAck.encode());
+    if (communicator2)
+        communicator2->send(writeAck.encode());
 }
 
 void WorkingWithFudpMessage::sendParamRmAck(qint8 errorCode)
 {
     ParamRmAck rmParam(errorCode);
-    communicator2.send(rmParam.encode());
+    if (communicator2)
+        communicator2->send(rmParam.encode());
 }
 
 void WorkingWithFudpMessage::sendProgFirmCorrupt()
 {
     ProgFirmCorrupt fc;
-    communicator2.send(fc.encode());
+    if (communicator2)
+        communicator2->send(fc.encode());
 }
 
 void WorkingWithFudpMessage::sendParamSetAck(qint8 errorCode)
 {
     ParamSetAck setParam(errorCode);
-    communicator2.send(setParam.encode());
+    if (communicator2)
+        communicator2->send(setParam.encode());
 }
 
 void WorkingWithFudpMessage::sendSubmitAck(qint8 finalCode)
 {
     ProgSubmitAck submitAck(finalCode);
-    communicator2.send(submitAck.encode());
+    communicator1->send(submitAck.encode());
 }
 
 void WorkingWithFudpMessage::sendProgPong(quint8 counter, ProgPong::Status state)
 {
     ProgPong progPong(counter, state);
-    communicator2.send (progPong.encode ());
+    if (communicator2)
+        communicator2->send (progPong.encode ());
 }
 
 void WorkingWithFudpMessage::timeOut()
 {
     emit waitingTimeOut();
+}
+
+void WorkingWithFudpMessage::activate()
+{
+    if (!communicator2)
+    {
+        communicator2 = new IsoTpCommunicator (can, transmitDescriptor, acknowlegmentDescriptor, this);
+        QObject::connect(communicator2, SIGNAL(bufferReceived(std::vector<byte>)), this, SLOT(receiveData(std::vector<byte>)));
+        QObject::connect(communicator2, SIGNAL(waitingTimeOut()), this, SLOT(timeOut()));
+    }
+}
+
+void WorkingWithFudpMessage::disactivate()
+{
+    if (communicator2)
+    {
+        communicator2->deleteLater ();
+        communicator2 = nullptr;
+    }
 }
 
 }

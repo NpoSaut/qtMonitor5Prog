@@ -5,14 +5,13 @@ namespace IsoTp
 
 IsoTpCommunicator::IsoTpCommunicator(Can *can, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent) :
     QObject(parent),
-    sender(can, transmitDescriptor, acknowlegmentDescriptor, parent),
-    receiver(can, parent)
+    sender(can, transmitDescriptor, acknowlegmentDescriptor, this),
+    receiver(can, this)
 {
-
     receiver.setTransmitDescriptor(transmitDescriptor);
     receiver.setAcknowlegmentDescriptor(acknowlegmentDescriptor);
 
-    QObject::connect(&receiver, SIGNAL(transactionReaceived(std::vector<byte>)), this, SLOT(transactionReceived(std::vector<byte>)));
+    QObject::connect(&receiver, SIGNAL(transactionReceived(std::vector<byte>)), this, SLOT(onTransactionReceived(std::vector<byte>)));
     QObject::connect(&receiver, SIGNAL(watingTimeOut()), this, SLOT(timeOut()));
 
 }
@@ -22,7 +21,7 @@ void IsoTpCommunicator::send(const std::vector<byte> &buffer)
     sender.send(buffer);
 }
 
-void IsoTpCommunicator::transactionReceived(const std::vector<byte> &buffer)
+void IsoTpCommunicator::onTransactionReceived(const std::vector<byte> &buffer)
 {
     emit bufferReceived(buffer);
 }

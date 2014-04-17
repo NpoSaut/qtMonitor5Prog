@@ -38,14 +38,7 @@ class WorkingWithFudpMessage : public QObject
 public:
     explicit WorkingWithFudpMessage(Can *can, int initDescriptor, int transmitDescriptor, int acknowlegmentDescriptor, QObject *parent = 0);
 
-private:
-    IsoTpCommunicator communicator1;
-    IsoTpCommunicator communicator2;
-    int count;
-
 signals:
-    void transmitData(std::vector<byte> data);
-
     void getProgInit(DeviceTicket tickets);
     void getProgListRq(quint16 offset, quint16 count);
     void getProgReadRq(QString fileName, qint32 offset, qint32 readSize);
@@ -61,7 +54,8 @@ signals:
     void waitingTimeOut();
 
 public slots:
-    void receiveData(const std::vector<byte> &data);
+    void activate ();
+    void disactivate ();
 
     void sendAnswerToBroadcast(DeviceTicket ticket);
     void sendProgStatus(const QVector<QPair<quint8, qint32> > dictionary);
@@ -77,7 +71,17 @@ public slots:
     void sendSubmitAck(qint8 finalCode);
     void sendProgPong(quint8 counter, ProgPong::Status state);
 
+private slots:
+    void receiveData(const std::vector<byte> &data);
     void timeOut();
+
+private:
+    IsoTpCommunicator* communicator1;
+    IsoTpCommunicator* communicator2;
+    int count;
+    Can *can;
+    int transmitDescriptor;
+    int acknowlegmentDescriptor;
 };
 }
 
