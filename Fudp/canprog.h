@@ -83,6 +83,7 @@ private:
     bool isSerialNumberSet;
 
     QStringList parseDir(const QDir dir);
+    bool clearDir (const QString &dirName, bool removeRootDir = false);
     bool isLoaderProperty (qint8 key);
     bool isHwProperty (qint8 key);
 };

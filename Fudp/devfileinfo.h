@@ -8,9 +8,8 @@
 class DevFileInfo
 {
 public:
-    DevFileInfo(qint32 fSize = 0);
-    DevFileInfo(qint32 fSize, qint32 cSum);
-    DevFileInfo(QByteArray data);
+    DevFileInfo(QString name, qint32 fSize, qint32 cSum);
+    DevFileInfo(QString name = QString(), QByteArray data = QByteArray());
 
     bool setData(const QByteArray &data, int offset);
     void setFileName (QString &fileName) { this->fileName = fileName; }

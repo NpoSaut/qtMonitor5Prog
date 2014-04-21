@@ -52,7 +52,11 @@ bool SimpleFilePropStore::del(quint8 key)
 bool SimpleFilePropStore::sync()
 {
     SimpleFilePropStore storeInFile (file);
-    if ( map != storeInFile.map )
+    if ( map == storeInFile.map )
+    {
+        return true;
+    }
+    else
     {
         if ( file.open(QIODevice::WriteOnly | QIODevice::Text) )
         {
@@ -70,10 +74,6 @@ bool SimpleFilePropStore::sync()
         {
             return false;
         }
-    }
-    else
-    {
-        return false;
     }
 }
 

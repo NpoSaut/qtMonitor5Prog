@@ -10,7 +10,7 @@ Debugging::Debugging(Can *can, int transmitDescriptor, int acknowlegmentDescript
 
 void Debugging::createFile(const std::vector<byte> &data)
 {
-    DevFileInfo devFile(Message::fromVectorToQByteArray(data));
+//    DevFileInfo devFile(Message::fromVectorToQByteArray(data));
 
 //    QFile file(devFile.getFileName());
 //    file.open(QIODevice::Append);

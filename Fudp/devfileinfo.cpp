@@ -1,20 +1,15 @@
 #include "devfileinfo.h"
 #include "Log/logwriter.h"
 
-DevFileInfo::DevFileInfo(qint32 fSize, qint32 cSum) :
-    fileSize(fSize), controlSum(cSum), fileData (fSize, 0)
+DevFileInfo::DevFileInfo(QString name, qint32 fSize, qint32 cSum) :
+    fileName (name), fileSize(fSize), controlSum(cSum), fileData (fSize, 0)
 {
 }
 
-DevFileInfo::DevFileInfo(QByteArray data) :
-    fileData(data), fileSize(data.size()), controlSum(calcControlSumm())
+DevFileInfo::DevFileInfo(QString name, QByteArray data) :
+    fileName (name), fileData(data), fileSize(data.size()), controlSum(calcControlSumm())
 {
 
-}
-
-DevFileInfo::DevFileInfo(qint32 fSize) :
-    fileSize(fSize), fileData (fSize, 0)
-{
 }
 
 bool DevFileInfo::setData(const QByteArray &data, int offset)

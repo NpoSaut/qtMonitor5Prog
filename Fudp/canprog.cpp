@@ -191,17 +191,9 @@ void CanProg::createFile(const QString &fileName, qint32 fileSize)
         qint8 errorCode = 0;
         if(!fileList.contains(fileName))
         {
-            bool success = true;
-            int lastSlashPosition = fileName.lastIndexOf('/');
-            if (lastSlashPosition != -1)
-                success &= QDir::current().mkpath(fileName.left(lastSlashPosition));
-//            QFile file(fileName);
-//            success &= file.open(QIODevice::WriteOnly);
-//            file.resize(fileSize);
-//            file.close();
-            DevFileInfo fileInfo(fileSize);
+            DevFileInfo fileInfo(fileName, fileSize, 0);
             fileList[fileName] = fileInfo;
-            errorCode = success ? 0 : ProgCreateAck::ErrorCreate;
+            errorCode = 0;
         }
         else
             errorCode = ProgCreateAck::FileAlreadyExists;
@@ -311,6 +303,30 @@ QStringList CanProg::parseDir(const QDir dir)
     return fileList;
 }
 
+bool CanProg::clearDir(const QString &dirName, bool removeRootDir)
+{
+    bool result = true;
+    QDir dir(dirName);
+
+    if (dir.exists(dirName))
+    {
+        foreach(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst))
+        {
+            if (info.isDir())
+                result = clearDir(info.absoluteFilePath (), true);
+            else
+                result = QFile::remove(info.absoluteFilePath());
+
+            if (!result)
+                return result;
+        }
+        if (removeRootDir)
+            result = dir.rmdir(dirName);
+    }
+
+    return result;
+}
+
 bool CanProg::isLoaderProperty(qint8 key)
 {
     return key == 192 || key == 193 || key == 194 || key == 195 || key == 196;
@@ -363,21 +379,25 @@ void CanProg::inputBlockSerialNumber(qint32 blockSerialNumber)
 
 bool CanProg::saveChanges()
 {
-    bool success = pStore->sync() && hwStore->sync ();
+    bool success = true;
+    
+    success = pStore->sync() && hwStore->sync () && success;
+    success = clearDir (rootDir.absoluteFilePath (".")) && success;
+    success = rootDir.mkpath (".") && success;
 
-    auto keys = fileList.keys();
-    QStringList deleteList = parseDir(rootDir);
-    foreach(QString name, deleteList)
-        QFile(name).remove();
-    rootDir.mkpath(".");
-
-    foreach(QString key, keys)
+    auto names = fileList.keys();
+    foreach(QString name, names)
     {
-        QFile file("./" + key);
+        int lastSlashPosition = name.lastIndexOf('/');
+        if (lastSlashPosition != -1)
+            success &= rootDir.mkpath(name.left(lastSlashPosition));
+
+        QFile file("./" + name);
         if(file.open(QIODevice::ReadWrite))
         {
-            if(file.write(fileList[key].getData()) == -1)
-                success = false;
+            success = (file.write(fileList[name].getData()) != -1) && success;
+            success = file.setPermissions (QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner | QFile::ReadGroup) && success;
+
             file.flush();
 #ifdef MONITOR_5
             _commit(file.handle());
@@ -387,10 +407,6 @@ bool CanProg::saveChanges()
         else
             success = false;
     }
-
-#ifdef ON_LINUX
-    QProcess::execute ("chmod -R +x ./");
-#endif
 
     return success;
 }
@@ -413,7 +429,7 @@ void CanProg::takeFileList()
         QFile file(fileName);
         file.open(QIODevice::ReadOnly);
 
-        DevFileInfo fileInfo(/*fileName.remove(0,2), */file.readAll());
+        DevFileInfo fileInfo(fileName, file.readAll());
         fileList[fileName] = fileInfo;
 
         file.close();

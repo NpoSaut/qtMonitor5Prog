@@ -72,8 +72,7 @@ void ProgList::decode(const std::vector<byte> &data)
                 qint32 controlSum;
                 in >> controlSum;
 
-                DevFileInfo dfi(fSize, controlSum);
-                dfi.setFileName (fName);
+                DevFileInfo dfi(fName, fSize, controlSum);
                 listDevFileInfo.append (dfi);
             }
             else // Признак наличия файлов, не вошедших в сообщение
