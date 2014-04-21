@@ -15,9 +15,8 @@ public slots:
     void keepRunning (bool run);
 
 protected slots:
-    virtual void onProcessTerminated (int status);
+    virtual void onProcessStateChanged (QProcess::ProcessState state);
 
-protected:
     virtual void start ();
     virtual void stop ();
 
