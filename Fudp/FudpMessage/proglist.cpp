@@ -23,7 +23,7 @@ std::vector<byte> ProgList::encode()
     {
         if ( buffer.size ()
              + (1 + file.getFileNameSize () + 4 + 4)                // Размер записи о добавляемом файле
-             + (i == listDevFileInfo.size()-1) ? 0 : (1 + 4 + 4)    // Если файл не последний, то размер флага остатка
+             +( (i == listDevFileInfo.size()-1) ? 0 : (1 + 4 + 4) )    // Если файл не последний, то размер флага остатка
              <= maxSublevelDatagramLength )
        {
             i ++;
@@ -37,6 +37,7 @@ std::vector<byte> ProgList::encode()
         else
         {
             out << (byte) 0 << (quint32) (listDevFileInfo.size () - i) << (quint32) 0;
+            break;
         }
     }
 

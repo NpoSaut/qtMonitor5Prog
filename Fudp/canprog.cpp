@@ -43,7 +43,7 @@ CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, 
     QObject::connect(this, SIGNAL(sendPong(quint8,ProgPong::Status)), &worker, SLOT(sendProgPong(quint8,ProgPong::Status)));
 
     QObject::connect(&worker, SIGNAL(getProgInit(DeviceTicket)), this, SLOT(connect(DeviceTicket)));
-    QObject::connect(&worker, SIGNAL(getProgListRq(quint16,quint16)), this, SLOT(getFileList()));
+    QObject::connect(&worker, SIGNAL(getProgListRq(quint16,quint16)), this, SLOT(getFileList(quint16,quint16)));
     QObject::connect(&worker, SIGNAL(getProgReadRq(QString,qint32,qint32)), this, SLOT(readFile(QString,qint32,qint32)));
     QObject::connect(&worker, SIGNAL(getProgRm(QString)), this, SLOT(deleteFile(QString)));
     QObject::connect(&worker, SIGNAL(getProgMrPropper(qint32)), this, SLOT(deleteAllFiles(qint32)));
@@ -109,6 +109,9 @@ void CanProg::getFileList(quint16 offset, quint16 count)
     {
         //LOG_WRITER.write(tr("Запрос списка файлов"), QColor(0, 255, 0));
         takeFileList();
+
+        if ( count == 0 ) // запрашиваются Все
+            count = -1; // отдадим Много
 
         QList<DevFileInfo> requestedFiles;
 

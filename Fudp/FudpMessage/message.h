@@ -47,7 +47,7 @@ public:
 protected:
     virtual std::vector<byte> encode() =0;
     virtual void decode(const std::vector<byte> &data) =0;
-    static const int maxSublevelDatagramLength = 4059; // Для ISO-TP
+    static const int maxSublevelDatagramLength = 4095; // Для ISO-TP
 };
 }
 
