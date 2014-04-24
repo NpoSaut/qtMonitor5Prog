@@ -1,4 +1,4 @@
-#include "constloaderstore.h"
+#include "ConstLoaderStore.h"
 
 ConstLoaderStore::ConstLoaderStore(qint32 loaderVersion, qint32 loaderSubversion, qint32 protocolVersion, qint32 compatibleProtocolVersion)
 {
@@ -26,10 +26,14 @@ QVector<QPair<quint8, qint32> > ConstLoaderStore::data() const
 bool ConstLoaderStore::get(quint8 key, qint32 &value) const
 {
     if ( map.find(key) == map.end() )
+    {
         return false;
+    }
     else
+    {
         value = map[key];
-    return true;
+        return true;
+    }
 }
 
 bool ConstLoaderStore::set(quint8 key, qint32 value)

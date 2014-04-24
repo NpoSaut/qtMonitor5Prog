@@ -4,15 +4,15 @@
 #include <QFile>
 #include <QMap>
 
-#include "propstore.h"
+#include "PropStore.h"
 
 // Словарь свойст, хранящийся в простом текстовом файле
 //  Каждая строка файла - запись. Содержит ключь и значение, разделённые пробелом.
 //  Значения кешируются в памяти.
-class SimpleFilePropStore : public PropStore
+class FilePropStore : public PropStore
 {
 public:
-    SimpleFilePropStore(QFile &storeFile);
+    FilePropStore(QFile &storeFile);
 
     // Выводит список всех хранимых ключей
     virtual QList<quint8> keys() const;

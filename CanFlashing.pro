@@ -49,8 +49,6 @@ SOURCES += \
     Fudp/FudpMessage/paramrmack.cpp \
     Fudp/FudpMessage/workingwithfudpmessage.cpp \
     IsoTp/isotpcommunicator.cpp \
-    PropStore/propstore.cpp \
-    PropStore/simplefilepropstore.cpp \
     Fudp/FudpMessage/progsubmit.cpp \
     Fudp/FudpMessage/progbroadcastanswer.cpp \
     Fudp/FudpMessage/progfirmcorrupt.cpp \
@@ -69,9 +67,13 @@ SOURCES += \
     UpdateManager.cpp \
     SharedCanUpdateManager.cpp \
     ExclusiveCanUpdateManager.cpp \
-    PropStore/constloaderstore.cpp \
     Fudp/FudpMessage/progping.cpp \
-    Fudp/FudpMessage/progpong.cpp
+    Fudp/FudpMessage/progpong.cpp \
+    PropStore/CompositePropStore.cpp \
+    PropStore/PropStoreDecorators.cpp \
+    PropStore/ConstLoaderStore.cpp \
+    PropStore/PropStore.cpp \
+    PropStore/FilePropStore.cpp
 
 HEADERS += \
     IsoTp/IsoTpFrame/singleframe.h \
@@ -106,8 +108,6 @@ HEADERS += \
     Fudp/FudpMessage/paramrmack.h \
     Fudp/FudpMessage/workingwithfudpmessage.h \
     IsoTp/isotpcommunicator.h \
-    PropStore/propstore.h \
-    PropStore/simplefilepropstore.h \
     Fudp/FudpMessage/progsubmit.h \
     Fudp/FudpMessage/progbroadcastanswer.h \
     Fudp/FudpMessage/progfirmcorrupt.h \
@@ -135,9 +135,13 @@ HEADERS += \
     UpdateManager.h \
     SharedCanUpdateManager.h \
     ExclusiveCanUpdateManager.h \
-    PropStore/constloaderstore.h \
     Fudp/FudpMessage/progping.h \
-    Fudp/FudpMessage/progpong.h
+    Fudp/FudpMessage/progpong.h \
+    PropStore/CompositePropStore.h \
+    PropStore/PropStoreDecorators.h \
+    PropStore/ConstLoaderStore.h \
+    PropStore/PropStore.h \
+    PropStore/FilePropStore.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

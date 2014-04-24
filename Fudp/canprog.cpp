@@ -1,30 +1,24 @@
 ﻿#include "canprog.h"
 
-#include "PropStore/constloaderstore.h"
-
 namespace Fudp
 {
-CanProg::CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, QObject *parent) :
+CanProg::CanProg(Can *can, PropStore *store, QDir rootDir, QObject *parent) :
     QObject(parent),
-    hwStore(hwStore),
-    pStore(pStore),
-    worker(can, FuInit, FuDev, FuProg, parent),
+    store (store),
+    worker(can, FuInit, FuDev, FuProg, this),
     myTicket(),
     rootDir(rootDir),
     sessionActiveTimer(),
     progMode (false),
     isSerialNumberSet (false)
 {
-    loaderPropStore = new ConstLoaderStore (5, 2, 8, 4);
-
     sessionActiveTimer.setInterval (10000);
 
-    hwStore->get(129, myTicket.blockId);
-    hwStore->get(131, myTicket.blockSerialNumber);
-    hwStore->get(133, myTicket.channel);
-    hwStore->get(134, myTicket.modification);
-
-    pStore->get(130, myTicket.module);
+    store->get(129, myTicket.blockId);
+    store->get(130, myTicket.module);
+    store->get(131, myTicket.blockSerialNumber);
+    store->get(133, myTicket.channel);
+    store->get(134, myTicket.modification);
 
     QDir::setCurrent( rootDir.absolutePath () );
 
@@ -85,7 +79,7 @@ void CanProg::connect(const DeviceTicket &requestedTicket)
 
             worker.activate ();
 
-            emit sendProgStatus(hwStore->data () + pStore->data() + loaderPropStore->data ());
+            emit sendProgStatus(store->data ());
 
             emit progModeChanged (true);
             emit sendState(tr("Идет прошивка"));
@@ -231,12 +225,7 @@ void CanProg::setParam(qint8 key, qint32 value)
     if(progMode)
     {
         //LOG_WRITER.write(QString(tr("Запись свойства %1 со значением %2")).arg(key).arg(value), QColor(0, 255, 0));
-        if ( isLoaderProperty (key) )
-            emit sendSetParamAck( 0 );
-        else if ( isHwProperty (key))
-            emit sendSetParamAck( hwStore->set(key, value) ? 0 : 3 );
-        else
-            emit sendSetParamAck( pStore->set(key, value) ? 0 : 3 );
+        emit sendSetParamAck( store->set(key, value) ? 0 : 3 );
     }
 }
 
@@ -245,12 +234,7 @@ void CanProg::deleteParam(qint8 key)
     if(progMode)
     {
         //LOG_WRITER.write(QString(tr("Удаление совйства %1")).arg(key), QColor(0, 255, 0));
-        if ( isLoaderProperty (key) )
-            emit sendDeleteParamAck( 0 );
-        else if ( isHwProperty (key) )
-            emit sendDeleteParamAck( hwStore->del(key) ? 0 : 2 );
-        else
-            emit sendDeleteParamAck( pStore->del(key) ? 0 : 2 );
+       emit sendDeleteParamAck( store->del(key) ? 0 : 2 );
     }
 }
 
@@ -361,7 +345,7 @@ bool CanProg::checkFirmware()
         crc ^= fileList[fileName].getControlSum();
 
     qint32 etalonCrc;
-    if ( pStore->get(6, etalonCrc) )
+    if ( store->get(6, etalonCrc) )
         ok = (crc == etalonCrc);
 
     emit crcCheckChanged (ok);
@@ -370,9 +354,9 @@ bool CanProg::checkFirmware()
 
 void CanProg::inputBlockSerialNumber(qint32 blockSerialNumber)
 {
-    hwStore->set(131, blockSerialNumber);
-    pStore->sync();
-    if ( hwStore->get (131, myTicket.blockSerialNumber) )
+    store->set(131, blockSerialNumber);
+    store->sync();
+    if ( store->get (131, myTicket.blockSerialNumber) )
         isSerialNumberSet = true;
     //LOG_WRITER.installLog();
 }
@@ -381,7 +365,7 @@ bool CanProg::saveChanges()
 {
     bool success = true;
     
-    success = pStore->sync() && hwStore->sync () && success;
+    success = store->sync() && success;
     success = clearDir (rootDir.absoluteFilePath (".")) && success;
     success = rootDir.mkpath (".") && success;
 
@@ -414,8 +398,7 @@ bool CanProg::saveChanges()
 void CanProg::discardChanges()
 {
     takeFileList();
-    pStore->discard ();
-    hwStore->discard ();
+    store->discard ();
 }
 
 void CanProg::takeFileList()

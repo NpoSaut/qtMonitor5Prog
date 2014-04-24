@@ -1,4 +1,4 @@
-#include "simplefilepropstore.h"
+#include "FilePropStore.h"
 
 #ifdef MONITOR_5
 #include <io.h>
@@ -7,18 +7,18 @@
 #include <QTextStream>
 #include <QStringList>
 
-SimpleFilePropStore::SimpleFilePropStore(QFile &file)
+FilePropStore::FilePropStore(QFile &file)
     : file (file), map ()
 {
     discard ();
 }
 
-QList<quint8> SimpleFilePropStore::keys() const
+QList<quint8> FilePropStore::keys() const
 {
     return map.keys();
 }
 
-QVector<QPair<quint8, qint32> > SimpleFilePropStore::data() const
+QVector<QPair<quint8, qint32> > FilePropStore::data() const
 {
     QVector< QPair<quint8, qint32> > data;
     foreach (quint8 key, map.keys())
@@ -26,7 +26,7 @@ QVector<QPair<quint8, qint32> > SimpleFilePropStore::data() const
     return data;
 }
 
-bool SimpleFilePropStore::get(quint8 key, qint32 &value) const
+bool FilePropStore::get(quint8 key, qint32 &value) const
 {
     if ( map.find(key) == map.end() )
         return false;
@@ -35,23 +35,21 @@ bool SimpleFilePropStore::get(quint8 key, qint32 &value) const
     return true;
 }
 
-bool SimpleFilePropStore::set(quint8 key, qint32 value)
+bool FilePropStore::set(quint8 key, qint32 value)
 {
     map[key] = value;
-    bool success = (map[key] == value); // :)
-
-    return success;
+    return true;
 }
 
-bool SimpleFilePropStore::del(quint8 key)
+bool FilePropStore::del(quint8 key)
 {
     map.erase(map.find(key));
     return true;
 }
 
-bool SimpleFilePropStore::sync()
+bool FilePropStore::sync()
 {
-    SimpleFilePropStore storeInFile (file);
+    FilePropStore storeInFile (file);
     if ( map == storeInFile.map )
     {
         return true;
@@ -77,7 +75,7 @@ bool SimpleFilePropStore::sync()
     }
 }
 
-bool SimpleFilePropStore::discard()
+bool FilePropStore::discard()
 {
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
@@ -87,7 +85,12 @@ bool SimpleFilePropStore::discard()
         QStringList line(fileIn.readLine().split(" "));
 
         if(line.at(0) != "" && line.size() == 2)
-            map[QString(line.at(0)).toInt()] = QString(line.at(1)).toInt();
+        {
+            quint8 key = (quint8) QString(line.at(0)).toInt();
+            qint32 value = (qint32) QString(line.at(1)).toInt();
+
+            map[key] = value;
+        }
     }
 
     file.close();

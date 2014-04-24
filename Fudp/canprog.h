@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QProcess>
 #include "FudpMessage/workingwithfudpmessage.h"
-#include "PropStore/propstore.h"
+#include "PropStore/PropStore.h"
 #include "Log/logwriter.h"
 
 using namespace FudpMessage;
@@ -19,7 +19,7 @@ class CanProg : public QObject
 {
     Q_OBJECT
 public:
-    explicit CanProg(Can *can, PropStore *hwStore, PropStore *pStore, QDir rootDir, QObject *parent = 0);
+    explicit CanProg(Can *can, PropStore *store, QDir rootDir, QObject *parent = 0);
 
     bool checkFirmware (); // ГОВНОКОД
 
@@ -72,9 +72,7 @@ private:
     static const int FuDev =  0x66e8;
 
     WorkingWithFudpMessage worker;
-    PropStore *loaderPropStore;
-    PropStore *hwStore;
-    PropStore *pStore;
+    PropStore * const store;
     QMap<QString, DevFileInfo> fileList;
     DeviceTicket myTicket;
     QDir rootDir;

@@ -5,6 +5,10 @@
 #include "processmanager.h"
 #include "ExclusiveCanUpdateManager.h"
 #include "SharedCanUpdateManager.h"
+#include "PropStore/FilePropStore.h"
+#include "PropStore/ConstLoaderStore.h"
+#include "PropStore/PropStoreDecorators.h"
+#include "PropStore/CompositePropStore.h"
 
 #ifdef LIB_CAN_NICK
 #include "qtCanLib/CanNick/workingwithmessage.h"
@@ -23,27 +27,32 @@ CanProgWorker::CanProgWorker(Can *can, QString firmwareRootDirName, QString hwSt
     this->hwStoreFileName = hwStoreFileInfo.absoluteFilePath ();
 
     QFileInfo storeFileInfo (storeFileName);
-    this->storeFileName = storeFileInfo.absoluteFilePath ();
+    this->pStoreFileName = storeFileInfo.absoluteFilePath ();
 
     this->start();
 }
 
 void CanProgWorker::run()
 {
+    // Хранилища
+    QList<PropStore *> stores;
+    stores += new ConstLoaderStore (5, 2, 8, 4);
+    QFile pStoreFile (pStoreFileName);
+    stores += new PropStoreWithKeyRange (new FilePropStore (pStoreFile), 0, 127);
     QFile hwStoreFile (hwStoreFileName);
-    QFile storeFile (storeFileName);
-    SimpleFilePropStore hwStore (hwStoreFile);
-    SimpleFilePropStore pStore (storeFile);
-    CanProg prog (can, &hwStore, &pStore, QDir(firmwareRootDirName), this->parent ());
+    stores += new PropStoreWithKeyRange (new FilePropStore (hwStoreFile), 128, 191);
+    CompositePropStore storeList (stores);
 
-    ProcessManager *processManager = new ProcessManager (firmwareRootDirName, false, this->parent ());
+    CanProg prog (can, &storeList, QDir(firmwareRootDirName));
+
+    ProcessManager *processManager = new ProcessManager (firmwareRootDirName, false);
     UpdateManager *updateManager;
 #ifdef LIB_CAN_NICK
-    updateManager = new ExclusiveCanUpdateManager (processManager, this->parent ());
+    updateManager = new ExclusiveCanUpdateManager (processManager);
     QObject::connect ((ExclusiveCanUpdateManager *)processManager, SIGNAL(startDriverRequest()), &canDrv, SLOT(start()));
     QObject::connect ((ExclusiveCanUpdateManager *)processManager, SIGNAL(stopDriverRequest()), &canDrv, SLOT(stop()));
 #else
-    updateManager = new SharedCanUpdateManager (processManager, this->parent ());
+    updateManager = new SharedCanUpdateManager (processManager);
 #endif
 
     QObject::connect(&prog, SIGNAL(sendState(QString)), this, SLOT(processProgStateChange(QString)));

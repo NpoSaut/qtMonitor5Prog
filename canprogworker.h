@@ -5,13 +5,13 @@
 #include <QThread>
 
 #include "Fudp/canprog.h"
-#include "PropStore/simplefilepropstore.h"
+#include "PropStore/FilePropStore.h"
 
 class CanProgWorker : public QThread
 {
     Q_OBJECT
 public:
-    explicit CanProgWorker(Can *can, QString firmwareRootDirName, QString hwStoreFileName, QString storeFileName, QObject *parent = 0);
+    explicit CanProgWorker(Can *can, QString firmwareRootDirName, QString hwStoreFileName, QString pStoreFileName, QObject *parent = 0);
     void run();
 
 signals:
@@ -34,7 +34,7 @@ private slots:
 private:
     Can *can;
     QString hwStoreFileName;
-    QString storeFileName;
+    QString pStoreFileName;
     QString firmwareRootDirName;
 };
 
