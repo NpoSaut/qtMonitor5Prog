@@ -10,15 +10,19 @@
 #include "PropStore/PropStoreDecorators.h"
 #include "PropStore/CompositePropStore.h"
 
+
 #ifdef LIB_CAN_NICK
 #include "qtCanLib/CanNick/workingwithmessage.h"
 #endif
 
 using namespace Fudp;
 
-CanProgWorker::CanProgWorker(Can *can, QString firmwareRootDirName, QString hwStoreFileName, QString storeFileName, QObject *parent) :
+CanProgWorker::CanProgWorker(Can *can, Parser *parser, QString firmwareRootDirName, QString hwStoreFileName, QString storeFileName, QObject *parent) :
     QThread (parent),
-    can (can)
+    can (can),
+    parser (parser),
+    auxResourceAnswer (nullptr),
+    propStore (nullptr)
 {
     QFileInfo firmwareRootDirInfo (firmwareRootDirName);
     this->firmwareRootDirName = firmwareRootDirInfo.absoluteFilePath ();
@@ -41,9 +45,9 @@ void CanProgWorker::run()
     stores += new PropStoreWithKeyRange (new FilePropStore (pStoreFile), 0, 127);
     QFile hwStoreFile (hwStoreFileName);
     stores += new PropStoreWithKeyRange (new FilePropStore (hwStoreFile), 128, 191);
-    CompositePropStore storeList (stores);
+    propStore = new CompositePropStore (stores);
 
-    CanProg prog (can, &storeList, QDir(firmwareRootDirName));
+    CanProg prog (can, propStore, QDir(firmwareRootDirName));
 
     ProcessManager *processManager = new ProcessManager (firmwareRootDirName, false);
     UpdateManager *updateManager;
@@ -86,5 +90,41 @@ void CanProgWorker::processProgSerialNumberMissedSignal()
 
 void CanProgWorker::processProgModeChange(bool inProgMode)
 {
+    if ( inProgMode )
+        stopAuxResourceAnswer ();
+    else
+        startAuxResourceAnswer ();
+
     emit inProgModeChanged (inProgMode);
+}
+
+void CanProgWorker::startAuxResourceAnswer()
+{
+    if ( !auxResourceAnswer )
+    {
+        qint32 auxModuleNumber = 0;
+        qint32 auxDescriptor = 0;
+        qint32 version = 0;
+        qint32 subversion = 0;
+        qint32 checksum = 0;
+        if (    propStore->get (135, auxModuleNumber)
+             && propStore->get (136, auxDescriptor)
+             && propStore->get (  1, version)
+             && propStore->get (  2, subversion)
+             && propStore->get (  6, checksum)
+            )
+        {
+            qDebug() << "create";
+            auxResourceAnswer = new AuxResourceAnswer (can, parser, auxModuleNumber, auxDescriptor, version, subversion, checksum);
+        }
+    }
+}
+
+void CanProgWorker::stopAuxResourceAnswer()
+{
+    if ( auxResourceAnswer )
+    {
+        auxResourceAnswer->deleteLater ();
+        auxResourceAnswer = nullptr;
+    }
 }

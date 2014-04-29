@@ -73,7 +73,26 @@ SOURCES += \
     PropStore/PropStoreDecorators.cpp \
     PropStore/ConstLoaderStore.cpp \
     PropStore/PropStore.cpp \
-    PropStore/FilePropStore.cpp
+    PropStore/FilePropStore.cpp \
+    qtBlokLib/parser.cpp \
+    qtBlokLib/parsers/vds_state.cpp \
+    qtBlokLib/parsers/uktol_dd1.cpp \
+    qtBlokLib/parsers/tskbm_state.cpp \
+    qtBlokLib/parsers/sys_key.cpp \
+    qtBlokLib/parsers/sys_diagnostics.cpp \
+    qtBlokLib/parsers/mco_state.cpp \
+    qtBlokLib/parsers/mco_mode.cpp \
+    qtBlokLib/parsers/mco_limits.cpp \
+    qtBlokLib/parsers/ipd_state.cpp \
+    qtBlokLib/parsers/mvd_dd.cpp \
+    qtBlokLib/parsers/mp_state.cpp \
+    qtBlokLib/parsers/mm_coord.cpp \
+    qtBlokLib/parsers/mm_alt_long.cpp \
+    qtBlokLib/parsers/display_state.cpp \
+    qtBlokLib/parsers/console_key.cpp \
+    qtBlokLib/parsers/canblokmessage.cpp \
+    qtBlokLib/parsers/aux_resource.cpp \
+    AuxResourceAnswer.cpp
 
 HEADERS += \
     IsoTp/IsoTpFrame/singleframe.h \
@@ -141,7 +160,30 @@ HEADERS += \
     PropStore/PropStoreDecorators.h \
     PropStore/ConstLoaderStore.h \
     PropStore/PropStore.h \
-    PropStore/FilePropStore.h
+    PropStore/FilePropStore.h \
+    qtBlokLib/parser.h \
+    qtBlokLib/parsers/vds_state.h \
+    qtBlokLib/parsers/uktol_dd1.h \
+    qtBlokLib/parsers/tskbm_state.h \
+    qtBlokLib/parsers/trafficlight.h \
+    qtBlokLib/parsers/sys_key.h \
+    qtBlokLib/parsers/sys_diagnostics.h \
+    qtBlokLib/parsers/mco_state.h \
+    qtBlokLib/parsers/mco_mode.h \
+    qtBlokLib/parsers/mco_limits.h \
+    qtBlokLib/parsers/ipd_state.h \
+    qtBlokLib/parsers/drivemode.h \
+    qtBlokLib/parsers/pressure.h \
+    qtBlokLib/parsers/mvd_dd.h \
+    qtBlokLib/parsers/mp_state.h \
+    qtBlokLib/parsers/mm_coord.h \
+    qtBlokLib/parsers/mm_alt_long.h \
+    qtBlokLib/parsers/display_state.h \
+    qtBlokLib/parsers/console_key.h \
+    qtBlokLib/parsers/canblokmessage.h \
+    qtBlokLib/parsers/aux_resource.h \
+    qtBlokLib/parsers/autolockmode.h \
+    AuxResourceAnswer.h
 
 QMAKE_CXXFLAGS += -std=c++0x
 

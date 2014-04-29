@@ -17,11 +17,14 @@ Can *can;
 #include "qtCanLib/dummycan.h"
 #endif
 
+#include "qtBlokLib/parser.h"
+
 using namespace IsoTpFrames;
 using namespace IsoTp;
 using namespace Fudp;
 
 CanProgWorker *canProgWorker;
+Parser *blokMessage;
 
 int main(int argc, char *argv[])
 {
@@ -35,11 +38,15 @@ int main(int argc, char *argv[])
     can = new DummyCan ();
     #endif
 
+    blokMessage = new Parser (can);
+
         QTextCodec::setCodecForTr(QTextCodec::codecForName("utf-8"));
+
+        qDebug() << "PROFILAKTIKA";
 
     if (a.arguments ().size () >= 3)
     {
-        canProgWorker = new CanProgWorker (can, a.arguments ().at(1), a.arguments ().at (2), a.arguments ().at (3));
+        canProgWorker = new CanProgWorker (can, blokMessage, a.arguments ().at(1), a.arguments ().at (2), a.arguments ().at (3));
         return a.exec();
     }
     else
