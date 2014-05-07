@@ -67,6 +67,9 @@ void CanProgWorker::run()
     QObject::connect (&prog, SIGNAL(progModeChanged(bool)), updateManager, SLOT(setUpdateMode(bool)));
     QObject::connect (&prog, SIGNAL(crcCheckChanged(bool)), updateManager, SLOT(setIsChecksumOk(bool)));
 
+    processProgModeChange (false);
+    updateManager->setUpdateMode (false);
+
     updateManager->execute ();
     prog.checkFirmware ();
 
@@ -114,7 +117,6 @@ void CanProgWorker::startAuxResourceAnswer()
              && propStore->get (  6, checksum)
             )
         {
-            qDebug() << "create";
             auxResourceAnswer = new AuxResourceAnswer (can, parser, auxModuleNumber, auxDescriptor, version, subversion, checksum);
         }
     }
