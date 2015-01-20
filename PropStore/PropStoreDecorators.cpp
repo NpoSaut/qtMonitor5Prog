@@ -39,7 +39,7 @@ bool PropStoreWithKeyRange::get(quint8 key, qint32 &value) const
     if (isInRange(key))
         return PropStoreDecorator::get (key, value);
     else
-        false;
+        return false;
 }
 
 bool PropStoreWithKeyRange::set(quint8 key, qint32 value)
