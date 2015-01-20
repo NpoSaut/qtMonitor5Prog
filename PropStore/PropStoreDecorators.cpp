@@ -9,14 +9,51 @@ PropStoreWithKeyRange::PropStoreWithKeyRange(PropStore *store, quint8 from, quin
     : PropStoreDecorator (store), from (from), to (to)
 { }
 
-bool PropStoreWithKeyRange::discard()
+
+QList<quint8> PropStoreWithKeyRange::keys() const
 {
-    bool success = true;
+    QList<quint8> result;
+    foreach (quint8 key, PropStoreDecorator::keys ()) {
+        if (isInRange(key))
+            result.append(key);
+    }
+    return result;
+}
 
-    success = PropStoreDecorator::discard () && success;
-    foreach (quint8 key, PropStoreDecorator::keys ())
-        if ( !isInRange (key) )
-            success = PropStoreDecorator::del (key) && success;
+QVector<QPair<quint8, qint32> > PropStoreWithKeyRange::data() const
+{
+    QVector<QPair<quint8, qint32> > result;
+    foreach (quint8 key, PropStoreDecorator::keys ()) {
+        if (isInRange(key))
+        {
+            QPair<quint8, qint32> pair;
+            if (PropStoreDecorator::get(pair.first, pair.second))
+                result.append(pair);
+        }
+    }
+    return result;
+}
 
-    return success;
+bool PropStoreWithKeyRange::get(quint8 key, qint32 &value) const
+{
+    if (isInRange(key))
+        return PropStoreDecorator::get (key, value);
+    else
+        false;
+}
+
+bool PropStoreWithKeyRange::set(quint8 key, qint32 value)
+{
+    if (isInRange(key))
+        return PropStoreDecorator::set(key, value);
+    else
+        return false;
+}
+
+bool PropStoreWithKeyRange::del(quint8 key)
+{
+    if (isInRange(key))
+        return PropStoreDecorator::del (key);
+    else
+        return false;
 }

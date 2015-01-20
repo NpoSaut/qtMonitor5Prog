@@ -37,38 +37,38 @@ private:
     PropStore * const store;
 };
 
+// Выделяет из store только те записи, которые находятся в диапазоне [from, to].
 class PropStoreWithKeyRange : public PropStoreDecorator
 {
 public:
     PropStoreWithKeyRange(PropStore *store, quint8 from, quint8 to);
 
     // Выводит список всех хранимых ключей
-    virtual QList<quint8> keys() const { return PropStoreDecorator::keys (); }
+    virtual QList<quint8> keys() const;
 
     // Возаращает все хранимые данные
-    virtual QVector< QPair<quint8, qint32> > data() const { return PropStoreDecorator::data (); }
+    virtual QVector< QPair<quint8, qint32> > data() const;
 
     // Считать свойство по ключу
     //  Значения возвращается по ссылке, успешность по return
-    virtual bool get (quint8 key, qint32 &value) const { return PropStoreDecorator::get (key, value); }
+    virtual bool get (quint8 key, qint32 &value) const;
 
     // Записать свойство по ключу, если ключь лежит в диапазоне [from, to]
     //  В случае отсутсвия, свойство добавляется. Успешность по return
-    virtual bool set (quint8 key, qint32 value) { return ( isInRange(key) ? PropStoreDecorator::set(key, value) : false ); }
+    virtual bool set (quint8 key, qint32 value);
 
     // Удаляет свойство
     //  Возвращает успешность операции
-    virtual bool del (quint8 key) { return PropStoreDecorator::del (key); }
+    virtual bool del (quint8 key);
 
     // Записывает данные из кеша в хранилище
     virtual bool sync () { return PropStoreDecorator::sync (); }
 
     // Читает данные из хранилища в кеш, затирая его
-    //  при этом все записи с ключами, лежащими вне [from, to] будут удалены из кеша
-    virtual bool discard ();
+    virtual bool discard () { return PropStoreDecorator::discard(); }
 
 private:
-    bool isInRange (quint8 key) { return from <= key && key <= to; }
+    bool isInRange (quint8 key) const { return from <= key && key <= to; }
     quint8 from, to;
 };
 
