@@ -50,7 +50,6 @@ void CanProgWorker::run()
     stores += new PropStoreWithKeyRange (hwStore, 128, 129);
     stores += new PropStoreWithKeyRange (hwStore, 131, 191);
     propStore = new CompositePropStore (stores);
-    qDebug() << "result key set:" << propStore->keys();
 
     CanProg prog (can, propStore, QDir(firmwareRootDirName));
 
