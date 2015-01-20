@@ -42,10 +42,15 @@ void CanProgWorker::run()
     QList<PropStore *> stores;
     stores += new ConstLoaderStore (5, 2, 8, 4);
     QFile pStoreFile (pStoreFileName);
-    stores += new PropStoreWithKeyRange (new FilePropStore (pStoreFile), 0, 127);
+    PropStore *moduleStore = new FilePropStore (pStoreFile);
+    stores += new PropStoreWithKeyRange (moduleStore, 0, 127);
+    stores += new PropStoreWithKeyRange (moduleStore, 130, 130);
     QFile hwStoreFile (hwStoreFileName);
-    stores += new PropStoreWithKeyRange (new FilePropStore (hwStoreFile), 128, 191);
+    PropStore *hwStore = new FilePropStore (hwStoreFile);
+    stores += new PropStoreWithKeyRange (hwStore, 128, 129);
+    stores += new PropStoreWithKeyRange (hwStore, 131, 191);
     propStore = new CompositePropStore (stores);
+    qDebug() << "result key set:" << propStore->keys();
 
     CanProg prog (can, propStore, QDir(firmwareRootDirName));
 
