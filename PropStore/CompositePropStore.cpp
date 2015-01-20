@@ -55,7 +55,7 @@ bool CompositePropStore::del(quint8 key)
 
 bool CompositePropStore::sync()
 {
-    bool success = false;
+    bool success = true;
 
     foreach (PropStore *store, stores)
         success = store->sync () && success;
@@ -65,7 +65,7 @@ bool CompositePropStore::sync()
 
 bool CompositePropStore::discard()
 {
-    bool success = false;
+    bool success = true;
 
     foreach (PropStore *store, stores)
         success = store->discard () && success;
