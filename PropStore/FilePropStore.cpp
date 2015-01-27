@@ -77,21 +77,27 @@ bool FilePropStore::sync()
 
 bool FilePropStore::discard()
 {
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QTextStream fileIn(&file);
-    while (!fileIn.atEnd())
+    if ( file.open(QIODevice::ReadOnly | QIODevice::Text) )
     {
-        QStringList line(fileIn.readLine().split(" "));
-
-        if(line.at(0) != "" && line.size() == 2)
+        QTextStream fileIn(&file);
+        while (!fileIn.atEnd())
         {
-            quint8 key = (quint8) QString(line.at(0)).toInt();
-            qint32 value = (qint32) QString(line.at(1)).toInt();
+            QStringList line(fileIn.readLine().split(" "));
 
-            map[key] = value;
+            if(line.at(0) != "" && line.size() == 2)
+            {
+                quint8 key = (quint8) QString(line.at(0)).toInt();
+                qint32 value = (qint32) QString(line.at(1)).toInt();
+
+                map[key] = value;
+            }
         }
-    }
 
-    file.close();
+        file.close();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

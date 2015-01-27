@@ -26,7 +26,7 @@ QVector<QPair<quint8, qint32> > PropStoreWithKeyRange::data() const
     foreach (quint8 key, PropStoreDecorator::keys ()) {
         if (isInRange(key))
         {
-            QPair<quint8, qint32> pair;
+            QPair<quint8, qint32> pair (key, -1);
             if (PropStoreDecorator::get(pair.first, pair.second))
                 result.append(pair);
         }
