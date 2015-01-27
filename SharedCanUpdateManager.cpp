@@ -7,5 +7,8 @@ SharedCanUpdateManager::SharedCanUpdateManager(ProcessManager *process, QObject 
 
 void SharedCanUpdateManager::applyNewState()
 {
-    process->keepRunning ( !updateMode && crcOk );
+    if ( !updateMode && crcOk)
+        process->start();
+    else
+        process->stop();
 }

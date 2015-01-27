@@ -25,14 +25,14 @@ void ExclusiveCanUpdateManager::applyNewState()
 void ExclusiveCanUpdateManager::startProgram()
 {
     emit startDriverRequest ();
-    process->keepRunning (true);
+    process->start();
 }
 
 void ExclusiveCanUpdateManager::stopProgram()
 {
     emit stopDriverRequest ();
     startDelayTimer.stop ();
-    process->keepRunning (false);
+    process->stop();
 }
 
 void ExclusiveCanUpdateManager::onStartDelayTimerOut()

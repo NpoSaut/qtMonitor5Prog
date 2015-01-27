@@ -53,12 +53,12 @@ void CanProgWorker::run()
 
     CanProg prog (can, propStore, QDir(firmwareRootDirName));
 
-    ProcessManager *processManager = new ProcessManager (firmwareRootDirName, false);
+    ProcessManager *processManager = new ProcessManager (firmwareRootDirName, firmwareRootDirName, firmwareRootDirName);
     UpdateManager *updateManager;
 #ifdef LIB_CAN_NICK
     updateManager = new ExclusiveCanUpdateManager (processManager);
-    QObject::connect ((ExclusiveCanUpdateManager *)processManager, SIGNAL(startDriverRequest()), &canDrv, SLOT(start()));
-    QObject::connect ((ExclusiveCanUpdateManager *)processManager, SIGNAL(stopDriverRequest()), &canDrv, SLOT(stop()));
+    QObject::connect ((ExclusiveCanUpdateManager *)updateManager, SIGNAL(startDriverRequest()), &canDrv, SLOT(start()));
+    QObject::connect ((ExclusiveCanUpdateManager *)updateManager, SIGNAL(stopDriverRequest()), &canDrv, SLOT(stop()));
 #else
     updateManager = new SharedCanUpdateManager (processManager);
 #endif
